@@ -19,7 +19,8 @@ void threads_init() {
 	pthread_t audio_capture_process;
 
 	if (pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL)) {
-		perror("Thread_init ");
+		error();
+		perror(NULL);
 	}
 
 	// pthread_mutex_init(&mutex_audio_capture_buffer_RW, NULL);
@@ -67,11 +68,12 @@ void* thread_audio_capture(void* parameters) {
             snd_pcm_wait(chandle, 1000);
         }
         tsc2 = get_cyclecount();
-        printf("loop cycle time %lu\n", get_cyclediff(tsc1, tsc2));
+        debug("loop cycle time %lu\n", get_cyclediff(tsc1, tsc2));
     }
 
 	buf_end(phandle, chandle);
 
+	pthread_exit(NULL);
 }
 
 void* thread_audio_playback(void* parameters);
