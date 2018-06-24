@@ -17,7 +17,7 @@ pthread_t AVstream_process;
 
 void threads_init() {
 	debug("Threads_init:");
-	pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL)
+	pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL);
 	perror("Thread_init: ");
 	// pthread_mutex_init(&mutex_audio_capture_buffer_RW, NULL);
 	//
