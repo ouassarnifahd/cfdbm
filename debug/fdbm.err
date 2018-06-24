@@ -1,0 +1,68 @@
+src/fdbm.c: In function ‘applyFBDM_simple1’:
+src/fdbm.c:38:54: warning: passing argument 3 of ‘fftwf_plan_dft_r2c_1d’ from incompatible pointer type [-Wincompatible-pointer-types]
+     fftwf_plan_dft_r2c_1d(size, audio_float_bufferR, audio_fft_bufferR, FFTW_PRESERVE_INPUT);
+                                                      ^~~~~~~~~~~~~~~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘float (*)[2]’ but argument is of type ‘double (*)[2]’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:39:54: warning: passing argument 3 of ‘fftwf_plan_dft_r2c_1d’ from incompatible pointer type [-Wincompatible-pointer-types]
+     fftwf_plan_dft_r2c_1d(size, audio_float_bufferL, audio_fft_bufferL, FFTW_PRESERVE_INPUT);
+                                                      ^~~~~~~~~~~~~~~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘float (*)[2]’ but argument is of type ‘double (*)[2]’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:47:33: warning: passing argument 2 of ‘fftwf_plan_dft_c2r_1d’ from incompatible pointer type [-Wincompatible-pointer-types]
+     fftwf_plan_dft_c2r_1d(size, audio_fft_bufferR, audio_float_bufferR, NULL);
+                                 ^~~~~~~~~~~~~~~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘float (*)[2]’ but argument is of type ‘double (*)[2]’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:47:73: warning: passing argument 4 of ‘fftwf_plan_dft_c2r_1d’ makes integer from pointer without a cast [-Wint-conversion]
+     fftwf_plan_dft_c2r_1d(size, audio_fft_bufferR, audio_float_bufferR, NULL);
+                                                                         ^~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘unsigned int’ but argument is of type ‘void *’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:48:33: warning: passing argument 2 of ‘fftwf_plan_dft_c2r_1d’ from incompatible pointer type [-Wincompatible-pointer-types]
+     fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
+                                 ^~~~~~~~~~~~~~~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘float (*)[2]’ but argument is of type ‘double (*)[2]’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:48:73: warning: passing argument 4 of ‘fftwf_plan_dft_c2r_1d’ makes integer from pointer without a cast [-Wint-conversion]
+     fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
+                                                                         ^~~~
+In file included from inc/common.h:13:0,
+                 from src/fdbm.c:1:
+/usr/local/include/fftw3.h:458:1: note: expected ‘unsigned int’ but argument is of type ‘void *’
+ FFTW_DEFINE_API(FFTW_MANGLE_FLOAT, float, fftwf_complex)
+ ^
+src/fdbm.c:51:61: warning: passing argument 3 of ‘set_buffer_LR’ from incompatible pointer type [-Wincompatible-pointer-types]
+     set_buffer_LR(audio_float_bufferR, audio_float_bufferL, buffer, size);
+                                                             ^~~~~~
+src/fdbm.c:24:13: note: expected ‘short int *’ but argument is of type ‘char *’
+ static void set_buffer_LR(const float const * R, const float const * L, short* buffer, int size) {
+             ^~~~~~~~~~~~~
+In file included from src/fdbm.c:1:0:
+src/fdbm.c: At top level:
+inc/common.h:19:22: warning: inline function ‘get_cyclediff’ declared but never defined
+ inline unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2);
+                      ^~~~~~~~~~~~~
+inc/common.h:18:22: warning: inline function ‘get_cyclecount’ declared but never defined
+ inline unsigned long get_cyclecount(void);
+                      ^~~~~~~~~~~~~~
+In file included from inc/common.h:15:0,
+                 from src/fdbm.c:1:
+inc/error.h:20:16: warning: ‘logfile’ defined but not used [-Wunused-variable]
+   static FILE* logfile = NULL;
+                ^~~~~~~

@@ -1,0 +1,17 @@
+In file included from src/alsa_wrapper.c:1:0:
+inc/common.h:19:22: warning: inline function ‘get_cyclediff’ declared but never defined
+ inline unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2);
+                      ^~~~~~~~~~~~~
+inc/common.h:18:22: warning: inline function ‘get_cyclecount’ declared but never defined
+ inline unsigned long get_cyclecount(void);
+                      ^~~~~~~~~~~~~~
+src/alsa_wrapper.c: In function ‘buf_init’:
+src/alsa_wrapper.c:352:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+In file included from inc/common.h:15:0,
+                 from src/alsa_wrapper.c:1:
+At top level:
+inc/error.h:20:16: warning: ‘logfile’ defined but not used [-Wunused-variable]
+   static FILE* logfile = NULL;
+                ^~~~~~~

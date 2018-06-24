@@ -1,0 +1,35 @@
+src/threads.c: In function ‘threads_init’:
+src/threads.c:29:15: warning: passing argument 1 of ‘pthread_join’ makes integer from pointer without a cast [-Wint-conversion]
+  pthread_join(&audio_capture_process, NULL);
+               ^
+In file included from inc/common.h:7:0,
+                 from src/threads.c:1:
+/usr/include/pthread.h:250:12: note: expected ‘pthread_t {aka long unsigned int}’ but argument is of type ‘pthread_t * {aka long unsigned int *}’
+ extern int pthread_join (pthread_t __th, void **__thread_return);
+            ^~~~~~~~~~~~
+src/threads.c: In function ‘thread_audio_capture’:
+src/threads.c:44:18: warning: unused variable ‘UserInterruption’ [-Wunused-variable]
+     int latency, UserInterruption = 0;
+                  ^~~~~~~~~~~~~~~~
+In file included from src/threads.c:1:0:
+src/threads.c: At top level:
+inc/common.h:19:22: warning: inline function ‘get_cyclediff’ declared but never defined
+ inline unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2);
+                      ^~~~~~~~~~~~~
+inc/common.h:18:22: warning: inline function ‘get_cyclecount’ declared but never defined
+ inline unsigned long get_cyclecount(void);
+                      ^~~~~~~~~~~~~~
+src/threads.c: In function ‘thread_audio_capture’:
+src/threads.c:71:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+src/threads.c: In function ‘thread_fdbm’:
+src/threads.c:83:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+src/threads.c: In function ‘thread_audio_capture’:
+src/threads.c:49:2: warning: ‘phandle’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  buf_init(phandle, chandle, buffer, &latency);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/threads.c:49:2: warning: ‘chandle’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+src/threads.c:49:2: warning: ‘buffer’ may be used uninitialized in this function [-Wmaybe-uninitialized]
