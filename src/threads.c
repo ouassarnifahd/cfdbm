@@ -4,7 +4,6 @@
 #include "threads.h"
 
 // pthread_t* main_process;
-pthread_t audio_capture_process;
 pthread_mutex_t mutex_audio_capture_buffer_RW;
 
 pthread_t fdbm_process;
@@ -17,8 +16,12 @@ pthread_t AVstream_process;
 
 void threads_init() {
 	debug("Threads_init:");
-	pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL);
-	perror("Thread_init: ");
+	pthread_t audio_capture_process;
+
+	if (pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL)) {
+		perror("Thread_init ");
+	}
+
 	// pthread_mutex_init(&mutex_audio_capture_buffer_RW, NULL);
 	//
 	// pthread_create(&fdbm_process, NULL, thread_fdbm, NULL);
