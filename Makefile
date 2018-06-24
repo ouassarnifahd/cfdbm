@@ -1,8 +1,11 @@
 #general
+HOST_ARCH 	:= $(shell uname -m)
 
-#CC    		:= $(shell which arm-linux-gnueabi-gcc)
-
+ifneq ($(HOST_ARCH), armv7l)
+CC    		:= $(shell which arm-linux-gnueabihf-gcc)
+else
 CC		:= $(shell which gcc)
+endif
 
 RM		:= $(shell which rm) -rf
 MKDIR 		:= $(shell which mkdir) -p
@@ -19,11 +22,12 @@ binPath		:= bin
 
 #Flags
 wFlags 		:= -Wall -O3
-Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
+Archs 		:= -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+#LibsPath	:= -L/usr/lib/arm-linux-gnueabihf/
 Frameworks 	:= -lfftw3f -lm -lpthread -lasound
 Libs		:= -I$(libPath) -I/usr/local/include
 CFlags		:= $(wFlags) $(Archs) $(Libs)
-LFlags 		:= $(Frameworks)
+LFlags 		:= $(LibsPath) $(Frameworks)
 
 #Project Name
 Project		:= CFDBM
@@ -118,11 +122,11 @@ dep: depRes $(scr:%m=%srn)
 
 depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
-	$(SHOW)echo "Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
+	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
 	$(SHOW)$(RM) $(scrPath)/*.srn
 
 $(scrPath)/%.srn: $(scrPath)/%.m
-	#$(SHOW)$(OCTAVE) $< 2> $@
+	$(SHOW)#$(OCTAVE) $< 2> $@
 
 #main build
 $(Project): $(obj)
@@ -141,7 +145,6 @@ $(objPath)/%.o: $(srcPath)/%.c
 $(debugPath)/%.o: $(srcPath)/%.c
 	$(SHOW)$(MAKE) directory path=$(dir $@)
 	$(SHOW)$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err
-
 
 directory:
 	$(SHOW)[ -d $(path) ] || echo "$(LRED)Creating $(LPURPLE)Path:$(GREEN) $(path)$(NOCOLOR)"; $(MKDIR) $(path)
