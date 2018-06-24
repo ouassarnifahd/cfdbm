@@ -19,7 +19,7 @@ void threads_init() {
 	pthread_t audio_capture_process;
 
 	if (pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL)) {
-		error();
+		error(NULL);
 		perror(NULL);
 	}
 
