@@ -22,7 +22,7 @@ binPath		:= bin
 
 #Flags
 wFlags 		:= -Wall -O3
-Archs 		:= -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
 #LibsPath	:= -L/usr/lib/arm-linux-gnueabihf/
 Frameworks 	:= -lfftw3f -lm -lpthread -lasound
 Libs		:= -I$(libPath) -I/usr/local/include
