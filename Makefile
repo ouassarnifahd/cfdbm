@@ -1,14 +1,14 @@
 #general
-HOST_ARCH 	:= $(shell uname -m)
+HOST_ARCH	:= $(shell uname -m)
 
 ifneq ($(HOST_ARCH), armv7l)
-CC    		:= $(shell which arm-linux-gnueabihf-gcc)
+CC			:= $(shell which arm-linux-gnueabihf-gcc)
 else
-CC		:= $(shell which gcc)
+CC			:= $(shell which gcc)
 endif
 
-RM		:= $(shell which rm) -rf
-MKDIR 		:= $(shell which mkdir) -p
+RM			:= $(shell which rm) -rf
+MKDIR		:= $(shell which mkdir) -p
 MAKE		:= $(shell which make) --no-print-directory
 OCTAVE		:= $(shell which octave)
 
@@ -23,8 +23,8 @@ binPath		:= bin
 #Flags
 wFlags 		:= -Wall -O3
 Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
-#LibsPath	:= -L/usr/lib/arm-linux-gnueabihf/
-Frameworks 	:= -lfftw3f -lm -lpthread -lasound
+LibsPath	:= -L/usr/lib/arm-linux-gnueabihf
+Frameworks 	:= -lasound -lm -lpthread
 Libs		:= -I$(libPath) -I/usr/local/include
 CFlags		:= $(wFlags) $(Archs) $(Libs)
 LFlags 		:= $(LibsPath) $(Frameworks)
