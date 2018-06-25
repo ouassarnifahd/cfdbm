@@ -10,9 +10,9 @@
 #include <sys/time.h>
 #include <arm_neon.h>
 #include <math.h>
-#include <fftw3.h>
 
 #include "error.h"
+#include "preprocessor.h"
 
 //perf
 inline unsigned long get_cyclecount(void);

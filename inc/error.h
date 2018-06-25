@@ -44,8 +44,10 @@ char out_str[LOG_BUFFER_SIZE];
         exit(0); \
     } \
     time_t now; now = time(NULL); \
+    extern const char BUILD_VERSION; \
     char _date_[13]; char _time_[9]; ctime_date(ctime(&now), _date_); ctime_time(ctime(&now),_time_); \
     fprintf(logfile, "###########################################################\n"); \
+    fprintf(logfile, "# Build Version %lu\n", (unsigned long)BUILD_VERSION); \
     fprintf(logfile, "# Compiled on %s at %s\n", __DATE__, __TIME__); \
     fprintf(logfile, "# Executed on %s at %s\n", _date_, _time_); \
     fprintf(logfile, "###########################################################\n\n"); \

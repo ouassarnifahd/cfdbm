@@ -25,9 +25,12 @@ wFlags 		:= -Wall -O3
 Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
 LibsPath	:= -L/usr/lib/arm-linux-gnueabihf
 Frameworks 	:= -lasound -lm -lpthread
-Libs		:= -I$(libPath) -I/usr/local/include
-CFlags		:= $(wFlags) $(Archs) $(Libs)
-LFlags 		:= $(LibsPath) $(Frameworks)
+Libs		:= -I$(libPath) $(shell arm-linux-gnueabihf-pkg-config --cflags alsa)
+CFLAGS		:= $(wFlags) $(Archs) $(Libs)
+LDFLAGS 	:= $(LibsPath) $(Frameworks)
+
+# build version
+include Makefile.buildver
 
 #Project Name
 Project		:= CFDBM
@@ -152,10 +155,10 @@ directory:
 compile:
 	$(SHOW)if [ $(OBJ) = 'yes' ]; then \
 		echo "$(LRED)Generating $(LPURPLE)Object $(LRED)file:$(GREEN) $(out)$(NOCOLOR)"; \
-		$(CC) -I $(incPath) $(CFlags) $(Flags) -c -o $(out) $(in); \
+		$(CC) -I $(incPath) $(CFLAGS) $(Flags) -c -o $(out) $(in); \
 	else \
 		echo "$(LRED)Generating $(LPURPLE)Binary $(LRED)file:$(GREEN) $(out)$(NOCOLOR)"; \
-		$(CC) -I $(incPath) $(LFlags) $(CFlags) $(Flags) -o $(out) $(objects); \
+		$(CC) -I $(incPath) $(LDFLAGS) $(CFLAGS) $(Flags) -o $(out) $(objects); \
 	fi
 
 mrproper:

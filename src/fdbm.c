@@ -35,8 +35,8 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     get_buffer_LR(samples, size, audio_float_bufferR, audio_float_bufferL);
 
     // 2 fft
-    fftwf_plan_dft_r2c_1d(size, audio_float_bufferR, audio_fft_bufferR, FFTW_PRESERVE_INPUT);
-    fftwf_plan_dft_r2c_1d(size, audio_float_bufferL, audio_fft_bufferL, FFTW_PRESERVE_INPUT);
+    // fftwf_plan_dft_r2c_1d(size, audio_float_bufferR, audio_fft_bufferR, FFTW_PRESERVE_INPUT);
+    // fftwf_plan_dft_r2c_1d(size, audio_float_bufferL, audio_fft_bufferL, FFTW_PRESERVE_INPUT);
 
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
@@ -44,8 +44,8 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     // apply Gain
 
     // 2 ifft
-    fftwf_plan_dft_c2r_1d(size, audio_fft_bufferR, audio_float_bufferR, NULL);
-    fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
+    // fftwf_plan_dft_c2r_1d(size, audio_fft_bufferR, audio_float_bufferR, NULL);
+    // fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
 
     // reassemble
     set_buffer_LR(audio_float_bufferR, audio_float_bufferL, buffer, size);

@@ -6,7 +6,7 @@ int main(int argc, char const *argv[]) {
     debug("FBDM starting...");
 
     // setscheduler();
-    
+
     threads_init();
 
     return EXIT_SUCCESS;
