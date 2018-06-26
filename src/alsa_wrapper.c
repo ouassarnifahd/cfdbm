@@ -340,13 +340,11 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
     debug("pcm_format_set_silence... ok");
 
     if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
-            fprintf(stderr, "write error\n");
-            break;
+            error("write error");
     }
 
     if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
-            fprintf(stderr, "write error\n");
-            break;
+            error("write error");
     }
 
     if ((err = snd_pcm_start(chandle)) < 0) {
