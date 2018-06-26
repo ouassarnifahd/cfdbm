@@ -11,7 +11,7 @@ int channels = 2;
 int buffer_size = 0;                /* auto */
 int period_size = 0;                /* auto */
 int latency_min = 32;               /* in frames / 2 */
-int latency_max = 2 * BUFFER_SIZE;  /* in frames / 2 */
+int latency_max = 2048;             /* in frames / 2 */
 
 int block = 0;                      /* block mode */
 int use_poll = 1;
@@ -200,11 +200,13 @@ int setparams(snd_pcm_t *phandle, snd_pcm_t *chandle, int *bufsize) {
         printf("Prepare error: %s\n", snd_strerror(err));
         exit(0);
     }
+    #ifdef __DEBUG__
     debug("pcm_open playback '%s'... ok", pdevice);
     snd_pcm_dump(phandle, output);
     debug("pcm_open capture '%s'... ok", cdevice);
     snd_pcm_dump(chandle, output);
     fflush(stdout);
+    #endif
     return 0;
 }
 
