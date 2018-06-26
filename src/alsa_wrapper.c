@@ -297,7 +297,7 @@ long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames) {
 
 int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency) {
 
-    int err;
+    int err, frames_out;
 
     err = snd_output_stdio_attach(&output, stdout, 0);
     if (err < 0) {
@@ -338,6 +338,16 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
         error("silence error");
     }
     debug("pcm_format_set_silence... ok");
+
+    if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
+            fprintf(stderr, "write error\n");
+            break;
+    }
+
+    if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
+            fprintf(stderr, "write error\n");
+            break;
+    }
 
     if ((err = snd_pcm_start(chandle)) < 0) {
         error("Go error: %s", snd_strerror(err));
