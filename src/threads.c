@@ -24,7 +24,7 @@ void threads_init() {
 	// }
 
 	thread_audio_capture(NULL);
-		
+
 	// pthread_mutex_init(&mutex_audio_capture_buffer_RW, NULL);
 	//
 	// pthread_create(&fdbm_process, NULL, thread_fdbm, NULL);
@@ -54,6 +54,7 @@ void* thread_audio_capture(void* parameters) {
     size_t frames_in = 0, frames_out = 0, in_max;
 
 	buf_init(phandle, chandle, buffer, &latency);
+	debug("buf_init: Done.");
 
     ok = 1;
     in_max = 0;
@@ -74,6 +75,7 @@ void* thread_audio_capture(void* parameters) {
     }
 
 	buf_end(phandle, chandle);
+	debug("buf_end: Done.");
 
 	pthread_exit(NULL);
 }
