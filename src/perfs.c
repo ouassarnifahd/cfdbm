@@ -37,5 +37,5 @@ void setscheduler(void) {
         fflush(stdout);
         return;
     }
-    warning("!!!Scheduler set to Round Robin with priority %i FAILED!!!\n", sched_param.sched_priority);
+    warning("!!!Scheduler set to Round Robin with priority %i FAILED!!!", sched_param.sched_priority);
 }
