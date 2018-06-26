@@ -25,7 +25,7 @@ wFlags 		:= -Wall -O3
 Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
 LibsPath	:= -L/usr/lib/arm-linux-gnueabihf
 Frameworks 	:= -lasound -lm -lpthread
-Libs		:= -I$(libPath) $(shell arm-linux-gnueabihf-pkg-config --cflags alsa)
+Libs		:= -I$(libPath) $
 CFLAGS		:= $(wFlags) $(Archs) $(Libs)
 LDFLAGS 	:= $(LibsPath) $(Frameworks)
 
