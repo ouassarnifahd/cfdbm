@@ -316,23 +316,23 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
     *latency = latency_min - 4;
     buffer = (char*)raw_audio_capture_buffer; // malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
 
-    printf("Playback device is %s\n", pdevice);
-    printf("Capture device is %s\n", cdevice);
-    printf("Parameters are %iHz, %s, %i channels, %s mode\n", rate, snd_pcm_format_name(format), channels, block ? "blocking" : "non-blocking");
-    printf("Poll mode: %s\n", use_poll ? "yes" : "no");
-    printf("Minimum latency = %i, maximum latency = %i\n", latency_min * 2, latency_max * 2);
+    debug("Playback device is %s", pdevice);
+    debug("Capture device is %s", cdevice);
+    debug("Parameters are %iHz, %s, %i channels, %s mode", rate, snd_pcm_format_name(format), channels, block ? "blocking" : "non-blocking");
+    debug("Poll mode: %s", use_poll ? "yes" : "no");
+    debug("Minimum latency = %i, maximum latency = %i", latency_min * 2, latency_max * 2);
 
     if ((err = snd_pcm_open(&phandle, pdevice, SND_PCM_STREAM_PLAYBACK, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
         printf("Playback open error: %s\n", snd_strerror(err));
         return 0;
     }
-    debug("pcm_open '%s'... ok", pdevice);
+    debug("pcm_open playback '%s'... ok", pdevice);
 
     if ((err = snd_pcm_open(&chandle, cdevice, SND_PCM_STREAM_CAPTURE, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
         return 0;
     }
-    debug("pcm_open '%s'... ok", cdevice);
+    debug("pcm_open capture '%s'... ok", cdevice);
 
     if (setparams(phandle, chandle, latency) < 0)
         exit(0);
