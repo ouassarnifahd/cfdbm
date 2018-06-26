@@ -309,6 +309,8 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
     buffer = malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
     alloc_check(buffer);
 
+    setscheduler();
+
     debug("Playback device is %s", pdevice);
     debug("Capture device is %s", cdevice);
     debug("Parameters are %iHz, %s, %i channels, %s mode", rate, snd_pcm_format_name(format), channels, block ? "blocking" : "non-blocking");

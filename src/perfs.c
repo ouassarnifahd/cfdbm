@@ -28,14 +28,14 @@ unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {
 void setscheduler(void) {
     struct sched_param sched_param;
     if (sched_getparam(0, &sched_param) < 0) {
-        printf("Scheduler getparam failed...\n");
+        warning("Scheduler getparam failed...\n");
         return;
     }
     sched_param.sched_priority = sched_get_priority_max(SCHED_RR);
     if (!sched_setscheduler(0, SCHED_RR, &sched_param)) {
-        printf("Scheduler set to Round Robin with priority %i...\n", sched_param.sched_priority);
+        debug("Scheduler set to Round Robin with priority %i...", sched_param.sched_priority);
         fflush(stdout);
         return;
     }
-    printf("!!!Scheduler set to Round Robin with priority %i FAILED!!!\n", sched_param.sched_priority);
+    warning("!!!Scheduler set to Round Robin with priority %i FAILED!!!\n", sched_param.sched_priority);
 }
