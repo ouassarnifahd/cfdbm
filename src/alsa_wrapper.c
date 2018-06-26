@@ -316,7 +316,8 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
     debug("stdio_attach... ok");
 
     *latency = latency_min - 4;
-    buffer = (char*)raw_audio_capture_buffer; // malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
+    buffer = malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
+    alloc_check(buffer);
 
     debug("Playback device is %s", pdevice);
     debug("Capture device is %s", cdevice);
