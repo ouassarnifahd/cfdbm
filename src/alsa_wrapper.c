@@ -311,6 +311,7 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
         printf("Output failed: %s\n", snd_strerror(err));
         return 0;
     }
+    debug("stdio_attach... ok");
 
     *latency = latency_min - 4;
     buffer = (char*)raw_audio_capture_buffer; // malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
@@ -325,11 +326,13 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
         printf("Playback open error: %s\n", snd_strerror(err));
         return 0;
     }
+    debug("pcm_open '%s'... ok", pdevice);
 
     if ((err = snd_pcm_open(&chandle, cdevice, SND_PCM_STREAM_CAPTURE, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
         return 0;
     }
+    debug("pcm_open '%s'... ok", cdevice);
 
     if (setparams(phandle, chandle, latency) < 0)
         exit(0);
@@ -339,16 +342,19 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
         printf("Streams link error: %s\n", snd_strerror(err));
         exit(0);
     }
+    debug("pcm_link... ok");
 
     if (snd_pcm_format_set_silence(format, buffer, (*latency)*channels) < 0) {
         fprintf(stderr, "silence error\n");
         exit(0);
     }
+    debug("pcm_format_set_silence... ok");
 
     if ((err = snd_pcm_start(chandle)) < 0) {
         printf("Go error: %s\n", snd_strerror(err));
         exit(0);
     }
+    debug("pcm_start... ok");
 }
 
 void buf_end(snd_pcm_t *phandle, snd_pcm_t *chandle) {
