@@ -316,11 +316,11 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
     debug("Minimum latency = %i, maximum latency = %i", latency_min * 2, latency_max * 2);
 
     if ((err = snd_pcm_open(&phandle, pdevice, SND_PCM_STREAM_PLAYBACK, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
-        error("Playback open error: %s\n", snd_strerror(err));
+        error("Playback open error: %s", snd_strerror(err));
     }
 
     if ((err = snd_pcm_open(&chandle, cdevice, SND_PCM_STREAM_CAPTURE, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
-        error("Record open error: %s\n", snd_strerror(err));
+        error("Record open error: %s", snd_strerror(err));
     }
 
     if (setparams(phandle, chandle, latency) < 0)
@@ -328,17 +328,17 @@ int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency)
 
     showlatency(*latency);
     if ((err = snd_pcm_link(chandle, phandle)) < 0) {
-        error("Streams link error: %s\n", snd_strerror(err));
+        error("Streams link error: %s", snd_strerror(err));
     }
     debug("pcm_link... ok");
 
     if (snd_pcm_format_set_silence(format, buffer, (*latency)*channels) < 0) {
-        error("silence error\n");
+        error("silence error");
     }
     debug("pcm_format_set_silence... ok");
 
     if ((err = snd_pcm_start(chandle)) < 0) {
-        error("Go error: %s\n", snd_strerror(err));
+        error("Go error: %s", snd_strerror(err));
     }
     debug("pcm_start... ok");
 }

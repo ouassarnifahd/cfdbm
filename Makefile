@@ -121,7 +121,10 @@ endif
 all: mrproper dep $(TARGETS)
 
 #dep scripts
-dep: depRes $(scr:%m=%srn)
+dep: depRes $(scr:%m=%srn) $()
+
+tools/%: tools/%.c
+	$(SHOW)$(MAKE) compile OBJ='no' out=$@ objects=$<
 
 depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
