@@ -243,6 +243,7 @@ void capture_playback_link(char* buffer, size_t len) {
 
 void capture_playback_unlink() {
     snd_pcm_unlink(capture_handle);
+    debug("audio link destroyed");
 }
 
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {
@@ -266,7 +267,7 @@ long timediff(snd_timestamp_t t1, snd_timestamp_t t2) {
     }
     return (t1.tv_sec * 1000000) + l;
 }
- 
+
 // long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max) {
 //         long r;
 //         do {
