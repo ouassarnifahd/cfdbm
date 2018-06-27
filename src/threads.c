@@ -53,8 +53,8 @@ void* thread_audio(void* parameters) {
 	debug("capture buffer allocated");
 
 	playback_init();
-	playback_buffer = malloc(BUFFER_SIZE * frame_bytes);
-    debug("playback buffer allocated");
+	// playback_buffer = malloc(BUFFER_SIZE * frame_bytes);
+    // debug("playback buffer allocated");
 
     int r, ok = 1;
 
@@ -64,8 +64,8 @@ void* thread_audio(void* parameters) {
         if ((r = capture_read(capture_buffer, BUFFER_SIZE)) < 0)
             ok = 0;
         else {
-            applyFBDM_simple1(buffer, r, 0);
-            if (playback_write(buffer, r) < 0)
+            applyFBDM_simple1(capture_buffer, r, 0);
+            if (playback_write(capture_buffer, r) < 0)
                 ok = 0;
         }
         tsc2 = get_cyclecount();
@@ -77,8 +77,8 @@ void* thread_audio(void* parameters) {
     debug("capture buffer freed");
 
 	playback_end();
-	free(playback_buffer);
-    debug("playback buffer freed");
+	// free(playback_buffer);
+    // debug("playback buffer freed");
 
 	pthread_exit(NULL);
 }
