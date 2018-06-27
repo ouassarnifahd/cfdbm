@@ -61,9 +61,9 @@ void capture_init() {
     debug("capture hw_params freed");
 
     if ((err = snd_pcm_prepare(capture_handle)) < 0) {
-        error("cannot prepare audio interface for use (%s)", snd_strerror (err));
+        error("cannot prepare capture audio interface for use (%s)", snd_strerror (err));
     }
-    debug("audio interface prepared");
+    debug("capture audio interface prepared");
 
 }
 
@@ -141,11 +141,10 @@ void playback_init() {
     snd_pcm_hw_params_free(playback_hw_params);
     debug("playback hw_params freed");
 
-    if ((err = snd_pcm_prepare(capture_handle)) < 0) {
-      error("cannot prepare audio interface for use (%s)",
-               snd_strerror (err));
+    if ((err = snd_pcm_prepare(playback_handle)) < 0) {
+        error("cannot prepare playback audio interface for use (%s)", snd_strerror (err));
     }
-    debug("audio interface prepared");
+    debug("playback audio interface prepared");
 
     /* Resume information */
     // printf("PCM name: '%s'\n", snd_pcm_name(playback_handle));
