@@ -43,20 +43,18 @@ void threads_init() {
 void* thread_audio(void* parameters) {
 	debug("thread_audio_capture: running...");
 
-	char *capture_buffer, *playback_buffer;
+	char *audio_buffer;
 
     // debug
     unsigned long tsc1, tsc2;
 
 	capture_init();
-	capture_buffer = malloc(BUFFER_SIZE * frame_bytes);
-	debug("capture buffer allocated");
-
 	playback_init();
-	// playback_buffer = malloc(BUFFER_SIZE * frame_bytes);
-    // debug("playback buffer allocated");
 
-	capture_playback_sync(capture_buffer, BUFFER_SIZE);
+	audio_buffer = malloc(BUFFER_SIZE * frame_bytes);
+	debug("audio buffer allocated");
+
+	capture_playback_sync(audio_buffer, BUFFER_SIZE);
 
 	setscheduler();
 
