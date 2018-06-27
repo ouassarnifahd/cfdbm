@@ -205,11 +205,9 @@ long playback_write(char* buffer, size_t len) {
             buffer += err * frame_bytes;
             len    -= err;
         }
-        // else if (err == -EPIPE) {
-        //     if ((err2 = snd_pcm_prepare(playback_handle)) < 0) {
-        //         error("cannot prepare capture audio interface for use (%s)", snd_strerror (err2));
-        //     }
-        // }
+        else if (err == -EPIPE) {
+            snd_pcm_recover(playback_handle, err, 1);
+        }
         debug("write = %li, len = %li", err, len);
     } while (err >= 1 && len > 0);
 
