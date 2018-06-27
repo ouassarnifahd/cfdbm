@@ -11,10 +11,11 @@ int channels = 2;
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
 snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
-frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
 
 void capture_init() {
     long err;
+
+    frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
 
     if ((err = snd_pcm_open(&capture_handle, cdevice, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         error("cannot open audio device %s (%s)", cdevice, snd_strerror (err));
