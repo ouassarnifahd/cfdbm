@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
                 gettimestamp(phandle, &p_tstamp);
                 gettimestamp(chandle, &c_tstamp);
 
-                goto __end
+                goto __end;
 #if 0
                 printf("Playback:\n");
                 showstat(phandle, frames_out);
