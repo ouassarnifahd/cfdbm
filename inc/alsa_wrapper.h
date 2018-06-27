@@ -3,7 +3,7 @@
 
 #include <alsa/asoundlib.h>
 
-export int frame_bytes;
+int frame_bytes;
 
 // audio capture
 void capture_init();
