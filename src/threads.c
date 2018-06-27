@@ -63,11 +63,11 @@ void* thread_audio(void* parameters) {
     while (ok) {
         tsc1 = get_cyclecount();
 
-        if ((r = capture_read(capture_buffer, BUFFER_SIZE)) < 0)
+        if ((r = capture_read(audio_buffer, BUFFER_SIZE)) < 0)
             ok = 0;
         else {
-            applyFBDM_simple1(capture_buffer, r, 0);
-            if (playback_write(capture_buffer, r) < 0)
+            applyFBDM_simple1(audio_buffer, r, 0);
+            if (playback_write(audio_buffer, r) < 0)
                 ok = 0;
         }
         tsc2 = get_cyclecount();
@@ -75,7 +75,7 @@ void* thread_audio(void* parameters) {
     }
 
 	capture_end();
-	free(capture_buffer);
+	free(audio_buffer);
     debug("capture buffer freed");
 
 	playback_end();
