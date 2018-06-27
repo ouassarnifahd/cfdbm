@@ -80,8 +80,8 @@ char out_str[LOG_BUFFER_SIZE];
 #ifdef __DEBUG__
     #undef error
     #define error(MSG, ...) {\
-        sprintf(out_str, "\033[0;31m[ERROR]\033[0m (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-        sprintf(log_str, "[ERROR] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+        sprintf(out_str, "\033[0;31m[ ERROR ]\033[0m (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+        sprintf(log_str, "[ ERROR ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
         sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
         strcat(log_str, out_buf); fprintf(stderr, "%s\n", out_str); \
         fflush(stderr); if(__DEBUG__) log(log_str); exit(0); }
@@ -94,8 +94,8 @@ char out_str[LOG_BUFFER_SIZE];
         fflush(stdout); log(log_str); }
     #undef debug
     #define debug(MSG, ...) {\
-        sprintf(out_str, "\033[0;35m[DEBUG]\033[0m (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-        sprintf(log_str, "[DEBUG] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+        sprintf(out_str, "\033[0;35m[ DEBUG ]\033[0m (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+        sprintf(log_str, "[ DEBUG ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
         sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
         strcat(log_str, out_buf); fprintf(stdout, "%s\n", out_str); \
         fflush(stdout); log(log_str); }
