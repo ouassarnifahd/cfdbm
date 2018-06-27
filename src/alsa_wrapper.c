@@ -2,8 +2,8 @@
 #include "alsa_wrapper.h"
 #include "buffer_data.h"
 
-char *pdevice = "hw:0,0";       /* playback device */
-char *cdevice = "hw:0,0";       /* capture  device */
+char *pdevice = "hw:0,16";       /* playback device */
+char *cdevice = "hw:0,24";       /* capture  device */
 
 snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 int rate = 16000;
