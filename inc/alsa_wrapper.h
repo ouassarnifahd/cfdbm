@@ -3,10 +3,23 @@
 
 #include <alsa/asoundlib.h>
 
-int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char *buffer, int *latency);
+export int frame_bytes;
 
-void buf_end(snd_pcm_t *phandle, snd_pcm_t *chandle);
+// audio capture
+void capture_init();
 
+void capture_end();
+
+long capture_read(char* buffer, size_t len);
+
+// audio playback
+void playback_init();
+
+void playback_end();
+
+long playback_write(char* buffer, size_t len);
+
+// old API
 long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max);
 
 long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames);

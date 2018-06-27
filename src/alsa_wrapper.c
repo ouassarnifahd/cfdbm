@@ -5,225 +5,211 @@
 char *pdevice = "hw:0,0";       /* playback device */
 char *cdevice = "hw:0,0";       /* capture  device */
 
-snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 int rate = 16000;
 int channels = 2;
-int buffer_size = 0;                /* auto */
-int period_size = 0;                /* auto */
-int latency_min = 32;               /* in frames / 2 */
-int latency_max = 2048;             /* in frames / 2 */
+int frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
 
-int block = 0;                      /* block mode */
-int use_poll = 1;
-int resample = 1;
+snd_pcm_t *capture_handle, *playback_handle;
+snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
+snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
-snd_output_t *output = NULL;
+void capture_init() {
+    long err;
 
-int setparams_stream(snd_pcm_t *handle, snd_pcm_hw_params_t *params, const char *id) {
-    int err;
-    unsigned int rrate;
-    err = snd_pcm_hw_params_any(handle, params);
-    if (err < 0) {
-        warning("Broken configuration for %s PCM: no configurations available: %s\n", snd_strerror(err), id);
-        return err;
+    if ((err = snd_pcm_open(&capture_handle, cdevice, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
+        error("cannot open audio device %s (%s)", cdevice, snd_strerror (err));
     }
-    err = snd_pcm_hw_params_set_rate_resample(handle, params, resample);
-    if (err < 0) {
-        warning("Resample setup failed for %s (val %i): %s\n", id, resample, snd_strerror(err));
-        return err;
+    debug("audio capture interface opened");
+
+    if ((err = snd_pcm_hw_params_malloc(&capture_hw_params)) < 0) {
+        error("cannot allocate hardware parameter structure (%s)", snd_strerror (err));
     }
-    err = snd_pcm_hw_params_set_access(handle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
-    if (err < 0) {
-        warning("Access type not available for %s: %s\n", id, snd_strerror(err));
-        return err;
+    debug("capture hw_params allocated");
+
+    if ((err = snd_pcm_hw_params_any(capture_handle, capture_hw_params)) < 0) {
+        error("cannot initialize hardware parameter structure (%s)", snd_strerror (err));
     }
-    err = snd_pcm_hw_params_set_format(handle, params, format);
-    if (err < 0) {
-        warning("Sample format not available for %s: %s\n", id, snd_strerror(err));
-        return err;
+    debug("capture hw_params initialized");
+
+    if ((err = snd_pcm_hw_params_set_access(capture_handle, capture_hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
+        error("cannot set access type (%s)", snd_strerror (err));
     }
-    err = snd_pcm_hw_params_set_channels(handle, params, channels);
-    if (err < 0) {
-        warning("Channels count (%i) not available for %s: %s\n", channels, id, snd_strerror(err));
-        return err;
+    debug("capture hw_params access setted");
+
+    if ((err = snd_pcm_hw_params_set_format(capture_handle, capture_hw_params, format)) < 0) {
+        error("cannot set sample format (%s)", snd_strerror (err));
     }
-    rrate = rate;
-    err = snd_pcm_hw_params_set_rate_near(handle, params, &rrate, 0);
-    if (err < 0) {
-        warning("Rate %iHz not available for %s: %s\n", rate, id, snd_strerror(err));
-        return err;
+    debug("capture hw_params format setted");
+
+    if ((err = snd_pcm_hw_params_set_rate_near(capture_handle, capture_hw_params, &rate, 0)) < 0) {
+        error("cannot set sample rate (%s)", snd_strerror (err));
     }
-    if ((int)rrate != rate) {
-        warning("Rate doesn't match (requested %iHz, get %iHz)\n", rate, err);
-        return -EINVAL;
+    debug("capture hw_params rate setted");
+
+    if ((err = snd_pcm_hw_params_set_channels(capture_handle, capture_hw_params, channels)) < 0) {
+        error("cannot set channel count (%s)", snd_strerror (err));
     }
-    return 0;
+    debug("capture hw_params channels setted");
+
+    if ((err = snd_pcm_hw_params(capture_handle, capture_hw_params)) < 0) {
+        error("cannot set parameters (%s)", snd_strerror (err));
+    }
+    debug("capture hw_params setted");
+
+    snd_pcm_hw_params_free(capture_hw_params);
+    debug("capture hw_params freed");
+
+    if ((err = snd_pcm_prepare(capture_handle)) < 0) {
+        error("cannot prepare audio interface for use (%s)", snd_strerror (err));
+    }
+    debug("audio interface prepared");
+
 }
 
-int setparams_bufsize(snd_pcm_t *handle, snd_pcm_hw_params_t *params, snd_pcm_hw_params_t *tparams, snd_pcm_uframes_t bufsize, const char *id) {
-    int err;
-    snd_pcm_uframes_t periodsize;
-    snd_pcm_hw_params_copy(params, tparams);
-    periodsize = bufsize * 2;
-    err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &periodsize);
-    if (err < 0) {
-        warning("Unable to set buffer size %li for %s: %s\n", bufsize * 2, id, snd_strerror(err));
-        return err;
-    }
-    if (period_size > 0)
-        periodsize = period_size;
-    else
-        periodsize /= 2;
-    err = snd_pcm_hw_params_set_period_size_near(handle, params, &periodsize, 0);
-    if (err < 0) {
-        warning("Unable to set period size %li for %s: %s\n", periodsize, id, snd_strerror(err));
-        return err;
-    }
-    return 0;
-}
+long capture_read(char* buffer, size_t len) {
 
-int setparams_set(snd_pcm_t *handle, snd_pcm_hw_params_t *params, snd_pcm_sw_params_t *swparams, const char *id) {
-    int err;
-    snd_pcm_uframes_t val;
-    err = snd_pcm_hw_params(handle, params);
-    if (err < 0) {
-        warning("Unable to set hw params for %s: %s\n", id, snd_strerror(err));
-        return err;
-    }
-    err = snd_pcm_sw_params_current(handle, swparams);
-    if (err < 0) {
-        warning("Unable to determine current swparams for %s: %s\n", id, snd_strerror(err));
-        return err;
-    }
-    err = snd_pcm_sw_params_set_start_threshold(handle, swparams, 0x7fffffff);
-    if (err < 0) {
-        warning("Unable to set start threshold mode for %s: %s\n", id, snd_strerror(err));
-        return err;
-    }
-    if (!block)
-        val = 4;
-    else
-        snd_pcm_hw_params_get_period_size(params, &val, NULL);
-    err = snd_pcm_sw_params_set_avail_min(handle, swparams, val);
-    if (err < 0) {
-        warning("Unable to set avail min for %s: %s\n", id, snd_strerror(err));
-        return err;
-    }
-    err = snd_pcm_sw_params(handle, swparams);
-    if (err < 0) {
-        warning("Unable to set sw params for %s: %s\n", id, snd_strerror(err));
-        return err;
-    }
-    return 0;
-}
+    long err;
 
-int setparams(snd_pcm_t *phandle, snd_pcm_t *chandle, int *bufsize) {
-    int err, last_bufsize = *bufsize;
-    snd_pcm_hw_params_t *pt_params, *ct_params;     /* templates with rate, format and channels */
-    snd_pcm_hw_params_t *p_params, *c_params;
-    snd_pcm_sw_params_t *p_swparams, *c_swparams;
-    snd_pcm_uframes_t p_size, c_size, p_psize, c_psize;
-    unsigned int p_time, c_time;
-    unsigned int val;
-    snd_pcm_hw_params_alloca(&p_params);
-    snd_pcm_hw_params_alloca(&c_params);
-    snd_pcm_hw_params_alloca(&pt_params);
-    snd_pcm_hw_params_alloca(&ct_params);
-    snd_pcm_sw_params_alloca(&p_swparams);
-    snd_pcm_sw_params_alloca(&c_swparams);
-    if ((err = setparams_stream(phandle, pt_params, "playback")) < 0) {
-        error("Unable to set parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    if ((err = setparams_stream(chandle, ct_params, "capture")) < 0) {
-        error("Unable to set parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    if (buffer_size > 0) {
-        *bufsize = buffer_size;
-        goto __set_it;
-    }
-    __again:
-    if (buffer_size > 0)
-        return -1;
-    if (last_bufsize == *bufsize)
-        *bufsize += 4;
-    last_bufsize = *bufsize;
-    if (*bufsize > latency_max)
-        return -1;
-    __set_it:
-    if ((err = setparams_bufsize(phandle, p_params, pt_params, *bufsize, "playback")) < 0) {
-        error("Unable to set sw parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    if ((err = setparams_bufsize(chandle, c_params, ct_params, *bufsize, "capture")) < 0) {
-        error("Unable to set sw parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    snd_pcm_hw_params_get_period_size(p_params, &p_psize, NULL);
-    if (p_psize > (unsigned int)*bufsize)
-        *bufsize = p_psize;
-    snd_pcm_hw_params_get_period_size(c_params, &c_psize, NULL);
-    if (c_psize > (unsigned int)*bufsize)
-        *bufsize = c_psize;
-    snd_pcm_hw_params_get_period_time(p_params, &p_time, NULL);
-    snd_pcm_hw_params_get_period_time(c_params, &c_time, NULL);
-    if (p_time != c_time)
-        goto __again;
-    snd_pcm_hw_params_get_buffer_size(p_params, &p_size);
-    if (p_psize * 2 < p_size) {
-        snd_pcm_hw_params_get_periods_min(p_params, &val, NULL);
-        if (val > 2) {
-            error("playback device does not support 2 periods per buffer\n");
+    do {
+        snd_pcm_wait(capture_handle, 1000);
+        err = snd_pcm_readi(capture_handle, buffer, len);
+        if (err > 0) {
+            buffer += err * frame_bytes;
+            len    -= err;
         }
-        goto __again;
+        debug("read = %li, len = %li", err, len);
+    } while (err >= 1 && len > 0);
+
+    return err;
+}
+
+void capture_end() {
+
+    snd_pcm_close(capture_handle);
+    debug("audio capture interface closed");
+
+}
+
+void playback_init() {
+
+    long err;
+
+    // int buff_size, loops;
+    // seconds  = atoi(argv[3]);
+
+    if (err = snd_pcm_open(&playback_handle, pdevice, SND_PCM_STREAM_PLAYBACK, 0) < 0) {
+        error("cannot open audio device %s (%s)", pdevice, snd_strerror(err));
     }
-    snd_pcm_hw_params_get_buffer_size(c_params, &c_size);
-    if (c_psize * 2 < c_size) {
-        snd_pcm_hw_params_get_periods_min(c_params, &val, NULL);
-        if (val > 2 ) {
-            error("capture device does not support 2 periods per buffer\n");
+    debug("audio playback interface opened");
+
+    if ((err = snd_pcm_hw_params_malloc(&playback_hw_params)) < 0) {
+        error("cannot allocate hardware parameter structure (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params allocated");
+
+    if ((err = snd_pcm_hw_params_any(playback_handle, playback_hw_params)) < 0) {
+        error("cannot initialize hardware parameter structure (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params initialized");
+
+    if ((err = snd_pcm_hw_params_set_access(playback_handle, playback_hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
+        error("cannot set access type (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params access setted");
+
+    if ((err = snd_pcm_hw_params_set_format(playback_handle, playback_hw_params, format)) < 0) {
+        error("cannot set sample format (%s)", snd_strerror(err));
+    }
+    debug("playback hw_params format setted");
+
+    if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, playback_hw_params, &rate, 0)) < 0) {
+        error("cannot set sample rate (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params rate setted");
+
+    if ((err = snd_pcm_hw_params_set_channels(playback_handle, playback_hw_params, channels)) < 0) {
+        error("cannot set channel count (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params channels setted");
+
+    if ((err = snd_pcm_hw_params(playback_handle, playback_hw_params)) < 0) {
+        error("cannot set parameters (%s)", snd_strerror (err));
+    }
+    debug("playback hw_params setted");
+
+    snd_pcm_hw_params_free(playback_hw_params);
+    debug("playback hw_params freed");
+
+    if ((err = snd_pcm_prepare(capture_handle)) < 0) {
+      error("cannot prepare audio interface for use (%s)",
+               snd_strerror (err));
+    }
+    debug("audio interface prepared");
+
+    /* Resume information */
+    // printf("PCM name: '%s'\n", snd_pcm_name(playback_handle));
+    //
+    // printf("PCM state: %s\n", snd_pcm_state_name(snd_pcm_state(playback_handle)));
+    //
+    // snd_pcm_hw_params_get_channels(playback_hw_params, &tmp);
+    // printf("channels: %i ", tmp);
+    //
+    // if (tmp == 1)
+    //     printf("(mono)\n");
+    // else if (tmp == 2)
+    //     printf("(stereo)\n");
+    //
+    // snd_pcm_hw_params_get_rate(playback_hw_params, &tmp, 0);
+    // printf("rate: %d bps\n", tmp);
+    //
+    // printf("seconds: %d\n", seconds);
+    //
+    // /* Allocate buffer to hold single period */
+    // snd_pcm_hw_params_get_period_size(playback_hw_params, &frames, 0);
+    //
+    // buff_size = frames * channels * 2 /* 2 -> sample size */;
+    // snd_pcm_hw_params_get_period_time(playback_hw_params, &tmp, NULL);
+
+    // for (loops = (seconds * 1000000) / tmp; loops > 0; loops--) {
+    //
+    //     if (pcm = read(0, buff, buff_size) == 0) {
+    //         printf("Early end of file.\n");
+    //         return 0;
+    //     }
+    //
+    //     if (pcm = snd_pcm_writei(playback_handle, buff, frames) == -EPIPE) {
+    //         printf("XRUN.\n");
+    //         snd_pcm_prepare(playback_handle);
+    //     } else if (pcm < 0) {
+    //         printf("ERROR. Can't write to PCM device. %s\n", snd_strerror(pcm));
+    //     }
+    //
+    // }
+
+}
+
+long playback_write(char* buffer, size_t len) {
+
+    long err;
+
+    do {
+        snd_pcm_wait(playback_handle, 1000);
+        err = snd_pcm_writei(playback_handle, buffer, len);
+        if (err > 0) {
+            buffer += err * frame_bytes;
+            len    -= err;
         }
-        goto __again;
-    }
-    if ((err = setparams_set(phandle, p_params, p_swparams, "playback")) < 0) {
-        error("Unable to set sw parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    if ((err = setparams_set(chandle, c_params, c_swparams, "capture")) < 0) {
-        error("Unable to set sw parameters for playback stream: %s\n", snd_strerror(err));
-    }
-    if ((err = snd_pcm_prepare(phandle)) < 0) {
-        error("Prepare error: %s\n", snd_strerror(err));
-    }
-    #ifdef __DEBUG__
-    debug("pcm_open playback '%s'... ok", pdevice);
-    snd_pcm_dump(phandle, output);
-    debug("pcm_open capture '%s'... ok", cdevice);
-    snd_pcm_dump(chandle, output);
-    fflush(stdout);
-    #endif
-    return 0;
+        debug("write = %li, len = %li", err, len);
+    } while (err >= 1 && len > 0);
+
+    return err;
+
 }
 
-void showstat(snd_pcm_t *handle, size_t frames) {
-    int err;
-    snd_pcm_status_t *status;
-    snd_pcm_status_alloca(&status);
-    if ((err = snd_pcm_status(handle, status)) < 0) {
-        error("Stream status error: %s\n", snd_strerror(err));
-    }
-    debug("*** frames = %li ***\n", (long)frames);
-    snd_pcm_status_dump(status, output);
-}
-
-void showlatency(size_t latency) {
-    double d;
-    latency *= 2;
-    d = (double)latency / (double)rate;
-    printf("Trying latency %li frames, %.3fus, %.6fms (%.4fHz)\n", (long)latency, d * 1000000, d * 1000, (double)1 / d);
-}
-
-void showinmax(size_t in_max) {
-    double d;
-    debug("Maximum read: %li frames\n", (long)in_max);
-    d = (double)in_max / (double)rate;
-    debug("Maximum read latency: %.3fus, %.6fms (%.4fHz)\n", d * 1000000, d * 1000, (double)1 / d);
+void playback_end() {
+    snd_pcm_drain(playback_handle);
+    snd_pcm_close(playback_handle);
+    debug("audio playback interface closed");
 }
 
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {
@@ -231,7 +217,7 @@ void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {
     snd_pcm_status_t *status;
     snd_pcm_status_alloca(&status);
     if ((err = snd_pcm_status(handle, status)) < 0) {
-        error("Stream status error: %s\n", snd_strerror(err));
+        error("Stream status error: %s", snd_strerror(err));
     }
     snd_pcm_status_get_trigger_tstamp(status, timestamp);
 }
@@ -253,13 +239,14 @@ long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max
         if (!block) {
                 do {
                         r = snd_pcm_readi(handle, buf, len);
+
                 } while (r == -EAGAIN);
                 if (r > 0) {
                         *frames += r;
                         if ((long)*max < r)
                                 *max = r;
                 }
-                debug("read = %li\n", r);
+                debug("read = %li", r);
         } else {
                 int frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
                 do {
@@ -271,7 +258,7 @@ long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max
                                 if ((long)*max < r)
                                         *max = r;
                         }
-                        debug("r = %li, len = %li\n", r, len);
+                        debug("r = %li, len = %li", r, len);
                 } while (r >= 1 && len > 0);
         }
         // showstat(handle, 0);
@@ -284,7 +271,7 @@ long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames) {
                 r = snd_pcm_writei(handle, buf, len);
                 if (r == -EAGAIN)
                         continue;
-                // printf("write = %li\n", r);
+                // printf("write = %li", r);
                 if (r < 0)
                         return r;
                 // showstat(handle, 0);
@@ -293,76 +280,4 @@ long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames) {
                 *frames += r;
         }
         return 0;
-}
-
-int buf_init(snd_pcm_t *phandle, snd_pcm_t *chandle, char* buffer, int *latency) {
-
-    int err, frames_out;
-
-    err = snd_output_stdio_attach(&output, stdout, 0);
-    if (err < 0) {
-        error("Output failed: %s\n", snd_strerror(err));
-    }
-    debug("stdio_attach... ok");
-
-    *latency = latency_min - 4;
-    buffer = malloc((latency_max * snd_pcm_format_width(format) / 8) * 2);
-    alloc_check(buffer);
-
-    setscheduler();
-
-    debug("Playback device is %s", pdevice);
-    debug("Capture device is %s", cdevice);
-    debug("Parameters are %iHz, %s, %i channels, %s mode", rate, snd_pcm_format_name(format), channels, block ? "blocking" : "non-blocking");
-    debug("Poll mode: %s", use_poll ? "yes" : "no");
-    debug("Minimum latency = %i, maximum latency = %i", latency_min * 2, latency_max * 2);
-
-    if ((err = snd_pcm_open(&phandle, pdevice, SND_PCM_STREAM_PLAYBACK, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
-        error("Playback open error: %s", snd_strerror(err));
-    }
-
-    if ((err = snd_pcm_open(&chandle, cdevice, SND_PCM_STREAM_CAPTURE, block ? 0 : SND_PCM_NONBLOCK)) < 0) {
-        error("Record open error: %s", snd_strerror(err));
-    }
-
-    if (setparams(phandle, chandle, latency) < 0)
-        exit(0);
-
-    showlatency(*latency);
-    if ((err = snd_pcm_link(chandle, phandle)) < 0) {
-        error("Streams link error: %s", snd_strerror(err));
-    }
-    debug("pcm_link... ok");
-
-    if (snd_pcm_format_set_silence(format, buffer, (*latency)*channels) < 0) {
-        error("silence error");
-    }
-    debug("pcm_format_set_silence... ok");
-
-    if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
-            error("write error");
-    }
-
-    if (writebuf(phandle, buffer, latency, &frames_out) < 0) {
-            error("write error");
-    }
-
-    if ((err = snd_pcm_start(chandle)) < 0) {
-        error("Go error: %s", snd_strerror(err));
-    }
-    debug("pcm_start... ok");
-}
-
-void buf_end(snd_pcm_t *phandle, snd_pcm_t *chandle) {
-    snd_pcm_drop(chandle);
-    snd_pcm_nonblock(phandle, 0);
-    snd_pcm_drain(phandle);
-    snd_pcm_nonblock(phandle, !block ? 1 : 0);
-
-    snd_pcm_unlink(chandle);
-    snd_pcm_hw_free(phandle);
-    snd_pcm_hw_free(chandle);
-
-    snd_pcm_close(phandle);
-    snd_pcm_close(chandle);
 }

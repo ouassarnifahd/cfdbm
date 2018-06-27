@@ -16,14 +16,14 @@ pthread_t AVstream_process;
 
 void threads_init() {
 	debug("Threads_init:");
-	pthread_t audio_capture_process;
+	pthread_t audio_process;
 
-	// if (pthread_create(&audio_capture_process, NULL, thread_audio_capture, NULL)) {
+	// if (pthread_create(&audio_process, NULL, thread_audio_capture, NULL)) {
 	// 	error(NULL);
 	// 	perror(NULL);
 	// }
 
-	thread_audio_capture(NULL);
+	thread_audio(NULL);
 
 	// pthread_mutex_init(&mutex_audio_capture_buffer_RW, NULL);
 	//
@@ -39,48 +39,48 @@ void threads_init() {
 
 }
 
-void* thread_audio_capture(void* parameters) {
+void* thread_audio(void* parameters) {
 	debug("thread_audio_capture: running...");
 
-	snd_pcm_t *phandle, *chandle;
+	char *capture_buffer, *playback_buffer;
 
     // debug
     unsigned long tsc1, tsc2;
 
-    char *buffer;
-    int latency, UserInterruption = 0;
-    int ok;
-    ssize_t r;
-    size_t frames_in = 0, frames_out = 0, in_max;
+	capture_end();
+	capture_buffer = malloc(BUFFER_SIZE * frame_bytes);
+	debug("capture buffer allocated");
 
-	buf_init(phandle, chandle, buffer, &latency);
-	debug("buf_init: Done.");
+	playback_init();
+	playback_buffer = malloc(BUFFER_SIZE * frame_bytes);
+    debug("playback buffer allocated");
 
-    ok = 1;
-    in_max = 0;
+    int r, ok = 1;
+
     while (ok) {
         tsc1 = get_cyclecount();
 
-        if ((r = readbuf(chandle, buffer, latency, &frames_in, &in_max)) < 0)
+        if ((r = capture_read(capture_buffer, BUFFER_SIZE)) < 0)
             ok = 0;
         else {
             applyFBDM_simple1(buffer, r, 0);
-            if (writebuf(phandle, buffer, r, &frames_out) < 0)
+            if (playback_write(buffer, r) < 0)
                 ok = 0;
-            /* use poll to wait for next event */
-            snd_pcm_wait(chandle, 1000);
         }
         tsc2 = get_cyclecount();
         debug("loop cycle time %lu\n", get_cyclediff(tsc1, tsc2));
     }
 
-	buf_end(phandle, chandle);
-	debug("buf_end: Done.");
+	capture_end();
+	free(capture_buffer);
+    debug("capture buffer freed");
+
+	playback_end();
+	free(playback_buffer);
+    debug("playback buffer freed");
 
 	pthread_exit(NULL);
 }
-
-void* thread_audio_playback(void* parameters);
 
 void* thread_video_capture(void* parameters);
 
