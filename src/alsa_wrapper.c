@@ -204,8 +204,7 @@ long playback_write(char* buffer, size_t len) {
         if (err > 0) {
             buffer += err * frame_bytes;
             len    -= err;
-        }
-        else if (err == -EPIPE) {
+        } else {
             snd_pcm_recover(playback_handle, err, 1);
         }
         debug("write = %li, len = %li", err, len);
