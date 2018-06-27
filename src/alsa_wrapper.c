@@ -214,6 +214,33 @@ long playback_write(char* buffer, size_t len) {
 
 }
 
+void capture_playback_sync(char* buffer, size_t len) {
+    int err
+
+    if ((err = snd_pcm_link(capture_handle, playback_handle)) < 0) {
+        error("Streams link error: %s", snd_strerror(err));
+    }
+    debug("audio link prepared");
+
+    if (snd_pcm_format_set_silence(format, buffer, len * channels) < 0) {
+        error("silence error");
+    }
+    debug("audio silence setted");
+
+    if (playback_write(buffer, len) < 0) {
+        error("write error");
+    }
+    if (playback_write(buffer, len) < 0) {
+        error("write error");
+    }
+
+    if ((err = snd_pcm_start(capture_handle)) < 0) {
+        error("Go error: %s", snd_strerror(err));
+    }
+    debug("audio link start");
+
+}
+
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {
     int err;
     snd_pcm_status_t *status;

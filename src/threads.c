@@ -56,6 +56,8 @@ void* thread_audio(void* parameters) {
 	// playback_buffer = malloc(BUFFER_SIZE * frame_bytes);
     // debug("playback buffer allocated");
 
+	capture_playback_sync(capture_buffer, BUFFER_SIZE);
+
 	setscheduler();
 
     int r, ok = 1;
