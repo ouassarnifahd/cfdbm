@@ -242,8 +242,10 @@ void capture_playback_link(char* buffer, size_t len) {
 }
 
 void capture_playback_unlink() {
+
     snd_pcm_unlink(capture_handle);
     debug("audio link destroyed");
+
 }
 
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {

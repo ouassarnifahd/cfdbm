@@ -4,15 +4,10 @@
 #include "fdbm.h"
 #include "threads.h"
 
-// pthread_t* main_process;
-pthread_mutex_t mutex_audio_capture_buffer_RW;
-
 pthread_t fdbm_process;
 
-pthread_t audio_playback_process;
-pthread_mutex_t mutex_audio_playback_buffer_RW;
-
 pthread_t video_capture_process;
+
 pthread_t AVstream_process;
 
 void threads_init() {

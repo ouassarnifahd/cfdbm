@@ -8,7 +8,6 @@
 #include <sched.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <arm_neon.h>
 #include <math.h>
 
 #include "error.h"
