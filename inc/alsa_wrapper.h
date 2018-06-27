@@ -25,8 +25,8 @@ void capture_playback_unlink();
 
 
 // old API
-long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max);
-
-long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames);
+// long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max);
+//
+// long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames);
 
 #endif /* end of include guard: __HEADER_ALSA_WRAPPER__ */

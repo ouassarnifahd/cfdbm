@@ -266,37 +266,37 @@ long timediff(snd_timestamp_t t1, snd_timestamp_t t2) {
     }
     return (t1.tv_sec * 1000000) + l;
 }
-
-long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max) {
-        long r;
-        do {
-            r = snd_pcm_readi(handle, buf, len);
-            if (r > 0) {
-                buf += r * frame_bytes;
-                len -= r;
-                *frames += r;
-                if ((long)*max < r)
-                    *max = r;
-            }
-            debug("r = %li, len = %li", r, len);
-        } while (r >= 1 && len > 0);
-        // showstat(handle, 0);
-        return r;
-}
-
-long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames) {
-        long r;
-        while (len > 0) {
-                r = snd_pcm_writei(handle, buf, len);
-                if (r == -EAGAIN)
-                        continue;
-                // printf("write = %li", r);
-                if (r < 0)
-                        return r;
-                // showstat(handle, 0);
-                buf += r * 4;
-                len -= r;
-                *frames += r;
-        }
-        return 0;
-}
+ 
+// long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max) {
+//         long r;
+//         do {
+//             r = snd_pcm_readi(handle, buf, len);
+//             if (r > 0) {
+//                 buf += r * frame_bytes;
+//                 len -= r;
+//                 *frames += r;
+//                 if ((long)*max < r)
+//                     *max = r;
+//             }
+//             debug("r = %li, len = %li", r, len);
+//         } while (r >= 1 && len > 0);
+//         // showstat(handle, 0);
+//         return r;
+// }
+//
+// long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames) {
+//         long r;
+//         while (len > 0) {
+//                 r = snd_pcm_writei(handle, buf, len);
+//                 if (r == -EAGAIN)
+//                         continue;
+//                 // printf("write = %li", r);
+//                 if (r < 0)
+//                         return r;
+//                 // showstat(handle, 0);
+//                 buf += r * 4;
+//                 len -= r;
+//                 *frames += r;
+//         }
+//         return 0;
+// }
