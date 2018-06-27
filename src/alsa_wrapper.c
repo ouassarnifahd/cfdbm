@@ -198,6 +198,8 @@ long playback_write(char* buffer, size_t len) {
 
     long err, err2;
 
+    snd_pcm_drain(playback_handle);
+    
     do {
         snd_pcm_wait(playback_handle, 1000);
         err = snd_pcm_writei(playback_handle, buffer, len);
