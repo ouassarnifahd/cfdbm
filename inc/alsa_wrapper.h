@@ -19,6 +19,11 @@ void playback_end();
 
 long playback_write(char* buffer, size_t len);
 
+// link
+void capture_playback_link(char* buffer, size_t len);
+void capture_playback_unlink();
+
+
 // old API
 long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max);
 

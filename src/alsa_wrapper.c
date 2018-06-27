@@ -214,7 +214,7 @@ long playback_write(char* buffer, size_t len) {
 
 }
 
-void capture_playback_sync(char* buffer, size_t len) {
+void capture_playback_link(char* buffer, size_t len) {
     int err;
 
     if ((err = snd_pcm_link(capture_handle, playback_handle)) < 0) {
@@ -239,6 +239,10 @@ void capture_playback_sync(char* buffer, size_t len) {
     }
     debug("audio link start");
 
+}
+
+void capture_playback_unlink() {
+    snd_pcm_unlink(capture_handle);
 }
 
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {

@@ -54,7 +54,7 @@ void* thread_audio(void* parameters) {
 	audio_buffer = malloc(BUFFER_SIZE * frame_bytes);
 	debug("audio buffer allocated");
 
-	capture_playback_sync(audio_buffer, BUFFER_SIZE);
+	capture_playback_link(audio_buffer, BUFFER_SIZE);
 
 	setscheduler();
 
@@ -73,6 +73,8 @@ void* thread_audio(void* parameters) {
         tsc2 = get_cyclecount();
         warning("loop cycle time %lu", get_cyclediff(tsc1, tsc2));
     }
+
+	capture_playback_unlink();
 
 	capture_end();
 	free(audio_buffer);
