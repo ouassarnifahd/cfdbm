@@ -1,5 +1,6 @@
 #include "common.h"
 #include "alsa_wrapper.h"
+#include "buffer_data.h"
 #include "fdbm.h"
 #include "threads.h"
 
