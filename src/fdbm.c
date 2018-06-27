@@ -32,7 +32,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     short* samples = (short*) buffer;
 
     // split
-    get_buffer_LR(samples, size, audio_float_bufferR, audio_float_bufferL);
+    // get_buffer_LR(samples, size, audio_float_bufferR, audio_float_bufferL);
 
     // 2 fft
     // fftwf_plan_dft_r2c_1d(size, audio_float_bufferR, audio_fft_bufferR, FFTW_PRESERVE_INPUT);
@@ -48,7 +48,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     // fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
 
     // reassemble
-    set_buffer_LR(audio_float_bufferR, audio_float_bufferL, buffer, size);
+    // set_buffer_LR(audio_float_bufferR, audio_float_bufferL, buffer, size);
 }
 
 void applyFBDM_simple2(char* buffer, int size, int doa1, int doa2);
