@@ -236,31 +236,17 @@ long timediff(snd_timestamp_t t1, snd_timestamp_t t2) {
 
 long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max) {
         long r;
-        if (!block) {
-                do {
-                        r = snd_pcm_readi(handle, buf, len);
-
-                } while (r == -EAGAIN);
-                if (r > 0) {
-                        *frames += r;
-                        if ((long)*max < r)
-                                *max = r;
-                }
-                debug("read = %li", r);
-        } else {
-                int frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
-                do {
-                        r = snd_pcm_readi(handle, buf, len);
-                        if (r > 0) {
-                                buf += r * frame_bytes;
-                                len -= r;
-                                *frames += r;
-                                if ((long)*max < r)
-                                        *max = r;
-                        }
-                        debug("r = %li, len = %li", r, len);
-                } while (r >= 1 && len > 0);
-        }
+        do {
+            r = snd_pcm_readi(handle, buf, len);
+            if (r > 0) {
+                buf += r * frame_bytes;
+                len -= r;
+                *frames += r;
+                if ((long)*max < r)
+                    *max = r;
+            }
+            debug("r = %li, len = %li", r, len);
+        } while (r >= 1 && len > 0);
         // showstat(handle, 0);
         return r;
 }
