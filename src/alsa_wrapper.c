@@ -188,32 +188,33 @@ void playback_init() {
 
 }
 
+void playback_end() {
+    snd_pcm_drain(playback_handle);
+    snd_pcm_close(playback_handle);
+    debug("audio playback interface closed");
+}
+
 long playback_write(char* buffer, size_t len) {
 
     long err, err2;
 
     do {
-        // snd_pcm_wait(playback_handle, 1000);
+        snd_pcm_wait(playback_handle, 1000);
         err = snd_pcm_writei(playback_handle, buffer, len);
         if (err > 0) {
             buffer += err * frame_bytes;
             len    -= err;
-        } else if (err == -EPIPE) {
-            if ((err2 = snd_pcm_prepare(playback_handle)) < 0) {
-                error("cannot prepare capture audio interface for use (%s)", snd_strerror (err2));
-            }
         }
+        // else if (err == -EPIPE) {
+        //     if ((err2 = snd_pcm_prepare(playback_handle)) < 0) {
+        //         error("cannot prepare capture audio interface for use (%s)", snd_strerror (err2));
+        //     }
+        // }
         debug("write = %li, len = %li", err, len);
     } while (err >= 1 && len > 0);
 
     return err;
 
-}
-
-void playback_end() {
-    snd_pcm_drain(playback_handle);
-    snd_pcm_close(playback_handle);
-    debug("audio playback interface closed");
 }
 
 void gettimestamp(snd_pcm_t *handle, snd_timestamp_t *timestamp) {
