@@ -234,9 +234,9 @@ void capture_playback_link(char* buffer, size_t len) {
         error("write error");
     }
 
-    if ((err = snd_pcm_start(capture_handle)) < 0) {
-        error("Go error: %s", snd_strerror(err));
-    }
+    // if ((err = snd_pcm_start(capture_handle)) < 0) {
+    //     error("Go error: %s", snd_strerror(err));
+    // }
     debug("audio link start");
 
 }
