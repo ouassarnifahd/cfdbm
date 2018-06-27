@@ -215,7 +215,7 @@ long playback_write(char* buffer, size_t len) {
 }
 
 void capture_playback_sync(char* buffer, size_t len) {
-    int err
+    int err;
 
     if ((err = snd_pcm_link(capture_handle, playback_handle)) < 0) {
         error("Streams link error: %s", snd_strerror(err));
