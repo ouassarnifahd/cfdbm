@@ -69,7 +69,7 @@ void* thread_audio(void* parameters) {
                 ok = 0;
         }
         tsc2 = get_cyclecount();
-        debug("loop cycle time %lu\n", get_cyclediff(tsc1, tsc2));
+        warning("loop cycle time %lu", get_cyclediff(tsc1, tsc2));
     }
 
 	capture_end();
