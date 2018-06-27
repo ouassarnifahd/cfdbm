@@ -63,7 +63,7 @@ void* thread_audio(void* parameters) {
     while (ok) {
         tsc1 = get_cyclecount();
 
-        if ((r = capture_read(capture_buffer, BUFFER_SIZE)) < 0)
+        if ((r = capture_read(capture_buffer, BUFFER_SIZE / 2)) < 0)
             ok = 0;
         else {
             applyFBDM_simple1(capture_buffer, r, 0);
