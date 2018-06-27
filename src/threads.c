@@ -48,7 +48,7 @@ void* thread_audio(void* parameters) {
     // debug
     unsigned long tsc1, tsc2;
 
-	capture_end();
+	capture_init();
 	capture_buffer = malloc(BUFFER_SIZE * frame_bytes);
 	debug("capture buffer allocated");
 
