@@ -7,11 +7,11 @@ char *cdevice = "hw:0,0";       /* capture  device */
 
 int rate = 16000;
 int channels = 2;
-frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
 
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
 snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
+frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
 
 void capture_init() {
     long err;
