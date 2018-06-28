@@ -1,8 +1,17 @@
 #include "common.h"
 #include "dft.h"
 
-fcomplex_t audio_fft_bufferR[BUFFER_SIZE/2 + 1] = {0};
-fcomplex_t audio_fft_bufferL[BUFFER_SIZE/2 + 1] = {0};
+fcomplex_t audio_fft_bufferR = {
+    audio_re_bufferR,
+    audio_im_bufferR,
+    BUFFER_SIZE/2 + 1
+};
+
+fcomplex_t audio_fft_bufferL = {
+    audio_re_bufferL,
+    audio_im_bufferL,
+    BUFFER_SIZE/2 + 1
+};
 
 // Twiddle factors ( roots of unity)
 const float W[] = {
@@ -53,15 +62,15 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b;
     for (k = 0; k <= len/2; ++k) {
-        X[k]->re = 0; X[k]->im = 0;
+        X->re[k] = 0; X->im[k] = 0;
         a = 0; b = to_sin;
         for (n = 0; n < len; ++n) {
-            X[k]->re += x[n] * W[a % len];
-            X[k]->im -= x[n] * W[b % len];
+            X->re[k] += x[n] * W[a % len];
+            X->im[k] -= x[n] * W[b % len];
             a += k; b += k;
         }
-        P[k] = X[k]->re * X[k]->re + X[k]->im * X[k]->im;
-        A[k] = FastArcTan(X[k]->im / X[k]->re);
+        P[k] = X->re[k] * X->re[k] + X->im[k] * X->im[k];
+        A[k] = FastArcTan(X->im[k] / X->re[k]);
     }
 }
 
@@ -78,13 +87,13 @@ void idft(fcomplex_t* X, float* x, size_t len) {
         a = 0; b = to_sin;
         for (k = 0; k < len; ++k) {
             if (k <= len/2) {
-                x[n] += X[k]->re * W[a % len];
-                x[n] += X[k]->im * W[b % len];
+                x[n] += X->re[k] * W[a % len];
+                x[n] += X->im[k] * W[b % len];
             } else {
-                x[n] += X[k-len/2]->re * W[a % len];
-                x[n] += X[k-len/2]->im * W[b % len];
+                x[n] += X->re[k-len/2] * W[a % len];
+                x[n] += X->im[k-len/2] * W[b % len];
             }
-            a += k; b += k;
+            a += n; b += n;
         }
     }
 

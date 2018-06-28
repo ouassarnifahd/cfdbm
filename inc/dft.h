@@ -4,12 +4,13 @@
 #include "buffer_data.h"
 
 typedef struct {
-    float re;
-    float im;
+    float *re;
+    float *im;
+    size_t len;
 } fcomplex_t;
 
-extern fcomplex_t audio_fft_bufferR[BUFFER_SIZE/2 + 1];
-extern fcomplex_t audio_fft_bufferL[BUFFER_SIZE/2 + 1];
+extern fcomplex_t audio_fft_bufferR;
+extern fcomplex_t audio_fft_bufferL;
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);
 
