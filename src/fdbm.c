@@ -8,17 +8,17 @@
 
 #define limit(min, x, max) ((max<(x))? max : (((x)<min) ? min : (x)))
 
-static void get_buffer_LR(const short const * buffer, int size, float* R, float* L) {
+static void get_buffer_LR(const int16_t* buffer, int size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        R[i] = buffer[2 * i]/(float)SINT16_MAX;
-        L[i] = buffer[2 * i + 1]/(float)SINT16_MAX;
+        L[i] = buffer[2u * i]/(float)SINT16_MAX;
+        R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
     }
 }
 
-static void set_buffer_LR(const float const * R, const float const * L, short* buffer, int size) {
+static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2 * i] = limit(-SINT16_MAX, (short)R[i] * SINT16_MAX, SINT16_MAX);
-        buffer[2 * i + 1] = limit(-SINT16_MAX, (short)L[i] * SINT16_MAX, SINT16_MAX);
+        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
+        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
     }
 }
 
@@ -27,7 +27,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     long tsc1 = get_cyclecount();
     // split
-    get_buffer_LR(samples, size, audio_bufferR, audio_bufferL);
+    get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
     long tsc2 = get_cyclecount();
     warning("spliting cycle time %lu", get_cyclediff(tsc1, tsc2));
 
@@ -48,7 +48,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     warning("2 ifft cycle time %lu", get_cyclediff(tsc1, tsc2));
 
     // reassemble
-    set_buffer_LR(audio_bufferR, audio_bufferL, samples, size);
+    set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
     tsc1 = get_cyclecount();
     warning("reassemble cycle time %lu", get_cyclediff(tsc2, tsc1));
 }
