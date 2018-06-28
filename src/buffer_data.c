@@ -1,8 +1,6 @@
 #include "common.h"
 #include "buffer_data.h"
 
-typedef struct {float re, im;} fcomplex_t;
-
 float audio_bufferR[BUFFER_SIZE] = {0};
 float audio_bufferL[BUFFER_SIZE] = {0};
 

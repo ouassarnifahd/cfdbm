@@ -3,7 +3,10 @@
 
 #include "buffer_data.h"
 
-typedef struct {float re, im;} fcomplex_t;
+typedef struct {
+    float re;
+    float im;
+} fcomplex_t;
 
 extern fcomplex_t audio_fft_bufferR[BUFFER_SIZE/2 + 1];
 extern fcomplex_t audio_fft_bufferL[BUFFER_SIZE/2 + 1];
