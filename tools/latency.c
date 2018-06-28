@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
                 gettimestamp(phandle, &p_tstamp);
                 gettimestamp(chandle, &c_tstamp);
 
-                goto __end;
+                // goto __end;
 #if 0
                 printf("Playback:\n");
                 showstat(phandle, frames_out);
@@ -647,7 +647,7 @@ int main(int argc, char *argv[])
                 snd_pcm_hw_free(phandle);
                 snd_pcm_hw_free(chandle);
         }
-__end:
+// __end:
         snd_pcm_close(phandle);
         snd_pcm_close(chandle);
         return 0;
