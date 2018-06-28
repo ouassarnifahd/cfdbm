@@ -12,7 +12,7 @@ static void get_buffer_LR(const int16_t* buffer, int size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
         L[i] = buffer[2u * i]/(float)SINT16_MAX;
         R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
-        log_printf("(L=%f, R=%f)\n", L[i], R[i]);
+        log_printf("(L=%hu, R=%hu) -> (L=%f, R=%f)\n",buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 
@@ -20,7 +20,7 @@ static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int s
     for (register int i = 0; i < size/2; ++i) {
         buffer[2u * i] = limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
         buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
-        log_printf("(L=%hu, R=%hu)\n", buffer[2u * i], buffer[2u * i + 1u]);
+        log_printf("(L=%f, R=%f) -> (L=%hu, R=%hu)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
 

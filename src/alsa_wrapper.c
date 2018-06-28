@@ -226,11 +226,8 @@ void playback_end() {
 
 long playback_write(char* buffer, size_t len) {
 
-    debug("I am in play");
-
     int frames = len / frame_bytes;
     int total = 0;
-    debug("ME");
     while (frames > 0) {
         int written = snd_pcm_writei(playback_handle, buffer, frames);
 
