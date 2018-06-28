@@ -69,19 +69,49 @@ void capture_init() {
 
 long capture_read(char* buffer, size_t len) {
 
-    long err;
+    int read;
 
-    do {
-        snd_pcm_wait(capture_handle, 1000);
-        err = snd_pcm_readi(capture_handle, buffer, len);
-        if (err > 0) {
-            buffer += err * frame_bytes;
-            len    -= err;
+    int frames = len / frame_bytes;
+
+    while (frames > 0) {
+        read = snd_pcm_readi(capture_handle, buffer, frames);
+
+        if (read == -EAGAIN || (read >= 0 && read < frames)) {
+            snd_pcm_wait(capture_handle, 1000);
+        } else if (read == -EPIPE) {
+            if(snd_pcm_prepare(capture_handle) < 0)
+                return -1;
+        } else if (read == -ESTRPIPE) {
+            int err;
+            while ((err = snd_pcm_resume(capture_handle)) == -EAGAIN)
+                sleep(1);   /* wait until suspend flag is released */
+            if (err < 0) {
+                if (snd_pcm_prepare(capture_handle) < 0) {
+                    return -1;
+                }
+            }
+        } else if (read < 0) {
+            return -1;
         }
-        debug("read = %li, len = %li", err, len);
-    } while (err >= 1 && len > 0);
+        printf("Frames to read = %d: Frames allready read = %d\n", frames, read);
+        if (read > 0) {
+            frames -= read;
+            buffer += read * frame_bytes;
+        }
+		printf("Read Success\n");
+    }
 
-    return err;
+    // do {
+    //     snd_pcm_wait(capture_handle, 1000);
+    //     err = snd_pcm_readi(capture_handle, buffer, len);
+    //     if (err > 0) {
+    //         buffer += err * frame_bytes;
+    //         len    -= err;
+    //     }
+    //     debug("read = %li, len = %li", err, len);
+    // } while (err >= 1 && len > 0);
+
+    return len;
 }
 
 void capture_end() {
@@ -196,21 +226,58 @@ void playback_end() {
 
 long playback_write(char* buffer, size_t len) {
 
-    long err, err2;
+    printf("I am in play\n");
 
-    do {
-        snd_pcm_wait(playback_handle, 1000);
-        err = snd_pcm_writei(playback_handle, buffer, len);
-        if (err > 0) {
-            buffer += err * frame_bytes;
-            len    -= err;
-        } else {
-            snd_pcm_recover(playback_handle, err, 1);
+    int frames = len / frame_bytes;
+    int total = 0;
+    printf("ME\n");
+    while (frames > 0) {
+        int written = snd_pcm_writei(playback_handle, pBuf, frames);
+
+        if (written == -EAGAIN || (written >= 0 && written < frames)) {
+            snd_pcm_wait(playback_handle, 1000);
         }
-        debug("write = %li, len = %li", err, len);
-    } while (err >= 1 && len > 0);
+        else if (written == -EPIPE) {
+            if(snd_pcm_prepare(playback_handle) < 0)
+                return -1;
+        } else if (written == -ESTRPIPE) {
+            int err;
+            while ((err = snd_pcm_resume(playback_handle)) == -EAGAIN)
+                sleep(1);   /* wait until suspend flag is released */
+            if (err < 0) {
+                if (snd_pcm_prepare(playback_handle) < 0) {
+                    return -1;
+                }
+            }
+        }
+        else if (written < 0) {
+            return -1;
+        }
 
-    return err;
+        if (written > 0) {
+            total += written;
+            frames -= written;
+            pBuf += written * frame_bytes;
+        }
+        printf("Write Success\n");
+    }
+
+    return total;
+    // long err, err2;
+    //
+    // do {
+    //     snd_pcm_wait(playback_handle, 1000);
+    //     err = snd_pcm_writei(playback_handle, buffer, len);
+    //     if (err > 0) {
+    //         buffer += err * frame_bytes;
+    //         len    -= err;
+    //     } else {
+    //         snd_pcm_recover(playback_handle, err, 1);
+    //     }
+    //     debug("write = %li, len = %li", err, len);
+    // } while (err >= 1 && len > 0);
+    //
+    // return err;
 
 }
 
