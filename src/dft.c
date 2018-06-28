@@ -1,5 +1,5 @@
 #include "common.h"
-#include "buffer_data.h"
+#include "dft.h"
 
 // Twiddle factors ( roots of unity)
 const float W[] = {

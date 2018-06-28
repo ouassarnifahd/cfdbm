@@ -1,6 +1,8 @@
 #ifndef __HEADER_DFT__
 #define __HEADER_DFT__
 
+#include "buffer_data.h"
+
 typedef struct {float re, im;} fcomplex_t;
 
 extern fcomplex_t audio_fft_bufferR[BUFFER_SIZE];
