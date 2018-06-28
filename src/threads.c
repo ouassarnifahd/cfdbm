@@ -47,7 +47,7 @@ void* thread_audio(void* parameters) {
         if ((r = capture_read(audio_buffer, BUFFER_SIZE)) < 0)
             ok = 0;
         else {
-            applyFBDM_simple1(audio_buffer, r, 0);
+            // applyFBDM_simple1(audio_buffer, r, 0);
 
             if (playback_write(audio_buffer, r) < 0)
                 ok = 0;
