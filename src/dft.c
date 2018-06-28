@@ -1,6 +1,9 @@
 #include "common.h"
 #include "dft.h"
 
+fcomplex_t audio_fft_bufferR[BUFFER_SIZE/2 + 1] = {0};
+fcomplex_t audio_fft_bufferL[BUFFER_SIZE/2 + 1] = {0};
+
 // Twiddle factors ( roots of unity)
 const float W[] = {
     1.00000, 0.99970, 0.99880, 0.99729, 0.99518, 0.99248, 0.98918, 0.98528,
