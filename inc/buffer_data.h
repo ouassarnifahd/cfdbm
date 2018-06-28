@@ -1,7 +1,7 @@
 #ifndef __HEADER_BUFFER_DATA__
 #define __HEADER_BUFFER_DATA__
 
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 1024
 #define SINT16_MAX (((1ull<<16)-1)/2)
 
 extern short raw_audio_capture_buffer[2 * BUFFER_SIZE];
