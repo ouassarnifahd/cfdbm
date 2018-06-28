@@ -5,8 +5,8 @@
 
 typedef struct {float re, im;} fcomplex_t;
 
-extern fcomplex_t audio_fft_bufferR[BUFFER_SIZE];
-extern fcomplex_t audio_fft_bufferL[BUFFER_SIZE];
+extern fcomplex_t audio_fft_bufferR[BUFFER_SIZE/2 + 1];
+extern fcomplex_t audio_fft_bufferL[BUFFER_SIZE/2 + 1];
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);
 
