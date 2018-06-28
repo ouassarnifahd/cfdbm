@@ -69,7 +69,7 @@ void* thread_audio(void* parameters) {
         warning("loop cycle time %lu", get_cyclediff(tsc1, tsc2));
     }
 
-	capture_playback_unlink();
+	// capture_playback_unlink();
 
 	capture_end();
 	free(audio_buffer);
