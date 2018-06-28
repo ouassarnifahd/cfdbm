@@ -3,9 +3,9 @@
 
 int main(int argc, char const *argv[]) {
     init_log();
-    debug("FBDM starting...");
+    log_printf("FBDM starting...\n");
 
-    // setscheduler();
+    setscheduler();
 
     threads_init();
 

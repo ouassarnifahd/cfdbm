@@ -1,18 +1,12 @@
 #include "common.h"
 #include "fdbm.h"
+#include "dft.h"
 #include "ipdild_data.h"
 #include "buffer_data.h"
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 
 #define limit(min, x, max) ((max<(x))? max : (((x)<min) ? min : (x)))
-
-// fftw_plan fftw_plan_dft_r2c_1d(int n, double *in, fftw_complex *out, unsigned flags);
-// fftw_plan fftw_plan_dft_c2r_1d(int n, fftw_complex *in, double *out, unsigned flags);
-
-// static void mult_signal_by_sine_windows(short* signal, int size) {
-//
-// }
 
 static void get_buffer_LR(const short const * buffer, int size, float* R, float* L) {
     for (register int i = 0; i < size/2; ++i) {
@@ -32,11 +26,11 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     short* samples = (short*) buffer;
 
     // split
-    // get_buffer_LR(samples, size, audio_float_bufferR, audio_float_bufferL);
+    get_buffer_LR(samples, size, audio_bufferR, audio_bufferL);
 
     // 2 fft
-    // fftwf_plan_dft_r2c_1d(size, audio_float_bufferR, audio_fft_bufferR, FFTW_PRESERVE_INPUT);
-    // fftwf_plan_dft_r2c_1d(size, audio_float_bufferL, audio_fft_bufferL, FFTW_PRESERVE_INPUT);
+    dft_pow_ang(audio_bufferR, audio_fft_bufferR, audio_power_bufferR, audio_angle_bufferR, size);
+    dft_pow_ang(audio_bufferL, audio_fft_bufferL, audio_power_bufferL, audio_angle_bufferL, size);
 
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
@@ -44,11 +38,11 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     // apply Gain
 
     // 2 ifft
-    // fftwf_plan_dft_c2r_1d(size, audio_fft_bufferR, audio_float_bufferR, NULL);
-    // fftwf_plan_dft_c2r_1d(size, audio_fft_bufferL, audio_float_bufferL, NULL);
+    idft(audio_fft_bufferR, audio_bufferR, size);
+    idft(audio_fft_bufferL, audio_bufferL, size);
 
     // reassemble
-    // set_buffer_LR(audio_float_bufferR, audio_float_bufferL, buffer, size);
+    set_buffer_LR(audio_bufferR, audio_bufferL, buffer, size);
 }
 
 void applyFBDM_simple2(char* buffer, int size, int doa1, int doa2);

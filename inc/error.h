@@ -100,8 +100,8 @@ char out_str[LOG_BUFFER_SIZE];
         strcat(log_str, out_buf); fprintf(stdout, "%s\n", out_str); \
         fflush(stdout); log(log_str); }
 
-    #undef Mat_printf
-    #define Mat_printf(MSG, ...) {\
+    #undef log_printf
+    #define log_printf(MSG, ...) {\
         sprintf(log_str, MSG, ##__VA_ARGS__); \
         fprintf(stdout, "%s", log_str); log(log_str); }
 #endif
