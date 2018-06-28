@@ -50,7 +50,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     warning("2 ifft cycle time %lu", get_cyclediff(tsc1, tsc2));
 
     // reassemble
-    set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
+    // set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
     tsc1 = get_cyclecount();
     warning("reassemble cycle time %lu", get_cyclediff(tsc2, tsc1));
 }
