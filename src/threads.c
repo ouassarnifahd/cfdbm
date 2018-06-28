@@ -42,7 +42,7 @@ void* thread_audio(void* parameters) {
     int r, ok = 1;
 
     while (ok) {
-        // tsc1 = get_cyclecount();
+        // long tsc = get_cyclecount();
 
         if ((r = capture_read(audio_buffer, BUFFER_SIZE)) < 0)
             ok = 0;
@@ -52,8 +52,7 @@ void* thread_audio(void* parameters) {
             if (playback_write(audio_buffer, r) < 0)
                 ok = 0;
         }
-        // tsc2 = get_cyclecount();
-        // warning("loop cycle time %lu", get_cyclediff(tsc1, tsc2));
+        // warning("loop cycle time %lu", get_cyclediff(tsc, get_cyclecount()));
     }
 
 	capture_end();
