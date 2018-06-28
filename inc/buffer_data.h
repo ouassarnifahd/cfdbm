@@ -1,7 +1,7 @@
 #ifndef __HEADER_BUFFER_DATA__
 #define __HEADER_BUFFER_DATA__
 
-#define BUFFER_SIZE 64
+#define BUFFER_SIZE 256
 #define SINT16_MAX (((1ull<<16)-1)/2)
 
 extern float audio_bufferR[BUFFER_SIZE];
