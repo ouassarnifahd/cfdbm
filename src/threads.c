@@ -7,20 +7,20 @@
 void threads_init() {
 	debug("Threads_init:");
 
-	pthread_t audio_process;
+	pthread_t audio_process, fdbm_process;
 	if (pthread_create(&audio_process, NULL, thread_audio, NULL)) {
 		error("audio_process init failed"); perror(NULL);
 	}
 
 	// thread_audio(NULL);
 
-	if(pthread_create(&fdbm_process, NULL, thread_fdbm, NULL)) {
-		error("fdbm_process init failed"); perror(NULL);
-	}
+	// if(pthread_create(&fdbm_process, NULL, thread_fdbm, NULL)) {
+	// 	error("fdbm_process init failed"); perror(NULL);
+	// }
 
 
-	pthread_join(&audio_process, NULL);
-	pthread_join(&fdbm_process, NULL);
+	pthread_join(audio_process, NULL);
+	// pthread_join(fdbm_process, NULL);
 
 }
 
@@ -71,6 +71,6 @@ void* thread_AVstream(void* parameters);
 
 void* thread_fdbm(void* parameters) {
 
-	// applyFBDM_simple1();
+	//applyFBDM_simple1();
 
 }
