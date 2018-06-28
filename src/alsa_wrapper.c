@@ -232,7 +232,7 @@ long playback_write(char* buffer, size_t len) {
     int total = 0;
     printf("ME\n");
     while (frames > 0) {
-        int written = snd_pcm_writei(playback_handle, pBuf, frames);
+        int written = snd_pcm_writei(playback_handle, buffer, frames);
 
         if (written == -EAGAIN || (written >= 0 && written < frames)) {
             snd_pcm_wait(playback_handle, 1000);
@@ -257,7 +257,7 @@ long playback_write(char* buffer, size_t len) {
         if (written > 0) {
             total += written;
             frames -= written;
-            pBuf += written * frame_bytes;
+            buffer += written * frame_bytes;
         }
         printf("Write Success\n");
     }
