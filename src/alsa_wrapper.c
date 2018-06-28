@@ -93,12 +93,12 @@ long capture_read(char* buffer, size_t len) {
         } else if (read < 0) {
             return -1;
         }
-        printf("Frames to read = %d: Frames allready read = %d\n", frames, read);
+        debug("Frames to read = %d: Frames allready read = %d", frames, read);
         if (read > 0) {
             frames -= read;
             buffer += read * frame_bytes;
         }
-		printf("Read Success\n");
+		debug("Read Success");
     }
 
     // do {
@@ -177,22 +177,22 @@ void playback_init() {
     debug("playback audio interface prepared");
 
     /* Resume information */
-    // printf("PCM name: '%s'\n", snd_pcm_name(playback_handle));
+    // debug("PCM name: '%s'", snd_pcm_name(playback_handle));
     //
-    // printf("PCM state: %s\n", snd_pcm_state_name(snd_pcm_state(playback_handle)));
+    // debug("PCM state: %s", snd_pcm_state_name(snd_pcm_state(playback_handle)));
     //
     // snd_pcm_hw_params_get_channels(playback_hw_params, &tmp);
-    // printf("channels: %i ", tmp);
+    // debug("channels: %i ", tmp);
     //
     // if (tmp == 1)
-    //     printf("(mono)\n");
+    //     debug("(mono)");
     // else if (tmp == 2)
-    //     printf("(stereo)\n");
+    //     debug("(stereo)");
     //
     // snd_pcm_hw_params_get_rate(playback_hw_params, &tmp, 0);
-    // printf("rate: %d bps\n", tmp);
+    // debug("rate: %d bps", tmp);
     //
-    // printf("seconds: %d\n", seconds);
+    // debug("seconds: %d", seconds);
     //
     // /* Allocate buffer to hold single period */
     // snd_pcm_hw_params_get_period_size(playback_hw_params, &frames, 0);
@@ -203,15 +203,15 @@ void playback_init() {
     // for (loops = (seconds * 1000000) / tmp; loops > 0; loops--) {
     //
     //     if (pcm = read(0, buff, buff_size) == 0) {
-    //         printf("Early end of file.\n");
+    //         debug("Early end of file.");
     //         return 0;
     //     }
     //
     //     if (pcm = snd_pcm_writei(playback_handle, buff, frames) == -EPIPE) {
-    //         printf("XRUN.\n");
+    //         debug("XRUN.");
     //         snd_pcm_prepare(playback_handle);
     //     } else if (pcm < 0) {
-    //         printf("ERROR. Can't write to PCM device. %s\n", snd_strerror(pcm));
+    //         debug("ERROR. Can't write to PCM device. %s", snd_strerror(pcm));
     //     }
     //
     // }
@@ -226,11 +226,11 @@ void playback_end() {
 
 long playback_write(char* buffer, size_t len) {
 
-    printf("I am in play\n");
+    debug("I am in play");
 
     int frames = len / frame_bytes;
     int total = 0;
-    printf("ME\n");
+    debug("ME");
     while (frames > 0) {
         int written = snd_pcm_writei(playback_handle, buffer, frames);
 
@@ -259,7 +259,7 @@ long playback_write(char* buffer, size_t len) {
             frames -= written;
             buffer += written * frame_bytes;
         }
-        printf("Write Success\n");
+        debug("Write Success");
     }
 
     return total;
