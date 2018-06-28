@@ -33,7 +33,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     // 2 fft
     dft_pow_ang(audio_bufferR, &audio_fft_bufferR, audio_power_bufferR, audio_angle_bufferR, size);
-    dft_pow_ang(audio_bufferL, &audio_fft_bufferL, audio_power_bufferL, audio_angle_bufferL, size);
+    // dft_pow_ang(audio_bufferL, &audio_fft_bufferL, audio_power_bufferL, audio_angle_bufferL, size);
     tsc1 = get_cyclecount();
     warning("2 fft cycle time %lu", get_cyclediff(tsc2, tsc1));
     // compare with DataBase (dicotomie):
@@ -43,7 +43,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     // 2 ifft
     idft(&audio_fft_bufferR, audio_bufferR, size);
-    idft(&audio_fft_bufferL, audio_bufferL, size);
+    // idft(&audio_fft_bufferL, audio_bufferL, size);
     tsc2 = get_cyclecount();
     warning("2 ifft cycle time %lu", get_cyclediff(tsc1, tsc2));
 
