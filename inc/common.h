@@ -14,8 +14,8 @@
 #include "preprocessor.h"
 
 //perf
-inline unsigned long get_cyclecount(void);
-inline unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2);
+unsigned long get_cyclecount(void);
+unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2);
 
 void setscheduler(void);
 
