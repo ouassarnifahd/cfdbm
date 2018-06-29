@@ -29,30 +29,34 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     long tsc1 = get_cyclecount();
     // split
-    // get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
+    get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
     long tsc2 = get_cyclecount();
     warning("spliting cycle time %lu", get_cyclediff(tsc1, tsc2));
 
+    tsc1 = get_cyclecount();
     // 2 fft
     // dft_pow_ang(audio_bufferR, &audio_fft_bufferR, audio_power_bufferR, audio_angle_bufferR, size);
     // dft_pow_ang(audio_bufferL, &audio_fft_bufferL, audio_power_bufferL, audio_angle_bufferL, size);
-    tsc1 = get_cyclecount();
-    warning("2 fft cycle time %lu", get_cyclediff(tsc2, tsc1));
+    tsc2 = get_cyclecount();
+    warning("2 fft cycle time %lu", get_cyclediff(tsc1, tsc2));
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
 
     // apply Gain
 
+
+    tsc1 = get_cyclecount();
     // 2 ifft
     // idft(&audio_fft_bufferR, audio_bufferR, size);
     // idft(&audio_fft_bufferL, audio_bufferL, size);
     tsc2 = get_cyclecount();
     warning("2 ifft cycle time %lu", get_cyclediff(tsc1, tsc2));
 
+    tsc1 = get_cyclecount();
     // reassemble
     // set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
-    tsc1 = get_cyclecount();
-    warning("reassemble cycle time %lu", get_cyclediff(tsc2, tsc1));
+    tsc2 = get_cyclecount();
+    warning("reassemble cycle time %lu", get_cyclediff(tsc1, tsc2));
 }
 
 void applyFBDM_simple2(char* buffer, int size, int doa1, int doa2);
