@@ -2,7 +2,7 @@
 #define __HEADER_BUFFER_DATA__
 
 // time spent in capture = n / rate = 32 ms
-#define RAW_BUFFER_SIZE (256)
+#define RAW_BUFFER_SIZE (512)
 #define CHANNEL_BUFFER_SIZE (RAW_BUFFER_SIZE/2)
 
 // #define
