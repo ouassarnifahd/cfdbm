@@ -4,8 +4,8 @@
 #include "buffer_data.h"
 
 typedef struct {
-    double *re;
-    double *im;
+    float *re;
+    float *im;
 } fcomplex_t;
 
 extern fcomplex_t fft_R;

@@ -102,7 +102,7 @@ void dft2_IPD_ILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* I
     // time and frequency domain data arrays
     int n, k;      // time and frequency domain indices
     float Xr_l_re, Xr_l_im, P;
-    
+
     // Calculate DFT and power spectrum up to Nyquist frequency
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b;
@@ -156,7 +156,30 @@ void idft(fcomplex_t* X, float* x, size_t len) {
 }
 
 void idft2(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t len) {
+    // time and frequency domain data arrays
+    int n, k;      // time and frequency domain indices
 
+    // Calculate IDFT
+    int to_sin = 3 * len / 4; // index offset for sin
+    int a, b;
+    for (n = 0; n < len; ++n) {
+        xl[n] = 0; xr[n] = 0;
+        a = 0; b = to_sin;
+        for (k = 0; k < len; ++k) {
+            if (k <= len/2) {
+                xl[n] += Xl->re[k] * W[a % len];
+                xl[n] += Xl->im[k] * W[b % len];
+                xr[n] += Xr->re[k] * W[a % len];
+                xr[n] += Xr->im[k] * W[b % len];
+            } else {
+                xl[n] += Xl->re[k-len/2] * W[a % len];
+                xl[n] += Xl->im[k-len/2] * W[b % len];
+                xr[n] += Xr->re[k-len/2] * W[a % len];
+                xr[n] += Xr->im[k-len/2] * W[b % len];
+            }
+            a += n; b += n;
+        }
+    }
 }
 
 // int main()

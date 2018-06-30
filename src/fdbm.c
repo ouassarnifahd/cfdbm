@@ -8,19 +8,19 @@
 
 #define limit(min, x, max) ((max<(x))? max : (((x)<min) ? min : (x)))
 
-static void get_buffer_LR(const int16_t* buffer, int size, double* L, double* R) {
+static void get_buffer_LR(const int16_t* buffer, int size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = buffer[2u * i]; //(double)SINT16_MAX;
-        R[i] = buffer[2u * i + 1u]; //(double)SINT16_MAX;
-        log_printf("(L=%hi, R=%hi) -> (L=%lf, R=%lf)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
+        L[i] = buffer[2u * i]/(float)SINT16_MAX;
+        R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
+        log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 
-static void set_buffer_LR(const double* L, const double* R, int16_t* buffer, int size) {
+static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int size) {
     for (register int i = 0; i < size/2; ++i) {
         buffer[2u * i] = L[i]; //limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
         buffer[2u * i + 1u] = R[i]; //limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
-        log_printf("(L=%lf, R=%lf) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
+        log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
 
@@ -29,16 +29,15 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     long tsc1 = get_cyclecount();
     // split
-    get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
+    get_buffer_LR(samples, size, audio_L, audio_R);
     long tsc2 = get_cyclecount();
-    warning("spliting cycle time %lu", get_cyclediff(tsc1, tsc2));
+    warning("spliting cycle time %lf ms", get_timediff_ms(tsc1, tsc2));
 
     tsc1 = get_cyclecount();
-    // 2 fft
-    dft_pow_ang(audio_bufferR, &audio_fft_bufferR, audio_power_bufferR, audio_angle_bufferR, size);
-    dft_pow_ang(audio_bufferL, &audio_fft_bufferL, audio_power_bufferL, audio_angle_bufferL, size);
+    // 2D fft
+    dft2_IPD_ILD(audio_L, audio_R, &fft_L, &fft_R, data_ILD, data_IPD, size);
     tsc2 = get_cyclecount();
-    warning("2 fft cycle time %lu", get_cyclediff(tsc1, tsc2));
+    warning("2D fft cycle time %lf ms", get_timediff_ms(tsc1, tsc2));
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
     
@@ -46,17 +45,16 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
 
     tsc1 = get_cyclecount();
-    // 2 ifft
-    idft(&audio_fft_bufferR, audio_bufferR, size);
-    idft(&audio_fft_bufferL, audio_bufferL, size);
+    // 2D ifft
+    idft2(&fft_L, &fft_R, audio_L, audio_R, size);
     tsc2 = get_cyclecount();
-    warning("2 ifft cycle time %lu", get_cyclediff(tsc1, tsc2));
+    warning("2D ifft cycle time %lf ms", get_timediff_ms(tsc1, tsc2));
 
     tsc1 = get_cyclecount();
     // reassemble
-    set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
+    set_buffer_LR(audio_L, audio_R, samples, size);
     tsc2 = get_cyclecount();
-    warning("reassemble cycle time %lu", get_cyclediff(tsc1, tsc2));
+    warning("reassemble cycle time %lf ms", get_timediff_ms(tsc1, tsc2));
 }
 
 void applyFBDM_simple2(char* buffer, int size, int doa1, int doa2);
