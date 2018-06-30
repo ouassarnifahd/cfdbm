@@ -214,7 +214,7 @@ void* thread_fdbm(void* parameters) {
 			applyFBDM_simple1(chunk.buffer, chunk.len, 0);
 			FDBMdone = 1;
 		} else {
-			sleep_ms(5);
+			//sleep_ms(5);
 		}
 	}
 
