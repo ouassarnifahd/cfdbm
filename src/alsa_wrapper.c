@@ -10,7 +10,7 @@ const unsigned int channels = 2;
 
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
-const snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
+snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
 void capture_init() {
     long err;

@@ -22,8 +22,8 @@ binPath		:= bin
 
 #Flags
 wFlags 		:= -Wall -O3
-Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
-# Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
+# Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
+Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
 LibsPath	:= -L/usr/lib/arm-linux-gnueabihf
 Frameworks 	:= -lasound -lm -lpthread
 Libs		:= -I$(libPath)
