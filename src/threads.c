@@ -43,16 +43,16 @@ void threads_init() {
 	// printf("ID: %lu, CPU: %d\n", pthread_self(), sched_getcpu());
 	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
-	capture_init();
-	attach_to_core(&attr_capture, 0);
-	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, NULL)) {
-		error("audio_capture_process init failed"); perror(NULL);
-	}
-
 	playback_init();
 	attach_to_core(&attr_playback, 1);
 	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, NULL)) {
 		error("audio_playback_process init failed"); perror(NULL);
+	}
+
+	capture_init();
+	attach_to_core(&attr_capture, 0);
+	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, NULL)) {
+		error("audio_capture_process init failed"); perror(NULL);
 	}
 
 	attach_to_core(&attr_fdbm, 2);
@@ -147,6 +147,8 @@ void* thread_playback_audio(void* parameters) {
 						sleep_ms(1);
 					}
 				}
+			} else {
+				pthread_mutex_unlock(&mutex_audio_buffer);
 			}
 		}
     }
