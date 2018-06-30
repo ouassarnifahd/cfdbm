@@ -1,6 +1,8 @@
 #ifndef __HEADER_COMMON__
 #define __HEADER_COMMON__
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

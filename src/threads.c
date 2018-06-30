@@ -23,7 +23,7 @@ pthread_mutex_t mutex_audio_buffer = PTHREAD_MUTEX_INITIALIZER;
 
 int startFDBM = 0, FDBMdone = 0;
 
-static inline void attach_to_core(pthread_attr_t* attr, int i) {
+static inline __attribute__((always_inline)) void attach_to_core(pthread_attr_t* attr, int i) {
 	cpu_set_t core_i;
 	CPU_ZERO(&core_i);
 	CPU_SET(i, &core_i);
