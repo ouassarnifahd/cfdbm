@@ -4,19 +4,19 @@
 #define BUFFER_SIZE 256
 #define SINT16_MAX (((1ull<<15)-1))
 
-extern float audio_bufferR[BUFFER_SIZE];
-extern float audio_bufferL[BUFFER_SIZE];
+extern double audio_bufferR[BUFFER_SIZE];
+extern double audio_bufferL[BUFFER_SIZE];
 
-extern float audio_re_bufferR[BUFFER_SIZE/2 + 1];
-extern float audio_im_bufferR[BUFFER_SIZE/2 + 1];
+extern double audio_re_bufferR[BUFFER_SIZE/2 + 1];
+extern double audio_im_bufferR[BUFFER_SIZE/2 + 1];
 
-extern float audio_re_bufferL[BUFFER_SIZE/2 + 1];
-extern float audio_im_bufferL[BUFFER_SIZE/2 + 1];
+extern double audio_re_bufferL[BUFFER_SIZE/2 + 1];
+extern double audio_im_bufferL[BUFFER_SIZE/2 + 1];
 
-extern float audio_power_bufferR[BUFFER_SIZE/2 + 1];
-extern float audio_power_bufferL[BUFFER_SIZE/2 + 1];
+extern double audio_power_bufferR[BUFFER_SIZE/2 + 1];
+extern double audio_power_bufferL[BUFFER_SIZE/2 + 1];
 
-extern float audio_angle_bufferR[BUFFER_SIZE/2 + 1];
-extern float audio_angle_bufferL[BUFFER_SIZE/2 + 1];
+extern double audio_angle_bufferR[BUFFER_SIZE/2 + 1];
+extern double audio_angle_bufferL[BUFFER_SIZE/2 + 1];
 
 #endif /* end of include guard: __HEADER_BUFFER_DATA__ */

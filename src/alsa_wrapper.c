@@ -2,15 +2,15 @@
 #include "alsa_wrapper.h"
 #include "buffer_data.h"
 
-char *pdevice = "hw:0,0";       /* playback device */
-char *cdevice = "hw:0,0";       /* capture  device */
+const char *pdevice = "hw:0,0";       /* playback device */
+const char *cdevice = "hw:0,0";       /* capture  device */
 
-int rate = 16000;
-int channels = 2;
+const unsigned int rate = 16000;
+const unsigned int channels = 2;
 
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
-snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
+const snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
 void capture_init() {
     long err;
@@ -128,7 +128,7 @@ void playback_init() {
     // int buff_size, loops;
     // seconds  = atoi(argv[3]);
 
-    if (err = snd_pcm_open(&playback_handle, pdevice, SND_PCM_STREAM_PLAYBACK, 0) < 0) {
+    if ((err = snd_pcm_open(&playback_handle, pdevice, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         error("cannot open audio device %s (%s)", pdevice, snd_strerror(err));
     }
     debug("audio playback interface opened");

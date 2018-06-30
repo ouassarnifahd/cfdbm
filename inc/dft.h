@@ -6,7 +6,6 @@
 typedef struct {
     float *re;
     float *im;
-    size_t len;
 } fcomplex_t;
 
 extern fcomplex_t audio_fft_bufferR;

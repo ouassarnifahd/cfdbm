@@ -19,6 +19,7 @@ unsigned long get_cyclecount(void) {
             return (unsigned long) pmccntr << 6;  // Should optimize to << 6
         }
     }
+    return 1;
 }
 
 unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {

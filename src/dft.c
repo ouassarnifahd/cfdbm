@@ -4,13 +4,11 @@
 fcomplex_t audio_fft_bufferR = {
     audio_re_bufferR,
     audio_im_bufferR,
-    BUFFER_SIZE/2 + 1
 };
 
 fcomplex_t audio_fft_bufferL = {
     audio_re_bufferL,
     audio_im_bufferL,
-    BUFFER_SIZE/2 + 1
 };
 
 // Twiddle factors ( roots of unity)
