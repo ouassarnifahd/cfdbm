@@ -209,11 +209,15 @@ void* thread_fdbm(void* parameters) {
 	for (;;) {
 		if (startFDBM) {
 			startFDBM = 0;
-			chunk.buffer = ITD_audio_buffer.buffer;
-			chunk.len = ITD_audio_buffer.len;
-			pthread_mutex_unlock(&mutex_audio_buffer);
-			applyFBDM_simple1(chunk.buffer, chunk.len, 0);
-			FDBMdone = 1;
+			if (ITD_audio_buffer.buffer) {
+				chunk.buffer = ITD_audio_buffer.buffer;
+				chunk.len = ITD_audio_buffer.len;
+				pthread_mutex_unlock(&mutex_audio_buffer);
+				applyFBDM_simple1(chunk.buffer, chunk.len, 0);
+				FDBMdone = 1;
+			} else {
+				pthread_mutex_unlock(&mutex_audio_buffer);
+			}
 		} else {
 			sleep_ms(5);
 		}
