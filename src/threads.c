@@ -63,7 +63,7 @@ void* thread_capture_audio(void* parameters) {
 
 	capture_init();
 
-	audio_buffer = malloc(buffer_chunks * RAW_BUFFER_SIZE * frame_bytes);
+	audio_buffer = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * frame_bytes);
 	current_buffer_chunk = audio_buffer;
 	debug("audio buffer allocated");
 
