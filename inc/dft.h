@@ -4,8 +4,8 @@
 #include "buffer_data.h"
 
 typedef struct {
-    float *re;
-    float *im;
+    double *re;
+    double *im;
 } fcomplex_t;
 
 extern fcomplex_t audio_fft_bufferR;

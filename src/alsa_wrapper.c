@@ -5,8 +5,8 @@
 const char *pdevice = "hw:0,0";       /* playback device */
 const char *cdevice = "hw:0,0";       /* capture  device */
 
-const unsigned int rate = 16000;
-const unsigned int channels = 2;
+unsigned int rate = 16000;
+unsigned int channels = 2;
 
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
