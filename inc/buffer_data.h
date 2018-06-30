@@ -5,7 +5,7 @@
 #define RAW_BUFFER_SIZE (256)
 #define CHANNEL_BUFFER_SIZE (RAW_BUFFER_SIZE/2)
 
-#define
+// #define
 
 #define SINT16_MAX (((1ull<<15)-1))
 
