@@ -47,7 +47,7 @@ const float W[] = {
     0.98079, 0.98528, 0.98918, 0.99248, 0.99519, 0.99729, 0.99880, 0.99970
 };
 
-const float log2f_approx_coeff[4] = {1.23149591368684f, -4.11852516267426f, 6.02197014179219f, -3.13396450166353f};
+float log2f_approx_coeff[4] = {1.23149591368684f, -4.11852516267426f, 6.02197014179219f, -3.13396450166353f};
 
 static inline __attribute__((always_inline)) float FastArcTan(float x) {
     return 0.7853 * x - x * ((int)x - 1) * (0.2447 + 0.0663 * (int)x);
