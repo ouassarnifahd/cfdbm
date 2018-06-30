@@ -23,20 +23,38 @@ pthread_mutex_t mutex_audio_buffer = PTHREAD_MUTEX_INITIALIZER;
 
 int startFDBM = 0, FDBMdone = 0;
 
+static inline void attach_to_core(pthread_attr_t* attr, int i) {
+	cpu_set_t core_i;
+	CPU_ZERO(&core_i);
+	CPU_SET(i, &core_i);
+	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
+}
+
 void threads_init() {
 	debug("Threads_init:");
 
 	pthread_t audio_capture_process, audio_playback_process, fdbm_process;
 
-	if (pthread_create(&audio_capture_process, NULL, thread_capture_audio, NULL)) {
+	pthread_attr_t attr_capture, attr_playback, attr_fdbm;
+	pthread_attr_init(&attr_capture);
+	pthread_attr_init(&attr_playback);
+	pthread_attr_init(&attr_fdbm);
+
+	// printf("ID: %lu, CPU: %d\n", pthread_self(), sched_getcpu());
+	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
+
+	attach_to_core(&attr_capture, 0);
+	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, NULL)) {
 		error("audio_capture_process init failed"); perror(NULL);
 	}
 
-	if (pthread_create(&audio_playback_process, NULL, thread_playback_audio, NULL)) {
+	attach_to_core(&attr_capture, 1);
+	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, NULL)) {
 		error("audio_playback_process init failed"); perror(NULL);
 	}
 
-	if(pthread_create(&fdbm_process, NULL, thread_fdbm, NULL)) {
+	attach_to_core(&attr_capture, 2);
+	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm, NULL)) {
 		error("fdbm_process init failed"); perror(NULL);
 	}
 
@@ -47,8 +65,8 @@ void threads_init() {
 
 void* thread_capture_audio(void* parameters) {
 
-	debug("thread_capture_audio: running...");
-	log_printf("CAPTURE Process is running...\n");
+	debug("thread_capture_audio: init...");
+	// log_printf("CAPTURE Process is running...\n");
 
 	char *audio_buffer = NULL;
 	char *current_buffer_chunk = NULL;
@@ -65,6 +83,7 @@ void* thread_capture_audio(void* parameters) {
 
     int r, ok = 1;
 
+	debug("thread_capture_audio: running...");
     while (ok) {
         long tsc = get_cyclecount();
 		if ((r = capture_read(current_buffer_chunk, RAW_BUFFER_SIZE)) < 0)
@@ -92,8 +111,8 @@ void* thread_capture_audio(void* parameters) {
 
 void* thread_playback_audio(void* parameters) {
 
-	debug("thread_playback_audio: running...");
-	log_printf("PLAYBACK Process is running...\n");
+	debug("thread_playback_audio: init...");
+	// log_printf("PLAYBACK Process is running...\n");
 
 	audio_buffer_t play = {NULL, 0, 0, 0};
 	long chunk_play_count = 0;
@@ -104,6 +123,7 @@ void* thread_playback_audio(void* parameters) {
 
     int ok = 1;
 
+	debug("thread_playback_audio: running...");
     while (ok) {
 
 		if (pthread_mutex_trylock(&mutex_audio_buffer) == EBUSY) {
@@ -177,17 +197,14 @@ void* thread_playback_audio(void* parameters) {
 // 	pthread_exit(NULL);
 // }
 
-void* thread_opencv(void* parameters);
-
-void* thread_AVstream(void* parameters);
-
 void* thread_fdbm(void* parameters) {
 
-	debug("thread_fdbm: running...");
-	log_printf("FDBM Process is running...\n");
+	debug("thread_fdbm: init...");
+	// log_printf("FDBM Process is running...\n");
 
 	audio_buffer_t chunk = {NULL, 0, 0, 0};
 
+	debug("thread_fdbm: running...");
 	for (;;) {
 		if (startFDBM) {
 			startFDBM = 0;
