@@ -102,7 +102,10 @@ void* thread_capture_audio(void* parameters) {
 			current_buffer_chunk = audio_buffer + last_chunk_captured * RAW_BUFFER_SIZE;
 			last_chunk_captured = (last_chunk_captured + 1) % BUFFER_CHUNKS;
 			++chunk_capture_count;
-        }
+        } else {
+			debug("mutex not acquiered! waiting for 10 ms");
+			sleep_ms(10);
+		}
         warning("loop cycle time %lf ms", get_timediff_ms(tsc, get_cyclecount()));
     }
 
