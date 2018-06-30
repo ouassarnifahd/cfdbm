@@ -29,7 +29,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     long tsc1 = get_cyclecount();
     // split
-    // get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
+    get_buffer_LR(samples, size, audio_bufferL, audio_bufferR);
     long tsc2 = get_cyclecount();
     warning("spliting cycle time %lu", get_cyclediff(tsc1, tsc2));
 
@@ -54,7 +54,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
 
     tsc1 = get_cyclecount();
     // reassemble
-    // set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
+    set_buffer_LR(audio_bufferL, audio_bufferR, samples, size);
     tsc2 = get_cyclecount();
     warning("reassemble cycle time %lu", get_cyclediff(tsc1, tsc2));
 }

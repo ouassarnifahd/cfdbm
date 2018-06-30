@@ -1,7 +1,12 @@
 #ifndef __HEADER_BUFFER_DATA__
 #define __HEADER_BUFFER_DATA__
 
-#define BUFFER_SIZE 256
+// time spent in capture = n / rate = 32 ms
+#define RAW_BUFFER_SIZE (512)
+#define DFT_BUFFER_SIZE (RAW_BUFFER_SIZE/2)
+
+#define
+
 #define SINT16_MAX (((1ull<<15)-1))
 
 extern double audio_bufferR[BUFFER_SIZE];
