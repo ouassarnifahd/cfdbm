@@ -3,10 +3,11 @@
 
 int main(int argc, char const *argv[]) {
     init_log();
-    log_printf("FBDM starting...\n");
+
     log_printf("Setting priority...\n");
-    setscheduler();
-    
+    // setscheduler();
+
+    log_printf("FBDM starting...\n");
     threads_init();
 
     return EXIT_SUCCESS;

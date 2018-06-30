@@ -1,14 +1,14 @@
 #include "common.h"
 #include "dft.h"
 
-fcomplex_t audio_fft_bufferR = {
-    audio_re_bufferR,
-    audio_im_bufferR,
+fcomplex_t fft_R = {
+    fft_re_R,
+    fft_im_R,
 };
 
-fcomplex_t audio_fft_bufferL = {
-    audio_re_bufferL,
-    audio_im_bufferL,
+fcomplex_t fft_L = {
+    fft_re_L,
+    fft_im_L,
 };
 
 // Twiddle factors ( roots of unity)
@@ -47,9 +47,34 @@ const float W[] = {
     0.98079, 0.98528, 0.98918, 0.99248, 0.99519, 0.99729, 0.99880, 0.99970
 };
 
-static inline float FastArcTan(float x) {
+const float log2f_approx_coeff[4] = {1.23149591368684f, -4.11852516267426f, 6.02197014179219f, -3.13396450166353f};
+
+static inline __attribute__((always_inline)) float FastArcTan(float x) {
     return 0.7853 * x - x * ((int)x - 1) * (0.2447 + 0.0663 * (int)x);
 }
+
+static inline __attribute__((always_inline)) float log2f_approx(float X) {
+    float *C = &log2f_approx_coeff[0];
+    float Y;
+    float F;
+    int E;
+
+    // This is the approximation to log2()
+    F = frexpf(fabsf(X), &E);
+
+    //  Y = C[0]*F*F*F + C[1]*F*F + C[2]*F + C[3] + E;
+    Y = *C++;
+    Y *= F;
+    Y += (*C++);
+    Y *= F;
+    Y += (*C++);
+    Y *= F;
+    Y += (*C++);
+    Y += E;
+    return(Y);
+}
+
+#define log10f_fast(x)  (log2f_approx(x)*0.3010299956639812f)
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
 
@@ -69,6 +94,39 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
         }
         P[k] = X->re[k] * X->re[k] + X->im[k] * X->im[k];
         A[k] = FastArcTan(X->im[k] / X->re[k]);
+    }
+}
+
+void dft2_IPD_ILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* ILD, float* IPD, size_t len) {
+
+    // time and frequency domain data arrays
+    int n, k;      // time and frequency domain indices
+    float Xr_l_re, Xr_l_im, P;
+    
+    // Calculate DFT and power spectrum up to Nyquist frequency
+    int to_sin = 3 * len / 4; // index offset for sin
+    int a, b;
+    for (k = 0; k <= len/2; ++k) {
+        Xl->re[k] = 0; Xl->im[k] = 0;
+        Xr->re[k] = 0; Xr->im[k] = 0;
+        a = 0; b = to_sin;
+        for (n = 0; n < len; ++n) {
+            Xl->re[k] += xl[n] * W[a % len];
+            Xl->im[k] -= xl[n] * W[b % len];
+            Xr->re[k] += xr[n] * W[a % len];
+            Xr->im[k] -= xr[n] * W[b % len];
+            a += k; b += k;
+        }
+
+        P = Xl->re[k] * Xl->re[k] + Xl->im[k] * Xl->im[k];
+        Xr_l_re  = Xr->re[k] * Xl->re[k];
+        Xr_l_im  = Xr->re[k] * Xl->im[k];
+        Xr_l_re -= Xr->im[k] * Xl->im[k];
+        Xr_l_im += Xr->im[k] * Xl->re[k];
+        Xr_l_re /= P;
+        Xr_l_im /= P;
+        IPD[k] = FastArcTan(Xr_l_im / Xr_l_re);
+        ILD[k] = 20 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
     }
 }
 
@@ -94,6 +152,10 @@ void idft(fcomplex_t* X, float* x, size_t len) {
             a += n; b += n;
         }
     }
+
+}
+
+void idft2(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t len) {
 
 }
 

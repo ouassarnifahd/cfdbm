@@ -13,6 +13,10 @@
 #include <time.h>
 #include <math.h>
 
+// TODO !!!
+#define __DEBUG_THREADS__
+#define __DEBUG_CORES__
+
 #include "error.h"
 #include "preprocessor.h"
 

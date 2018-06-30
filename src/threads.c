@@ -43,24 +43,31 @@ void threads_init() {
 	// printf("ID: %lu, CPU: %d\n", pthread_self(), sched_getcpu());
 	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
+	capture_init();
 	attach_to_core(&attr_capture, 0);
 	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, NULL)) {
 		error("audio_capture_process init failed"); perror(NULL);
 	}
 
-	attach_to_core(&attr_capture, 1);
+	playback_init();
+	attach_to_core(&attr_playback, 1);
 	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, NULL)) {
 		error("audio_playback_process init failed"); perror(NULL);
 	}
 
-	attach_to_core(&attr_capture, 2);
+	attach_to_core(&attr_fdbm, 2);
 	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm, NULL)) {
 		error("fdbm_process init failed"); perror(NULL);
 	}
 
 	pthread_join(fdbm_process, NULL);
+
 	pthread_join(audio_capture_process, NULL);
+	capture_end();
+
 	pthread_join(audio_playback_process, NULL);
+	playback_end();
+
 }
 
 void* thread_capture_audio(void* parameters) {
@@ -73,13 +80,11 @@ void* thread_capture_audio(void* parameters) {
 	int last_chunk_captured = 0;
 	long chunk_capture_count = 0;
 
-	capture_init();
-
 	audio_buffer = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * frame_bytes);
 	current_buffer_chunk = audio_buffer;
 	debug("audio buffer allocated");
 
-	setscheduler();
+	// setscheduler();
 
     int r, ok = 1;
 
@@ -93,15 +98,13 @@ void* thread_capture_audio(void* parameters) {
 			ITD_audio_buffer.len = RAW_BUFFER_SIZE;
 			ITD_audio_buffer.chunk_w = last_chunk_captured;
 			pthread_mutex_unlock(&mutex_audio_buffer);
-			log_printf("chunk %lu captured\n", chunk_capture_count);
+			debug("chunk %lu captured", chunk_capture_count);
 			current_buffer_chunk = audio_buffer + last_chunk_captured * RAW_BUFFER_SIZE;
 			last_chunk_captured = (last_chunk_captured + 1) % BUFFER_CHUNKS;
 			++chunk_capture_count;
         }
-        warning("loop cycle time %lu", get_cyclediff(tsc, get_cyclecount()));
+        warning("loop cycle time %lf ms", get_timediff_ms(tsc, get_cyclecount()));
     }
-
-	capture_end();
 
 	free(audio_buffer);
     debug("audio buffer freed");
@@ -117,9 +120,7 @@ void* thread_playback_audio(void* parameters) {
 	audio_buffer_t play = {NULL, 0, 0, 0};
 	long chunk_play_count = 0;
 
-	playback_init();
-
-	setscheduler();
+	// setscheduler();
 
     int ok = 1;
 
@@ -149,8 +150,6 @@ void* thread_playback_audio(void* parameters) {
 			}
 		}
     }
-
-	playback_end();
 
 	pthread_exit(NULL);
 }
@@ -214,7 +213,7 @@ void* thread_fdbm(void* parameters) {
 			applyFBDM_simple1(chunk.buffer, chunk.len, 0);
 			FDBMdone = 1;
 		} else {
-			//sleep_ms(5);
+			sleep_ms(5);
 		}
 	}
 
