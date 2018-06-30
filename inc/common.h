@@ -39,7 +39,7 @@ static inline __attribute__((always_inline)) unsigned long get_cyclediff(unsigne
 }
 
 static inline __attribute__((always_inline)) double get_timediff_ns(unsigned long tsc1, unsigned long tsc2) {
-    return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_NS;
+    return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME;
 }
 
 static inline __attribute__((always_inline)) double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {

@@ -6,12 +6,15 @@
 
 #define BUFFER_CHUNKS 10
 
-typedef struct {
+struct audio_buffer_struct {
 	char* buffer;
 	size_t len;
 	int chunk_w;
 	int chunk_r;
-} audio_buffer_t ITD_audio_buffer = {NULL, 0, 0, 0};
+};
+typedef struct audio_buffer_struct audio_buffer_t;
+
+audio_buffer_t ITD_audio_buffer = {NULL, 0, 0, 0};
 
 #define NANO_SECOND_MULTIPLIER 1000000L
 #define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)

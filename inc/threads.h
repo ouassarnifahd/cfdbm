@@ -3,7 +3,9 @@
 
 void threads_init(void);
 
-void* thread_audio(void* parameters);
+void* thread_capture_audio(void* parameters);
+
+void* thread_playback_audio(void* parameters);
 
 void* thread_video_capture(void* parameters);
 
