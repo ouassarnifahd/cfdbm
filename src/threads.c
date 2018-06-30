@@ -28,10 +28,6 @@ void threads_init() {
 
 	pthread_t audio_capture_process, audio_playback_process, fdbm_process;
 
-	if(pthread_create(&fdbm_process, NULL, thread_fdbm, NULL)) {
-		error("fdbm_process init failed"); perror(NULL);
-	}
-
 	if (pthread_create(&audio_capture_process, NULL, thread_capture_audio, NULL)) {
 		error("audio_capture_process init failed"); perror(NULL);
 	}
@@ -40,15 +36,13 @@ void threads_init() {
 		error("audio_playback_process init failed"); perror(NULL);
 	}
 
-	// thread_audio(NULL);
-
+	if(pthread_create(&fdbm_process, NULL, thread_fdbm, NULL)) {
+		error("fdbm_process init failed"); perror(NULL);
+	}
 
 	pthread_join(fdbm_process, NULL);
-
 	pthread_join(audio_capture_process, NULL);
-
 	pthread_join(audio_playback_process, NULL);
-
 }
 
 void* thread_capture_audio(void* parameters) {
