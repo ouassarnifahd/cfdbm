@@ -48,7 +48,7 @@ void* thread_audio(void* parameters) {
             ok = 0;
         else {
 			long tsc1 = get_cyclecount();
-			applyFBDM_simple1(audio_buffer, r, 0);
+			// applyFBDM_simple1(audio_buffer, r, 0);
 			long tsc2 = get_cyclecount();
 			warning("fdbm cycle time %lu", get_cyclediff(tsc1, tsc2));
             if (playback_write(audio_buffer, r) < 0)
