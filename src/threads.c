@@ -80,6 +80,7 @@ void* thread_capture_audio(void* parameters) {
 			ITD_audio_buffer.len = RAW_BUFFER_SIZE;
 			ITD_audio_buffer.chunk_w = last_chunk_captured;
 			pthread_mutex_unlock(&mutex_audio_buffer);
+			log_printf("chunk %lu captured\n", chunk_capture_count);
 			current_buffer_chunk = audio_buffer + last_chunk_captured * RAW_BUFFER_SIZE;
 			last_chunk_captured = (last_chunk_captured + 1) % BUFFER_CHUNKS;
 			++chunk_capture_count;
@@ -124,6 +125,7 @@ void* thread_playback_audio(void* parameters) {
 					if (FDBMdone) {
 						FDBMdone = 0;
 						if (playback_write(play.buffer, play.len) < 0) ok = 0;
+						log_printf("chunk %lu played\n", chunk_play_count);
 						play.chunk_w = (play.chunk_w + 1) % BUFFER_CHUNKS;
 						++chunk_play_count;
 					} else {
@@ -201,7 +203,7 @@ void* thread_fdbm(void* parameters) {
 			applyFBDM_simple1(chunk.buffer, chunk.len, 0);
 			FDBMdone = 1;
 		} else {
-			sleep_ms(10);
+			sleep_ms(5);
 		}
 	}
 
