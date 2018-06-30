@@ -1,0 +1,1868 @@
+###########################################################
+# Build Version 69
+# Compiled on Jun 30 2018 at 18:53:38
+# Executed on Jun 30 2018 at 18:56:25
+###########################################################
+
+Setting priority...
+
+FBDM starting...
+
+[ DEBUG ] (src/threads.c:threads_init:34) Threads_init:
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:134) audio playback interface opened
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:139) playback hw_params allocated
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:144) playback hw_params initialized
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:149) playback hw_params access setted
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:154) playback hw_params format setted
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:159) playback hw_params rate setted
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:164) playback hw_params channels setted
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:169) playback hw_params setted
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:172) playback hw_params freed
+[ DEBUG ] (src/alsa_wrapper.c:playback_init:177) playback audio interface prepared
+[ DEBUG ] (src/threads.c:thread_playback_audio:121) thread_playback_audio: init...
+[ DEBUG ] (src/threads.c:thread_playback_audio:131) thread_playback_audio: running...
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:23) audio capture interface opened
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:28) capture hw_params allocated
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:33) capture hw_params initialized
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:38) capture hw_params access setted
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:43) capture hw_params format setted
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:48) capture hw_params rate setted
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:53) capture hw_params channels setted
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:58) capture hw_params setted
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:61) capture hw_params freed
+[ DEBUG ] (src/alsa_wrapper.c:capture_init:66) capture audio interface prepared
+[ DEBUG ] (src/threads.c:thread_capture_audio:75) thread_capture_audio: init...
+[ DEBUG ] (src/threads.c:thread_capture_audio:85) audio buffer allocated
+[ DEBUG ] (src/threads.c:thread_capture_audio:91) thread_capture_audio: running...
+[ DEBUG ] (src/threads.c:thread_fdbm:207) thread_fdbm: init...
+[ DEBUG ] (src/threads.c:thread_fdbm:212) thread_fdbm: running...
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:107) mutex not acquiered! waiting for 10 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 0 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 1 captured
+(L=-7230, R=-7326) -> (L=-0.220649, R=-0.223579)
+
+(L=-6946, R=-7040) -> (L=-0.211982, R=-0.214850)
+
+(L=-6834, R=-6927) -> (L=-0.208563, R=-0.211402)
+
+(L=-6618, R=-6710) -> (L=-0.201972, R=-0.204779)
+
+(L=-6396, R=-6485) -> (L=-0.195196, R=-0.197913)
+
+(L=-6374, R=-6463) -> (L=-0.194525, R=-0.197241)
+
+(L=-6468, R=-6558) -> (L=-0.197394, R=-0.200140)
+
+(L=-6510, R=-6601) -> (L=-0.198675, R=-0.201453)
+
+(L=-6731, R=-6824) -> (L=-0.205420, R=-0.208258)
+
+(L=-6683, R=-6775) -> (L=-0.203955, R=-0.206763)
+
+(L=-6659, R=-6752) -> (L=-0.203223, R=-0.206061)
+
+(L=-6920, R=-7014) -> (L=-0.211188, R=-0.214057)
+
+(L=-6982, R=-7077) -> (L=-0.213080, R=-0.215979)
+
+(L=-7092, R=-7187) -> (L=-0.216437, R=-0.219337)
+
+(L=-7214, R=-7311) -> (L=-0.220161, R=-0.223121)
+
+(L=-7280, R=-7377) -> (L=-0.222175, R=-0.225135)
+
+(L=-7147, R=-7243) -> (L=-0.218116, R=-0.221046)
+
+(L=-7125, R=-7221) -> (L=-0.217444, R=-0.220374)
+
+(L=-7130, R=-7226) -> (L=-0.217597, R=-0.220527)
+
+(L=-6996, R=-7090) -> (L=-0.213507, R=-0.216376)
+
+(L=-6938, R=-7033) -> (L=-0.211737, R=-0.214637)
+
+(L=-6911, R=-7005) -> (L=-0.210913, R=-0.213782)
+
+(L=-6965, R=-7059) -> (L=-0.212561, R=-0.215430)
+
+(L=-7010, R=-7105) -> (L=-0.213935, R=-0.216834)
+
+(L=-7053, R=-7149) -> (L=-0.215247, R=-0.218177)
+
+(L=-7165, R=-7261) -> (L=-0.218665, R=-0.221595)
+
+(L=-6934, R=-7028) -> (L=-0.211615, R=-0.214484)
+
+(L=-7070, R=-7165) -> (L=-0.215766, R=-0.218665)
+
+(L=-7076, R=-7171) -> (L=-0.215949, R=-0.218848)
+
+[WARNING] (src/th) -> (L:-0.214209, R=-0.217109)
+loop cycle time 0.000000 ms
+(LARNING] (src/th) -> (L:-0.214209, R=-0.217109)
+loop cycle time 0.000000 ms
+(L=-6911, R=-7006) -> (L=-0.210913, R=-0.213813)
+
+(L=-6834, R=-6927) -> (L=-0.208563, R=-0.211402)
+
+(L=-6754, R=-6847) -> (L=-0.206122, R=-0.208960)
+
+(L=-6688, R=-6781) -> (L=-0.204108, R=-0.206946)
+
+(L=-6608, R=-6699) -> (L=-0.201666, R=-0.204443)
+
+(L=-6525, R=-6617) -> (L=-0.199133, R=-0.201941)
+
+(L=-6425, R=-6515) -> (L=-0.196081, R=-0.198828)
+
+(L=-6456, R=-6547) -> (L=-0.197028, R=-0.199805)
+
+(L=-6537, R=-6628) -> (L=-0.199500, R=-0.202277)
+
+(L=-6559, R=-6651) -> (L=-0.200171, R=-0.202979)
+
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 2 captured
+(L=EBUG ] (src/threads.c:thread_capture_audio:101) chunk 2 captured
+(L=-6713, R=-6805) -> (L=-0.204871, R=-0.207678)
+
+(L=-6605, R=-6697) -> (L=-0.201575, R=-0.204382)
+
+(L=-6698, R=-6791) -> (L=-0.204413, R=-0.207251)
+
+(L=-6628, R=-6721) -> (L=-0.202277, R=-0.205115)
+
+(L=-6457, R=-6547) -> (L=-0.197058, R=-0.199805)
+
+(L=-6431, R=-6522) -> (L=-0.196265, R=-0.199042)
+
+(L=-6406, R=-6495) -> (L=-0.195502, R=-0.198218)
+
+(L=-6417, R=-6507) -> (L=-0.195837, R=-0.198584)
+
+(L=-6418, R=-6509) -> (L=-0.195868, R=-0.198645)
+
+(L=-6299, R=-6389) -> (L=-0.192236, R=-0.194983)
+
+(L=-6186, R=-6275) -> (L=-0.188788, R=-0.191504)
+
+(L=-6040, R=-6127) -> (L=-0.184332, R=-0.186987)
+
+(L=-5889, R=-5976) -> (L=-0.179724, R=-0.182379)
+
+(L=-5868, R=-5954) -> (L=-0.179083, R=-0.181707)
+
+(L=-5833, R=-5918) -> (L=-0.178014, R=-0.180609)
+
+(L=-5743, R=-5828) -> (L=-0.175268, R=-0.177862)
+
+(L=-5877, R=-5963) -> (L=-0.179357, R=-0.181982)
+
+(L=-6003, R=-6090) -> (L=-0.183203, R=-0.185858)
+
+(L=-6118, R=-6206) -> (L=-0.186712, R=-0.189398)
+
+(L=-6251, R=-6340) -> (L=-0.190771, R=-0.193487)
+
+(L=-6299, R=-6389) -> (L=-0.192236, R=-0.194983)
+
+(L=-6333, R=-6423) -> (L=-0.193274, R=-0.196020)
+
+(L=-6333, R=-6423) -> (L=-0.193274, R=-0.196020)
+
+(L=-6082, R=-6170) -> (L=-0.185614, R=-0.188299)
+
+(L=-6015, R=-6102) -> (L=-0.183569, R=-0.186224)
+
+(L=-5942, R=-6028) -> (L=-0.181341, R=-0.183966)
+
+(L=-5845, R=-5931) -> (L=-0.178381, R=-0.181005)
+
+(L=-5800, R=-5886) -> (L=-0.177007, R=-0.179632)
+
+(L=-5898, R=-5984) -> (L=-0.179998, R=-0.182623)
+
+(L=-5960, R=-6046) -> (L=-0.181890, R=-0.184515)
+
+(L=-6227, R=-6316) -> (L=-0.190039, R=-0.192755)
+
+(L=-6530, R=-6621) -> (L=-0.199286, R=-0.202063)
+
+(L=-6538, R=-6630) -> (L=-0.199530, R=-0.202338)
+
+(L=-6507, R=-6599) -> (L=-0.198584, R=-0.201392)
+
+(L=-6469, R=-6559) -> (L=-0.197424, R=-0.200171)
+
+(L=-6280, R=-6369) -> (L=-0.191656, R=-0.194372)
+
+(L=-6067, R=-6154) -> (L=-0.185156, R=-0.187811)
+
+(L=-5802, R=-5887) -> (L=-0.177068, R=-0.179662)
+
+(L=-5608, R=-5692) -> (L=-0.171148, R=-0.173711)
+
+(L=-5498, R=-5581) -> (L=-0.167791, R=-0.170324)
+
+(L=-5450, R=-5533) -> (L=-0.166326, R=-0.168859)
+
+(L=-5564, R=-5648) -> (L=-0.169805, R=-0.172369)
+
+(L=-5730, R=-5815) -> (L=-0.174871, R=-0.177465)
+
+(L=-5775, R=-5860) -> (L=-0.176244, R=-0.178838)
+
+(L=-5799, R=-5884) -> (L=-0.176977, R=-0.179571)
+
+(L=-5797, R=-5883) -> (L=-0.176916, R=-0.179540)
+
+(L=-5689, R=-5774) -> (L=-0.173620, R=-0.176214)
+
+(L=-5564, R=-5647) -> (L=-0.169805, R=-0.172338)
+
+(L=-5404, R=-5486) -> (L=-0.164922, R=-0.167425)
+
+(L=-5258, R=-5338) -> (L=-0.160466, R=-0.162908)
+
+(L=-5061, R=-5140) -> (L=-0.154454, R=-0.156865)
+
+(L=-5069, R=-5149) -> (L=-0.154698, R=-0.157140)
+
+(L=-5045, R=-5124) -> (L=-0.153966, R=-0.156377)
+
+(L=-5050, R=-5130) -> (L=-0.154118, R=-0.156560)
+
+(L=-5069, R=-5149) -> (L=-0.154698, R=-0.157140)
+
+(L=-5064, R=-5144) -> (L=-0.154546, R=-0.156987)
+
+(L=-5128, R=-5208) -> (L=-0.156499, R=-0.158940)
+
+(L=-4979, R=-5058) -> (L=-0.151952, R=-0.154363)
+
+(L=-4811, R=-4888) -> (L=-0.146825, R=-0.149174)
+
+(L=-4699, R=-4776) -> (L=-0.143406, R=-0.145756)
+
+(L=-4600, R=-4677) -> (L=-0.140385, R=-0.142735)
+
+(L=-4552, R=-4628) -> (L=-0.138920, R=-0.141240)
+
+(L=-4497, R=-4574) -> (L=-0.137242, R=-0.139592)
+
+(L=-4655, R=-4731) -> (L=-0.142064, R=-0.144383)
+
+(L=-4807, R=-4885) -> (L=-0.146702, R=-0.149083)
+
+(L=-4983, R=-5062) -> (L=-0.152074, R=-0.154485)
+
+(L=-5064, R=-5144) -> (L=-0.154546, R=-0.156987)
+
+(L=-5078, R=-5158) -> (L=-0.154973, R=-0.157414)
+
+(L=-5366, R=-5448) -> (L=-0.163762, R=-0.166265)
+
+(L=-5470, R=-5553) -> (L=-0.166936, R=-0.169469)
+
+(L=-5470, R=-5553) -> (L=-0.166936, R=-0.169469)
+
+(L=-5403, R=-5486) -> (L=-0.164892, R=-0.167425)
+
+(L=-5418, R=-5500) -> (L=-0.165349, R=-0.167852)
+
+(L=-5315, R=-5398) -> (L=-0.162206, R=-0.164739)
+
+(L=-5243, R=-5324) -> (L=-0.160009, R=-0.162481)
+
+(L=-5117, R=-5197) -> (L=-0.156163, R=-0.158605)
+
+(L=-5010, R=-5089) -> (L=-0.152898, R=-0.155309)
+
+(L=-4946, R=-5024) -> (L=-0.150945, R=-0.153325)
+
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+(L=-4926, R=-5004) -> (L=-0.150334, R=-0.152715)
+
+(L=-5145, R=-5226) -> (L=-0.157018, R=-0.159490)
+
+(L=-5145, R=-5226) -> (L=-0.157018, R=-0.159490)
+ mes to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 3 captured
+(L=-5579, R=-5662) -> (L=-0.170263, R=-0.172796)
+
+(L=-5579, R=-5662) -> (L=-0.170263, R=-0.172796)
+
+(L=-5550, R=-5633) -> (L=-0.169378, R=-0.171911)
+
+(L=-5504, R=-5587) -> (L=-0.167974, R=-0.170507)
+
+(L=-5664, R=-5748) -> (L=-0.172857, R=-0.175420)
+
+(L=-5693, R=-5777) -> (L=-0.173742, R=-0.176305)
+
+(L=-5618, R=-5700) -> (L=-0.171453, R=-0.173956)
+
+(L=-5497, R=-5581) -> (L=-0.167760, R=-0.170324)
+
+(L=-5377, R=-5460) -> (L=-0.164098, R=-0.166631)
+
+(L=-5406, R=-5487) -> (L=-0.164983, R=-0.167455)
+
+(L=-5440, R=-5523) -> (L=-0.166021, R=-0.168554)
+
+(L=-5379, R=-5461) -> (L=-0.164159, R=-0.166662)
+
+(L=-5351, R=-5432) -> (L=-0.163305, R=-0.165777)
+
+(L=-5394, R=-5477) -> (L=-0.164617, R=-0.167150)
+
+(L=-5385, R=-5467) -> (L=-0.164342, R=-0.166845)
+
+(L=-5296, R=-5377) -> (L=-0.161626, R=-0.164098)
+
+(L=-5137, R=-5216) -> (L=-0.156774, R=-0.159185)
+
+(L=-4954, R=-5033) -> (L=-0.151189, R=-0.153600)
+
+(L=-4699, R=-4777) -> (L=-0.143406, R=-0.145787)
+
+(L=-4768, R=-4845) -> (L=-0.145512, R=-0.147862)
+
+(L=-4617, R=-4693) -> (L=-0.140904, R=-0.143223)
+
+(L=-4469, R=-4544) -> (L=-0.136387, R=-0.138676)
+
+(L=-4546, R=-4622) -> (L=-0.138737, R=-0.141057)
+
+(L=-4703, R=-4781) -> (L=-0.143529, R=-0.145909)
+
+(L=-4957, R=-5036) -> (L=-0.151280, R=-0.153691)
+
+(L=-4959, R=-5038) -> (L=-0.151341, R=-0.153752)
+
+(L=-4926, R=-5005) -> (L=-0.150334, R=-0.152745)
+
+(L=-4811, R=-4887) -> (L=-0.146825, R=-0.149144)
+
+(L=-4632, R=-4709) -> (L=-0.141362, R=-0.143712)
+
+(L=-4407, R=-4482) -> (L=-0.134495, R=-0.136784)
+
+(L=-4194, R=-4266) -> (L=-0.127995, R=-0.130192)
+
+(L=-4131, R=-4203) -> (L=-0.126072, R=-0.128269)
+
+(L=-4016, R=-4088) -> (L=-0.122562, R=-0.124760)
+
+(L=-3951, R=-4022) -> (L=-0.120579, R=-0.122745)
+
+(L=-3973, R=-4044) -> (L=-0.121250, R=-0.123417)
+
+(L=-4008, R=-4079) -> (L=-0.122318, R=-0.124485)
+
+(L=-4191, R=-4264) -> (L=-0.127903, R=-0.130131)
+
+(L=-4248, R=-4321) -> (L=-0.129643, R=-0.131870)
+
+(L=-4432, R=-4506) -> (L=-0.135258, R=-0.137516)
+
+(L=-4597, R=-4673) -> (L=-0.140294, R=-0.142613)
+
+(L=-4460, R=-4536) -> (L=-0.136113, R=-0.138432)
+
+(L=-4543, R=-4619) -> (L=-0.138646, R=-0.140965)
+
+(L=-4722, R=-4799) -> (L=-0.144108, R=-0.146458)
+
+(L=-4640, R=-4717) -> (L=-0.141606, R=-0.143956)
+
+(L=-4656, R=-4733) -> (L=-0.142094, R=-0.144444)
+
+(L=-4535, R=-4611) -> (L=-0.138401, R=-0.140721)
+
+(L=-4450, R=-4525) -> (L=-0.135807, R=-0.138096)
+
+(L=-4355, R=-4429) -> (L=-0.132908, R=-0.135166)
+
+(L=-4314, R=-4388) -> (L=-0.131657, R=-0.133915)
+
+(L=-4256, R=-4331) -> (L=-0.129887, R=-0.132176)
+
+(L=-4153, R=-4227) -> (L=-0.126743, R=-0.129002)
+
+(L=-4341, R=-4415) -> (L=-0.132481, R=-0.134739)
+
+(L=-4491, R=-4567) -> (L=-0.137059, R=-0.139378)
+
+(L=-4611, R=-4688) -> (L=-0.140721, R=-0.143071)
+
+(L=-4577, R=-4653) -> (L=-0.139683, R=-0.142003)
+
+(L=-4663, R=-4740) -> (L=-0.142308, R=-0.144658)
+
+(L=-4728, R=-4805) -> (L=-0.144292, R=-0.146641)
+
+(L=-4686, R=-4763) -> (L=-0.143010, R=-0.145360)
+
+(L=-4518, R=-4593) -> (L=-0.137883, R=-0.140172)
+
+(L=-4455, R=-4529) -> (L=-0.135960, R=-0.138218)
+
+(L=-4233, R=-4306) -> (L=-0.129185, R=-0.131413)
+
+(L=-4166, R=-4239) -> (L=-0.127140, R=-0.129368)
+
+(L=-4023, R=-4095) -> (L=-0.122776, R=-0.124973)
+
+(L=-3989, R=-4060) -> (L=-0.121738, R=-0.123905)
+
+(L=-3932, R=-4003) -> (L=-0.119999, R=-0.122166)
+
+(L=-3957, R=-4028) -> (L=-0.120762, R=-0.122929)
+
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+(L=-3985, R=-4057) -> (L=-0.121616, R=-0.123814)
+  loop cycle time 0.000000 ms
+(L=-3985, R=-4057) -> (L=-0.121616, R=-0.123814)
+
+(L=-3909, R=-3980) -> (L=-0.119297, R=-0.121464)
+
+(L=-3750, R=-3819) -> (L=-0.114444, R=-0.116550)
+
+(L=-3551, R=-3618) -> (L=-0.108371, R=-0.110416)
+
+(L=-3660, R=-3730) -> (L=-0.111698, R=-0.113834)
+
+(L=-3730, R=-3800) -> (L=-0.113834, R=-0.115970)
+
+(L=-3752, R=-3821) -> (L=-0.114505, R=-0.116611)
+
+(L=-3944, R=-4015) -> (L=-0.120365, R=-0.122532)
+
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+(L=EBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 4 captured
+(L=-4237, R=-4310) -> (L:thread_capture_audio:101) chunk 4 captured
+(L=-4237, R=-4310) -> (L=-0.129307, R=-0.131535)
+
+(L=-4418, R=-4493) -> (L=-0.134831, R=-0.137120)
+
+(L=-4493, R=-4568) -> (L=-0.137120, R=-0.139409)
+
+(L=-4446, R=-4522) -> (L=-0.135685, R=-0.138005)
+
+(L=-4518, R=-4594) -> (L=-0.137883, R=-0.140202)
+
+(L=-4414, R=-4489) -> (L=-0.134709, R=-0.136998)
+
+(L=-4333, R=-4407) -> (L=-0.132237, R=-0.134495)
+
+(L=-4319, R=-4393) -> (L=-0.131809, R=-0.134068)
+
+(L=-4256, R=-4330) -> (L=-0.129887, R=-0.132145)
+
+(L=-3932, R=-4004) -> (L=-0.119999, R=-0.122196)
+
+(L=-4079, R=-4152) -> (L=-0.124485, R=-0.126713)
+
+(L=-4337, R=-4411) -> (L=-0.132359, R=-0.134617)
+
+(L=-4405, R=-4480) -> (L=-0.134434, R=-0.136723)
+
+(L=-4801, R=-4879) -> (L=-0.146519, R=-0.148900)
+
+(L=-5221, R=-5302) -> (L=-0.159337, R=-0.161809)
+
+(L=-5564, R=-5648) -> (L=-0.169805, R=-0.172369)
+
+(L=-5606, R=-5689) -> (L=-0.171087, R=-0.173620)
+
+(L=-5708, R=-5793) -> (L=-0.174200, R=-0.176794)
+
+(L=-5435, R=-5518) -> (L=-0.165868, R=-0.168401)
+
+(L=-5034, R=-5114) -> (L=-0.153630, R=-0.156072)
+
+(L=-4845, R=-4924) -> (L=-0.147862, R=-0.150273)
+
+(L=-4767, R=-4844) -> (L=-0.145482, R=-0.147832)
+
+(L=-4705, R=-4782) -> (L=-0.143590, R=-0.145940)
+
+(L=-4918, R=-4996) -> (L=-0.150090, R=-0.152470)
+
+(L=-5318, R=-5400) -> (L=-0.162297, R=-0.164800)
+
+(L=-5740, R=-5825) -> (L=-0.175176, R=-0.177770)
+
+(L=-6130, R=-6219) -> (L=-0.187078, R=-0.189795)
+
+(L=-6176, R=-6264) -> (L=-0.188482, R=-0.191168)
+
+(L=-6110, R=-6197) -> (L=-0.186468, R=-0.189123)
+
+(L=-5867, R=-5953) -> (L=-0.179052, R=-0.181677)
+
+(L=-5638, R=-5722) -> (L=-0.172063, R=-0.174627)
+
+(L=-5235, R=-5316) -> (L=-0.159764, R=-0.162236)
+
+(L=-4695, R=-4772) -> (L=-0.143284, R=-0.145634)
+
+(L=-4320, R=-4394) -> (L=-0.131840, R=-0.134098)
+
+(L=-4237, R=-4310) -> (L=-0.129307, R=-0.131535)
+
+(L=-4318, R=-4391) -> (L=-0.131779, R=-0.134007)
+
+(L=-4756, R=-4834) -> (L=-0.145146, R=-0.147526)
+
+(L=-4842, R=-4919) -> (L=-0.147771, R=-0.150121)
+
+(L=-5131, R=-5211) -> (L=-0.156590, R=-0.159032)
+
+(L=-5361, R=-5443) -> (L=-0.163610, R=-0.166112)
+
+(L=-5084, R=-5163) -> (L=-0.155156, R=-0.157567)
+
+(L=-4997, R=-5076) -> (L=-0.152501, R=-0.154912)
+
+(L=-4818, R=-4896) -> (L=-0.147038, R=-0.149419)
+
+(L=-4736, R=-4813) -> (L=-0.144536, R=-0.146886)
+
+(L=-4696, R=-4772) -> (L=-0.143315, R=-0.145634)
+
+(L=-4686, R=-4764) -> (L=-0.143010, R=-0.145390)
+
+(L=-4650, R=-4726) -> (L=-0.141911, R=-0.144230)
+
+(L=-4506, R=-4581) -> (L=-0.137516, R=-0.139805)
+
+(L=-4545, R=-4621) -> (L=-0.138707, R=-0.141026)
+
+(L=-4695, R=-4772) -> (L=-0.143284, R=-0.145634)
+
+(L=-4608, R=-4683) -> (L=-0.140629, R=-0.142918)
+
+(L=-4255, R=-4328) -> (L=-0.129856, R=-0.132084)
+
+(L=-4139, R=-4212) -> (L=-0.126316, R=-0.128544)
+
+(L=-4035, R=-4107) -> (L=-0.123142, R=-0.125340)
+
+[WARNING] (src/fdbm.c:applyFBDM_simple1:34) spliting cycle time 0.000000 ms
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 5 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 6 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[WARNING] (src/fdbm.c:applyFBDM_simple1:40) 2D fft cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 7 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 8 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 9 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 10 captured
+[WARNING] (src/fdbm.c:applyFBDM_simple1:51) 2D ifft cycle time 0.000000 ms
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+(L=nan, R=nan) -> (L=0, R=0)
+ capture_read:96) Frames to read = 128: Frames allready read = 128
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+(L=nan, R=nan) -> (L=0, R=0)
+
+[WARNING] (src/fdbm.c:applyFBDM_simple1:57) reassemble cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 12 captured
+[ DEBUG ] (src/alsa_wrapper.c:playback_write:259) Write Success
+chunk 0 played
+
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 13 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 14 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 15 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 16 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 17 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 18 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 19 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 20 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 21 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 22 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 23 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 24 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 25 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 26 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 27 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 28 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 29 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 30 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 31 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 32 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 33 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 34 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 35 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 36 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 37 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 38 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 39 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 40 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 41 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 42 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 43 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 44 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 45 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 46 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 47 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 48 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 49 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 50 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 51 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 52 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 53 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 54 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 55 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 56 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 57 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 58 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 59 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 60 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 61 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 62 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 63 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 64 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 65 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 66 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 67 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 68 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 69 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 70 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 71 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 72 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 73 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 74 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 75 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 76 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 77 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 78 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 79 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 80 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 81 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 82 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 83 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 84 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 85 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 86 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 87 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 88 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 89 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 90 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 91 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 92 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 93 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 94 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 95 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 96 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 97 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 98 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 99 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 100 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 101 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 102 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 103 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 104 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 105 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 106 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 107 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 108 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 109 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 110 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 111 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 112 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 113 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 114 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 115 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 116 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 117 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 118 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 119 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 120 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 121 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 122 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 123 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 124 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 125 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 126 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 127 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 128 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 129 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 130 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 131 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 132 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 133 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 134 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 135 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 136 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 137 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 138 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 139 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 140 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 141 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 142 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 143 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 144 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 145 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 146 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 147 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 148 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 149 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 150 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 151 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 152 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 153 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 154 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 155 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 156 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 157 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 158 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 159 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 160 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 161 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 162 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 163 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 164 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 165 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 166 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 167 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 168 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 169 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 170 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 171 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 172 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 173 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 174 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 175 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 176 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 177 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 178 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 179 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 180 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 181 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 182 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 183 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 184 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 185 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 186 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 187 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 188 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 189 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 190 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 191 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 192 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:96) Frames to read = 128: Frames allready read = 128
+[ DEBUG ] (src/alsa_wrapper.c:capture_read:101) Read Success
+[ DEBUG ] (src/threads.c:thread_capture_audio:101) chunk 193 captured
+[WARNING] (src/threads.c:thread_capture_audio:110) loop cycle time 0.000000 ms
