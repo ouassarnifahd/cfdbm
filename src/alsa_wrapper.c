@@ -2,8 +2,8 @@
 #include "alsa_wrapper.h"
 #include "buffer_data.h"
 
-const char *pdevice = "hw:0,0";       /* playback device */
-const char *cdevice = "hw:0,0";       /* capture  device */
+char *pdevice = "hw:0,0";       /* playback device */
+char *cdevice = "hw:0,0";       /* capture  device */
 
 unsigned int rate = 16000;
 unsigned int channels = 2;
