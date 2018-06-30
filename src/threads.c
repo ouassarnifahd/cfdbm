@@ -34,7 +34,7 @@ void* thread_audio(void* parameters) {
 	capture_init();
 	playback_init();
 
-	audio_buffer = malloc(BUFFER_SIZE * frame_bytes);
+	audio_buffer = malloc(RAW_BUFFER_SIZE * frame_bytes);
 	debug("audio buffer allocated");
 
 	setscheduler();
@@ -44,11 +44,11 @@ void* thread_audio(void* parameters) {
     while (ok) {
         long tsc = get_cyclecount();
 
-        if ((r = capture_read(audio_buffer, BUFFER_SIZE)) < 0)
+        if ((r = capture_read(audio_buffer, RAW_BUFFER_SIZE)) < 0)
             ok = 0;
         else {
 			long tsc1 = get_cyclecount();
-			// applyFBDM_simple1(audio_buffer, r, 0);
+			applyFBDM_simple1(audio_buffer, r, 0);
 			long tsc2 = get_cyclecount();
 			warning("fdbm cycle time %lu", get_cyclediff(tsc1, tsc2));
             if (playback_write(audio_buffer, r) < 0)
