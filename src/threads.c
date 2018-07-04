@@ -325,6 +325,7 @@ void* thread_fdbm_fork(void* parameters) {
 
 	char* chunk = malloc(RAW_BUFFER_SIZE);
 	struct lot_of_parameters *passed = malloc(sizeof(struct lot_of_parameters));
+	debug("local buffer allocated");
 
 	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT)) {
 		passed->bridge = bridge;
@@ -334,6 +335,7 @@ void* thread_fdbm_fork(void* parameters) {
 	}
 
 	free(chunk);
+	free(passed);
 	pthread_exit(NULL);
 }
 
@@ -345,6 +347,7 @@ void* thread_fdbm(void* parameters) {
 
 	char buffer[RAW_BUFFER_SIZE];
 	memcpy(buffer, catched.buffer, RAW_BUFFER_SIZE);
+	debug("local buffer allocated");
 
 	debug("thread_fdbm: running...");
 	applyFBDM_simple1(buffer, SAMPLES_COUNT, 0);
