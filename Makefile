@@ -45,6 +45,7 @@ dbgFlags	:= -g -D __DEBUG__
 debugPath	:= debug
 verbose		?= context
 MK_VERBOSE	?= no
+MK_LOGERR	?= yes
 Release		?= no
 
 #targets
@@ -151,7 +152,9 @@ $(objPath)/%.o: $(srcPath)/%.c
 #debug
 $(debugPath)/%.o: $(srcPath)/%.c
 	$(SHOW)$(MAKE) directory path=$(dir $@)
-	$(SHOW)$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err
+	$(SHOW)if [ $(MK_LOGERR) -eq 'yes' ]; then \
+	$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err \
+	else $(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$<
 
 directory:
 	$(SHOW)[ -d $(path) ] || echo "$(LRED)Creating $(LPURPLE)Path:$(GREEN) $(path)$(NOCOLOR)"; $(MKDIR) $(path)
