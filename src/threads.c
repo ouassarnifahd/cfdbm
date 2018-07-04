@@ -353,7 +353,7 @@ void* thread_fdbm(void* parameters) {
 	debug("local buffer allocated");
 
 	debug("thread_fdbm: running...");
-	applyFBDM_simple1(buffer, SAMPLES_COUNT, 0);
+	// applyFBDM_simple1(buffer, SAMPLES_COUNT, 0);
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 
