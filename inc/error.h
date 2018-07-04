@@ -91,14 +91,14 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
   char log_str[LOG_BUFFER_SIZE];
 
   #ifdef __DEBUG_LOG_TIMESTAMP__
-    #define __TCS__ 1
+    #define __TSC__ 1
     static unsigned long tsc_run;
     char tsc_str[LOG_BUFFER_SIZE];
 
     #define init_timestamp() { tsc_run = get_cyclecount(); }
     #define get_time_from_start() get_timediff(tsc_run, get_cyclecount())
   #else
-    #define __TCS__ 0
+    #define __TSC__ 0
     char tsc_str[] = "\0";
   #endif // __DEBUG_LOG_TIMESTAMP__
 
