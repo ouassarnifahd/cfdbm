@@ -52,8 +52,8 @@ void threads_init() {
 	int manyCORES = sysconf(_SC_NPROCESSORS_ONLN);
 
 	// A tribute to pipes and pipelines...
-	pipe_t* pipe_into_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
-	pipe_t* pipe_from_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
+	pipe_t* pipe_into_fdbm = pipe_new(get_frame_bytes(), SAMPLES_COUNT * BUFFER_CHUNKS);
+	pipe_t* pipe_from_fdbm = pipe_new(get_frame_bytes(), SAMPLES_COUNT * BUFFER_CHUNKS);
 
 	pipe_producer_t* pipe_audio_in = pipe_producer_new(pipe_into_fdbm);
 	pipe_consumer_t* pipe_fdbm_in  = pipe_consumer_new(pipe_into_fdbm);
@@ -128,7 +128,7 @@ void* thread_capture_audio(void* parameters) {
 // 	// log_printf("CAPTURE Process is running...\n");
 //
 // 	audio_buffer_t capture = (audio_buffer_t*)parameters;
-// 	char* victime = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * frame_bytes);
+// 	char* victime = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * get_frame_bytes());
 //
 // 	pthread_mutex_lock(&mutex_audio_buffer);
 // 	capture->buffer = victime;
@@ -231,7 +231,7 @@ void* thread_playback_audio(void* parameters) {
 // 		if (pthread_mutex_trylock(&mutex_audio_buffer) == EBUSY) {
 // 			sleep_ms(10);
 // 		} else {
-// 			memcpy(victime, play->read_from, RAW_BUFFER_SIZE * frame_bytes);
+// 			memcpy(victime, play->read_from, RAW_BUFFER_SIZE * get_frame_bytes());
 // 			if () {
 // 				startFDBM = 1;
 // 				for (;;) {
@@ -267,7 +267,7 @@ void* thread_playback_audio(void* parameters) {
 // 	capture_init();
 // 	playback_init();
 //
-// 	audio_buffer = malloc(RAW_BUFFER_SIZE * frame_bytes);
+// 	audio_buffer = malloc(RAW_BUFFER_SIZE * get_frame_bytes());
 // 	debug("audio buffer allocated");
 //
 // 	setscheduler();

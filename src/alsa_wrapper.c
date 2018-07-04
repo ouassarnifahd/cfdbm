@@ -7,15 +7,20 @@ char *cdevice = "hw:0,0";       /* capture  device */
 
 unsigned int rate = 16000;
 unsigned int channels = 2;
+int frame_bytes;
 
 snd_pcm_t *capture_handle, *playback_handle;
 snd_pcm_hw_params_t *capture_hw_params, *playback_hw_params;
 snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
+int get_frame_bytes() {
+    return (snd_pcm_format_width(format) / 8) * channels;
+}
+
 void capture_init() {
     long err;
 
-    frame_bytes = (snd_pcm_format_width(format) / 8) * channels;
+    frame_bytes = get_frame_bytes();
 
     if ((err = snd_pcm_open(&capture_handle, cdevice, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         error("cannot open audio device %s (%s)", cdevice, snd_strerror (err));

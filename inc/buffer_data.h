@@ -7,7 +7,7 @@
 #define SAMPLES_COUNT (512)
 #define CHANNEL_SAMPLES_COUNT (SAMPLES_COUNT/2)
 
-#define RAW_BUFFER_SIZE (SAMPLES_COUNT * frame_bytes)
+#define RAW_BUFFER_SIZE (SAMPLES_COUNT * get_frame_bytes())
 
 #define SINT16_MAX (((1ull<<15)-1))
 
