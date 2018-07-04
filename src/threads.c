@@ -13,7 +13,7 @@ struct pipe_bridge_t {
 };
 typedef struct pipe_bridge_t pipe_bridge_t;
 
-#define BUFFER_CHUNKS 20
+#define BUFFER_CHUNKS 50
 
 int wasfreeCORE = 0;
 
