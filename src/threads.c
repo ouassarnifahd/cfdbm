@@ -307,7 +307,7 @@ INVISIBLE void fork_me(void* (*routine)(void*), void* parameters) {
 	if(pthread_create(&lost_child, NULL, routine, parameters)) {
 		error("fork failled!"); perror(NULL);
 	}
-	pthread_detach(&lost_child);
+	pthread_detach(lost_child);
 }
 
 struct lot_of_parameters {
@@ -322,7 +322,7 @@ void* thread_fdbm_fork(void* parameters) {
 	char* chunk = malloc(RAW_BUFFER_SIZE);
 	struct lot_of_parameters *passed = malloc(sizeof(struct lot_of_parameters));
 
-	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT) {
+	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT)) {
 		passed->bridge = bridge;
 		passed->buffer = chunk;
 		fork_me(thread_fdbm, &passed);
