@@ -29,7 +29,7 @@ INVISIBLE int get_freeCORE(int thisCORE, int manyCORES) {
 		if (i != thisCORE) {
 			wasfreeCORE = i;
 			debug("Free core %d found!", wasfreeCORE);
-			return wasfreeCORE;
+			return wasfreeCORE++;
 		}
 	}
 	warning("No core is free! Falling back to the process core");
@@ -50,6 +50,7 @@ void threads_init() {
 	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
 	int thisCORE = sched_getcpu();
 	int manyCORES = sysconf(_SC_NPROCESSORS_ONLN);
+	debug("main core %d (out of %d)", thisCORE, manyCORES);
 
 	// A tribute to pipes and pipelines...
 	pipe_t* pipe_into_fdbm = pipe_new(get_frame_bytes(), SAMPLES_COUNT * BUFFER_CHUNKS);
