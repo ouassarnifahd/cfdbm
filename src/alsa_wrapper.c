@@ -93,11 +93,11 @@ long capture_read(char* buffer, size_t len) {
         } else if (read < 0) {
             return -1;
         }
-        debug("Frames to read = %d: Frames allready read = %d", frames, read);
         if (read > 0) {
             frames -= read;
             buffer += read * frame_bytes;
         }
+        debug("Frames to read = %d: Frames allready read = %d", frames, read);
 		debug("Read Success");
     }
 
@@ -259,7 +259,7 @@ long playback_write(char* buffer, size_t len) {
         debug("Write Success");
     }
 
-    return total;
+    return total * frame_bytes;
     // long err, err2;
     //
     // do {

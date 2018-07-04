@@ -3,31 +3,37 @@
 #include "buffer_data.h"
 #include "fdbm.h"
 #include "threads.h"
+#include "pipe.h"
+#include "pipe_util.h"
 
-#define BUFFER_CHUNKS 10
-
-struct audio_buffer_struct {
-	char* buffer;
-	size_t len;
-	int chunk_w;
-	int chunk_r;
+// this is usefull!
+struct pipe_bridge_t {
+	pipe_consumer_t* from;
+	pipe_producer_t* to;
 };
-typedef struct audio_buffer_struct audio_buffer_t;
+typedef struct pipe_bridge_t pipe_bridge_t;
 
-audio_buffer_t ITD_audio_buffer = {NULL, 0, 0, 0};
+#define BUFFER_CHUNKS 20
 
-#define NANO_SECOND_MULTIPLIER 1000000L
-#define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
+int wasfreeCORE = 0;
 
-pthread_mutex_t mutex_audio_buffer = PTHREAD_MUTEX_INITIALIZER;
-
-int startFDBM = 0, FDBMdone = 0;
-
-static inline __attribute__((always_inline)) void attach_to_core(pthread_attr_t* attr, int i) {
+INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
 	cpu_set_t core_i;
 	CPU_ZERO(&core_i);
 	CPU_SET(i, &core_i);
 	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
+}
+
+INVISIBLE int get_freeCORE(int thisCORE, int manyCORES) {
+	for (register int i = wasfreeCORE; i < manyCORES; ++i) {
+		if (i != thisCORE) {
+			wasfreeCORE = i;
+			debug("Free core %d found!", wasfreeCORE);
+			return wasfreeCORE;
+		}
+	}
+	warning("No core is free! Falling back to the process core");
+	return thisCORE;
 }
 
 void threads_init() {
@@ -42,22 +48,38 @@ void threads_init() {
 
 	// printf("ID: %lu, CPU: %d\n", pthread_self(), sched_getcpu());
 	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
+	int thisCORE = sched_getcpu();
+	int manyCORES = sysconf(_SC_NPROCESSORS_ONLN);
 
-	playback_init();
-	attach_to_core(&attr_playback, 1);
-	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, NULL)) {
-		error("audio_playback_process init failed"); perror(NULL);
+	// A tribute to pipes and pipelines...
+	pipe_t* pipe_into_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
+	pipe_t* pipe_from_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
+
+	pipe_producer_t* pipe_audio_in = pipe_producer_new(pipe_into_fdbm);
+	pipe_consumer_t* pipe_fdbm_in  = pipe_consumer_new(pipe_into_fdbm);
+	pipe_free(pipe_into_fdbm);
+
+	pipe_producer_t* pipe_fdbm_out  = pipe_producer_new(pipe_from_fdbm);
+	pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
+	pipe_free(pipe_from_fdbm);
+
+	pipe_bridge_t fdbm_bridge = { .from = pipe_fdbm_in, .to = pipe_fdbm_out};
+
+	attach_to_core(&attr_fdbm, get_freeCORE(thisCORE, manyCORES));
+	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_fork, &fdbm_bridge)) {
+		error("fdbm_process init failed"); perror(NULL);
 	}
 
 	capture_init();
-	attach_to_core(&attr_capture, 0);
-	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, NULL)) {
+	attach_to_core(&attr_capture, get_freeCORE(thisCORE, manyCORES));
+	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, pipe_audio_in)) {
 		error("audio_capture_process init failed"); perror(NULL);
 	}
 
-	attach_to_core(&attr_fdbm, 2);
-	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm, NULL)) {
-		error("fdbm_process init failed"); perror(NULL);
+	playback_init();
+	attach_to_core(&attr_playback, get_freeCORE(thisCORE, manyCORES));
+	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, pipe_audio_out)) {
+		error("audio_playback_process init failed"); perror(NULL);
 	}
 
 	pthread_join(fdbm_process, NULL);
@@ -75,14 +97,13 @@ void* thread_capture_audio(void* parameters) {
 	debug("thread_capture_audio: init...");
 	// log_printf("CAPTURE Process is running...\n");
 
-	char *audio_buffer = NULL;
-	char *current_buffer_chunk = NULL;
-	int last_chunk_captured = 0;
-	long chunk_capture_count = 0;
+	pipe_producer_t* capture = (pipe_producer_t*)parameters;
 
-	audio_buffer = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * frame_bytes);
-	current_buffer_chunk = audio_buffer;
+	// Well! this what malloc calls its return variable..
+	char* victime = malloc(RAW_BUFFER_SIZE);
 	debug("audio buffer allocated");
+
+	long chunk_capture_count = 0;
 
 	// setscheduler();
 
@@ -90,38 +111,87 @@ void* thread_capture_audio(void* parameters) {
 
 	debug("thread_capture_audio: running...");
     while (ok) {
-        long tsc = get_cyclecount();
-		if ((r = capture_read(current_buffer_chunk, RAW_BUFFER_SIZE)) < 0)
-			ok = 0;
-		if (pthread_mutex_trylock(&mutex_audio_buffer) != EBUSY) {
-			ITD_audio_buffer.buffer = current_buffer_chunk;
-			ITD_audio_buffer.len = RAW_BUFFER_SIZE;
-			ITD_audio_buffer.chunk_w = last_chunk_captured;
-			pthread_mutex_unlock(&mutex_audio_buffer);
-			debug("chunk %lu captured", chunk_capture_count);
-			current_buffer_chunk = audio_buffer + last_chunk_captured * RAW_BUFFER_SIZE;
-			last_chunk_captured = (last_chunk_captured + 1) % BUFFER_CHUNKS;
-			++chunk_capture_count;
-			sleep_ms(4);
-        } else {
-			debug("mutex not acquiered! waiting for 10 ms");
-			sleep_ms(10);
-		}
-        warning("loop cycle time %lf ms", get_timediff_ms(tsc, get_cyclecount()));
+		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
+		pipe_push(capture, victime, SAMPLES_COUNT);
+		debug("chunk %lu pushed to the pipe!", ++chunk_capture_count);
     }
 
-	free(audio_buffer);
+	free(victime);
     debug("audio buffer freed");
 
 	pthread_exit(NULL);
 }
+
+// void* thread_capture_audio(void* parameters) {
+//
+// 	debug("thread_capture_audio: init...");
+// 	// log_printf("CAPTURE Process is running...\n");
+//
+// 	audio_buffer_t capture = (audio_buffer_t*)parameters;
+// 	char* victime = malloc(BUFFER_CHUNKS * RAW_BUFFER_SIZE * frame_bytes);
+//
+// 	pthread_mutex_lock(&mutex_audio_buffer);
+// 	capture->buffer = victime;
+// 	capture->len = BUFFER_CHUNKS * RAW_BUFFER_SIZE;
+//
+// 	capture->write_to = capture->buffer;
+// 	capture->written = 0;
+//
+// 	capture->read_from = NULL;
+// 	capture->read = 0;
+// 	pthread_mutex_unlock(&mutex_audio_buffer);
+// 	debug("audio buffer allocated");
+//
+// 	char *current_buffer_chunk = NULL;
+// 	int last_chunk_captured = 0;
+// 	long chunk_capture_count = 0;
+//
+// 	current_buffer_chunk = audio_buffer;
+//
+// 	// setscheduler();
+//
+//     int r, ok = 1;
+//
+// 	debug("thread_capture_audio: running...");
+//     while (ok) {
+// 		if ((r = capture_read(capture->write_to, RAW_BUFFER_SIZE)) < 0) ok = 0;
+// 		if (pthread_mutex_trylock(&mutex_audio_buffer) != EBUSY) {
+// 			capture->read_from = capture->write_to;
+// 			capture->written += r;
+// 			if (capture->written == capture->len) {
+// 				capture->written = 0;
+// 				if (!capture->read) {
+// 					// overrun error
+// 					error("overrun!!!");
+// 				}
+// 			}
+// 			capture->write_to = capture->buffer + capture->written;
+// 			pthread_mutex_unlock(&mutex_audio_buffer);
+// 			++chunk_capture_count;
+// 			debug("chunk %lu captured", chunk_capture_count);
+// 			sleep_ms(4);
+//         } else {
+// 			debug("mutex not acquiered! waiting for 10 ms");
+// 			sleep_ms(10);
+// 		}
+//     }
+//
+// 	free(capture->buffer);
+//     debug("audio buffer freed");
+//
+// 	pthread_exit(NULL);
+// }
 
 void* thread_playback_audio(void* parameters) {
 
 	debug("thread_playback_audio: init...");
 	// log_printf("PLAYBACK Process is running...\n");
 
-	audio_buffer_t play = {NULL, 0, 0, 0};
+	pipe_consumer_t* play = (pipe_consumer_t*)parameters;
+
+	char* victime = malloc(RAW_BUFFER_SIZE);
+	debug("audio buffer allocated");
+
 	long chunk_play_count = 0;
 
 	// setscheduler();
@@ -130,35 +200,62 @@ void* thread_playback_audio(void* parameters) {
 
 	debug("thread_playback_audio: running...");
     while (ok) {
-
-		if (pthread_mutex_trylock(&mutex_audio_buffer) == EBUSY) {
-			sleep_ms(5);
-		} else {
-			play.buffer = ITD_audio_buffer.buffer;
-			play.len = ITD_audio_buffer.len;
-			ITD_audio_buffer.chunk_r = play.chunk_w;
-			play.chunk_r = ITD_audio_buffer.chunk_w;
-			if (play.buffer || play.chunk_w != play.chunk_r) {
-				startFDBM = 1;
-				for (;;) {
-					if (FDBMdone) {
-						FDBMdone = 0;
-						if (playback_write(play.buffer, play.len) < 0) ok = 0;
-						log_printf("chunk %lu played\n", chunk_play_count);
-						play.chunk_w = (play.chunk_w + 1) % BUFFER_CHUNKS;
-						++chunk_play_count;
-					} else {
-						sleep_ms(1);
-					}
-				}
-			} else {
-				pthread_mutex_unlock(&mutex_audio_buffer);
-			}
-		}
+		pipe_pop(play, victime, SAMPLES_COUNT);
+		if (playback_write(victime, RAW_BUFFER_SIZE) < 0) ok = 0;
+		log_printf("chunk %lu played\n", ++chunk_play_count);
     }
+
+	free(victime);
+	debug("audio buffer freed");
 
 	pthread_exit(NULL);
 }
+
+// void* thread_playback_audio(void* parameters) {
+//
+// 	debug("thread_playback_audio: init...");
+// 	// log_printf("PLAYBACK Process is running...\n");
+//
+// 	audio_buffer_t play = (audio_buffer_t*)parameters;
+//
+// 	char* victime = malloc(RAW_BUFFER_SIZE);
+// 	long chunk_play_count = 0;
+//
+// 	// setscheduler();
+//
+//     int ok = 1;
+//
+// 	debug("thread_playback_audio: running...");
+//     while (ok) {
+//
+// 		if (pthread_mutex_trylock(&mutex_audio_buffer) == EBUSY) {
+// 			sleep_ms(10);
+// 		} else {
+// 			memcpy(victime, play->read_from, RAW_BUFFER_SIZE * frame_bytes);
+// 			if () {
+// 				startFDBM = 1;
+// 				for (;;) {
+// 					if (FDBMdone) {
+// 						FDBMdone = 0;
+// 						if (playback_write(victime, RAW_BUFFER_SIZE) < 0) ok = 0;
+//
+//
+// 						++chunk_play_count;
+// 						log_printf("chunk %lu played\n", chunk_play_count);
+// 					} else {
+// 						sleep_ms(5);
+// 					}
+// 				}
+// 			} else {
+// 				pthread_mutex_unlock(&mutex_audio_buffer);
+// 			}
+// 		}
+//     }
+//
+// 	free(victime);
+//
+// 	pthread_exit(NULL);
+// }
 
 // void* thread_audio(void* parameters) {
 //
@@ -202,30 +299,53 @@ void* thread_playback_audio(void* parameters) {
 // 	pthread_exit(NULL);
 // }
 
-void* thread_fdbm(void* parameters) {
+INVISIBLE void fork_me(void* (*routine)(void*), void* parameters) {
+	pthread_t lost_child;
+	pthread_attr_t attr_lost_child;
+	pthread_attr_init(&attr_lost_child);
+	attach_to_core(&attr_lost_child, sched_getcpu());
+	if(pthread_create(&lost_child, NULL, routine, parameters)) {
+		error("fork failled!"); perror(NULL);
+	}
+	pthread_detach(&lost_child);
+}
 
+struct lot_of_parameters {
+	pipe_bridge_t bridge;
+	char* buffer;
+}
+
+void* thread_fdbm_fork(void* parameters) {
+
+	pipe_bridge_t bridge = *(pipe_bridge_t*)parameters;
+
+	char* chunk = malloc(RAW_BUFFER_SIZE);
+	struct lot_of_parameters *passed = malloc(sizeof(struct lot_of_parameters));
+
+	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT) {
+		passed->bridge = bridge;
+		passed->buffer = chunk;
+		fork_me(thread_fdbm, &passed);
+		sleep_ms(10);
+	}
+
+	free(chunk);
+	pthread_exit(NULL);
+}
+
+void* thread_fdbm(void* parameters) {
 	debug("thread_fdbm: init...");
 	// log_printf("FDBM Process is running...\n");
 
-	audio_buffer_t chunk = {NULL, 0, 0, 0};
+	struct lot_of_parameters catched = *(struct lot_of_parameters*)parameters;
+
+	char buffer[RAW_BUFFER_SIZE];
+	memcpy(buffer, catched.buffer, RAW_BUFFER_SIZE);
 
 	debug("thread_fdbm: running...");
-	for (;;) {
-		if (startFDBM) {
-			startFDBM = 0;
-			if (ITD_audio_buffer.buffer) {
-				chunk.buffer = ITD_audio_buffer.buffer;
-				chunk.len = ITD_audio_buffer.len;
-				pthread_mutex_unlock(&mutex_audio_buffer);
-				applyFBDM_simple1(chunk.buffer, chunk.len, 0);
-				FDBMdone = 1;
-			} else {
-				pthread_mutex_unlock(&mutex_audio_buffer);
-			}
-		} else {
-			sleep_ms(5);
-		}
-	}
+	applyFBDM_simple1(buffer, SAMPLES_COUNT, 0);
+
+	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 
 	pthread_exit(NULL);
 }

@@ -1,24 +1,26 @@
 #ifndef __HEADER_BUFFER_DATA__
 #define __HEADER_BUFFER_DATA__
 
-// time spent in capture = n / rate = 32 ms
-#define RAW_BUFFER_SIZE (512)
-#define CHANNEL_BUFFER_SIZE (RAW_BUFFER_SIZE/2)
+#include "alsa_wrapper.h"
 
-// #define
+// time spent in capture = n / rate = 32 ms
+#define SAMPLES_COUNT (512)
+#define CHANNEL_SAMPLES_COUNT (SAMPLES_COUNT/2)
+
+#define RAW_BUFFER_SIZE (SAMPLES_COUNT * frame_bytes)
 
 #define SINT16_MAX (((1ull<<15)-1))
 
-extern float audio_R[RAW_BUFFER_SIZE];
-extern float audio_L[RAW_BUFFER_SIZE];
-
-extern float fft_re_R[CHANNEL_BUFFER_SIZE];
-extern float fft_im_R[CHANNEL_BUFFER_SIZE];
-
-extern float fft_re_L[CHANNEL_BUFFER_SIZE];
-extern float fft_im_L[CHANNEL_BUFFER_SIZE];
-
-extern float data_ILD[CHANNEL_BUFFER_SIZE];
-extern float data_IPD[CHANNEL_BUFFER_SIZE];
+// extern float audio_R[SAMPLES_COUNT];
+// extern float audio_L[SAMPLES_COUNT];
+//
+// extern float fft_re_R[CHANNEL_SAMPLES_COUNT];
+// extern float fft_im_R[CHANNEL_SAMPLES_COUNT];
+//
+// extern float fft_re_L[CHANNEL_SAMPLES_COUNT];
+// extern float fft_im_L[CHANNEL_SAMPLES_COUNT];
+//
+// extern float data_ILD[CHANNEL_SAMPLES_COUNT];
+// extern float data_IPD[CHANNEL_SAMPLES_COUNT];
 
 #endif /* end of include guard: __HEADER_BUFFER_DATA__ */

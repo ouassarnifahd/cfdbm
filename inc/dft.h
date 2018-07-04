@@ -8,8 +8,8 @@ typedef struct {
     float *im;
 } fcomplex_t;
 
-extern fcomplex_t fft_R;
-extern fcomplex_t fft_L;
+// extern fcomplex_t fft_R;
+// extern fcomplex_t fft_L;
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);
 

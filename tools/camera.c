@@ -126,7 +126,7 @@ int main()
 	int ret;
 	int camera_fd;
 
-	camera_fd = open("/dev/video0",O_RDWR);
+	camera_fd = open("/dev/video1",O_RDWR);
 
 	struct v4l2_fmtdesc fmt;
 	memset(&fmt,0x0,sizeof(fmt));
