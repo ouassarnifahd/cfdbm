@@ -153,8 +153,8 @@ $(objPath)/%.o: $(srcPath)/%.c
 $(debugPath)/%.o: $(srcPath)/%.c
 	$(SHOW)$(MAKE) directory path=$(dir $@)
 	$(SHOW)if [ $(MK_LOGERR) -eq 'yes' ]; then \
-	$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err \
-	else $(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$<
+	$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err; \
+	else $(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$<; fi
 
 directory:
 	$(SHOW)[ -d $(path) ] || echo "$(LRED)Creating $(LPURPLE)Path:$(GREEN) $(path)$(NOCOLOR)"; $(MKDIR) $(path)
