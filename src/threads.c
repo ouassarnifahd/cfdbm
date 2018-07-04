@@ -313,7 +313,7 @@ INVISIBLE void fork_me(void* (*routine)(void*), void* parameters) {
 struct lot_of_parameters {
 	pipe_bridge_t bridge;
 	char* buffer;
-}
+};
 
 void* thread_fdbm_fork(void* parameters) {
 
