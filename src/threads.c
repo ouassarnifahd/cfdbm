@@ -330,7 +330,7 @@ void* thread_fdbm_fork(void* parameters) {
 	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT)) {
 		passed->bridge = bridge;
 		passed->buffer = chunk;
-		fork_me(thread_fdbm, &passed);
+		fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
 
@@ -339,8 +339,11 @@ void* thread_fdbm_fork(void* parameters) {
 	pthread_exit(NULL);
 }
 
+int fdbm_running = 0;
+
 void* thread_fdbm(void* parameters) {
-	debug("thread_fdbm: init...");
+
+	debug("thread_fdbm(%d): init...", fdbm_running);
 	// log_printf("FDBM Process is running...\n");
 
 	struct lot_of_parameters catched = *(struct lot_of_parameters*)parameters;
@@ -354,5 +357,6 @@ void* thread_fdbm(void* parameters) {
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 
+	fdbm_running++;
 	pthread_exit(NULL);
 }
