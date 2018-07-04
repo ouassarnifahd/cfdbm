@@ -152,7 +152,7 @@ $(objPath)/%.o: $(srcPath)/%.c
 #debug
 $(debugPath)/%.o: $(srcPath)/%.c
 	$(SHOW)$(MAKE) directory path=$(dir $@)
-	$(SHOW)if [ $(MK_LOGERR) -eq 'yes' ]; then \
+	$(SHOW)if [ $(MK_LOGERR) = 'yes' ]; then \
 	$(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$< 2> $(basename $@).err; \
 	else $(MAKE) compile OBJ='yes' Flags="$(dbgFlags)" out=$@ in=$<; fi
 
