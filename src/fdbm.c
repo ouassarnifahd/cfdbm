@@ -60,7 +60,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     // 2D fft
     dft2_IPD_ILD(audio_L, audio_R, &fft_L, &fft_R, data_ILD, data_IPD, size);
     tsc2fdbm = get_cyclecount();
-    warning("2D fft cycle time %lf ms", get_timediff_ms(tsc1, tsc2fdbm));
+    warning("2D fft cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
 
@@ -71,7 +71,7 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     // 2D ifft
     idft2(&fft_L, &fft_R, audio_L, audio_R, size);
     tsc2fdbm = get_cyclecount();
-    warning("2D ifft cycle time %lf ms", get_timediff_ms(tsc1, tsc2fdbm));
+    warning("2D ifft cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
 
     tsc1fdbm = get_cyclecount();
     // reassemble

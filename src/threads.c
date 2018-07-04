@@ -200,9 +200,12 @@ void* thread_playback_audio(void* parameters) {
 
 	debug("thread_playback_audio: running...");
     while (ok) {
-		pipe_pop(play, victime, SAMPLES_COUNT);
-		if (playback_write(victime, RAW_BUFFER_SIZE) < 0) ok = 0;
-		log_printf("chunk %lu played\n", ++chunk_play_count);
+		while(pipe_pop(play, victime, SAMPLES_COUNT)) {
+			if (playback_write(victime, RAW_BUFFER_SIZE) < 0) {
+				ok = 0; break;
+			}
+			log_printf("chunk %lu played\n", ++chunk_play_count);
+		}
     }
 
 	free(victime);
