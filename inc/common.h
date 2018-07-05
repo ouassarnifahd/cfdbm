@@ -15,7 +15,7 @@
 
 // TODO !!!
 #define __DEBUG_LOG_TIMESTAMP__
-// #define __DEBUG_LOG_THREADS__
+#define __DEBUG_LOG_THREADS__
 // #define __DEBUG_LOG_CORES__
 
 #define INVISIBLE static inline __attribute__((always_inline))

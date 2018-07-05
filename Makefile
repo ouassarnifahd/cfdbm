@@ -11,7 +11,7 @@ ifeq ($(MK_EMBEDDED), yes)
 ifneq ($(HOST_ARCH), armv7l)
 CC			:= $(shell which arm-linux-gnueabihf-gcc)
 ifneq ($(notdir $(CC)), arm-linux-gnueabihf-gcc)
-$(error Cross compiler not found! Please 'apt install crossbuild-essential-armhf' and rebuild)
+$(error CC not found! Please `apt install crossbuild-essential-armhf' and rebuild or use `MK_EMBEDDED' switch)
 endif
 else
 CC			:= $(shell which gcc)
@@ -35,18 +35,20 @@ binPath		:= bin
 
 #Flags
 wFlags 		:= -Wall -O3
-# Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
+# Archs 	:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
 ifneq ($(HOST_ARCH), armv7l)
 ifeq ($(MK_EMBEDDED), yes)
-Archs 			:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
+Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float \
+			-mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
 LD_LIBRARY_PATH := /usr/lib/arm-linux-gnueabihf
 else
-Archs 			:= -ftree-vectorize -ffast-math
+Archs 		:= -ftree-vectorize -ffast-math
 # LD_LIBRARY_PATH := /usr/lib/x86_64-linux-gnu
 CFLAGS	 	+= -D __NO_NEON__
 endif
 else
-Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
+Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float \
+			-mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
 endif
 Frameworks 	:= -lasound -lm -lpthread
 Libs		:= -I$(libPath)
@@ -54,7 +56,7 @@ CFLAGS		+= $(wFlags) $(Archs) $(Libs)
 LDFLAGS 	+= $(Frameworks)
 
 # build version
-include Makefile.buildver
+# include Makefile.buildver
 
 #Project Name
 Project		:= CFDBM
@@ -180,13 +182,14 @@ $(debugPath)/%.o: $(srcPath)/%.c
 directory:
 	$(SHOW)[ -d $(path) ] || echo "$(LRED)Creating $(LPURPLE)Path:$(GREEN) $(path)$(NOCOLOR)"; $(MKDIR) $(path)
 
+# that was hilarious!
 compile:
 	$(SHOW)if [ $(OBJ) = 'yes' ]; then \
 		echo "$(LRED)Generating $(LPURPLE)Object $(LRED)file:$(GREEN) $(out)$(NOCOLOR)"; \
 		$(CC) -I $(incPath) $(CFLAGS) $(Flags) -c -o $(out) $(in); \
 	else \
 		echo "$(LRED)Generating $(LPURPLE)Binary $(LRED)file:$(GREEN) $(out)$(NOCOLOR)"; \
-		$(CC) $(LDFLAGS) $(CFLAGS) $(Flags) -o $(out) $(objects); \
+		$(CC) $(CFLAGS) $(Flags) -o $(out) $(objects) $(LDFLAGS); \
 	fi
 
 mrproper:
