@@ -26,6 +26,12 @@
 #define NANO_SECOND_MULTIPLIER 1000000L
 #define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
 
+#ifndef __NO_NEON__
+#include "neon_wrapper.h"
+#endif
+#include "alsa_wrapper.h"
+// #include "opencv_wrapper.h"
+
 void setscheduler(void);
 
 #endif /* end of include guard: __HEADER_COMMON__ */

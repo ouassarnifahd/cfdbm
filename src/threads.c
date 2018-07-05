@@ -1,6 +1,4 @@
 #include "common.h"
-#include "alsa_wrapper.h"
-#include "buffer_data.h"
 #include "fdbm.h"
 #include "threads.h"
 #include "pipe.h"
@@ -13,7 +11,7 @@ struct pipe_bridge_t {
 };
 typedef struct pipe_bridge_t pipe_bridge_t;
 
-#define BUFFER_CHUNKS 50
+#define BUFFER_CHUNKS 20
 
 int wasfreeCORE = 0;
 
@@ -32,7 +30,7 @@ INVISIBLE int get_freeCORE(int thisCORE, int manyCORES) {
 			return wasfreeCORE++;
 		}
 	}
-	warning("No core is free! Falling back to the process core");
+	warning("No core is free! Falling back to the process core %d", thisCORE);
 	return thisCORE;
 }
 
@@ -64,7 +62,7 @@ void threads_init() {
 	pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
 	pipe_free(pipe_from_fdbm);
 
-	pipe_bridge_t fdbm_bridge = { .from = pipe_fdbm_in, .to = pipe_fdbm_out};
+	pipe_bridge_t fdbm_bridge = { .from = pipe_fdbm_in, .to = pipe_fdbm_out };
 
 	attach_to_core(&attr_fdbm, get_freeCORE(thisCORE, manyCORES));
 	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_fork, &fdbm_bridge)) {
@@ -90,6 +88,11 @@ void threads_init() {
 
 	pthread_join(audio_playback_process, NULL);
 	playback_end();
+
+	pipe_producer_free(pipe_audio_in);
+	pipe_consumer_free(pipe_fdbm_in);
+	pipe_producer_free(pipe_fdbm_out);
+	pipe_consumer_free(pipe_audio_out);
 
 }
 
@@ -321,30 +324,43 @@ struct lot_of_parameters {
 
 void* thread_fdbm_fork(void* parameters) {
 
+	debug("thread_fdbm_fork: init...");
 	pipe_bridge_t bridge = *(pipe_bridge_t*)parameters;
 
-	char* chunk = malloc(RAW_BUFFER_SIZE);
 	struct lot_of_parameters *passed = malloc(sizeof(struct lot_of_parameters));
+	passed->buffer = malloc(RAW_BUFFER_SIZE);
 	debug("local buffer allocated");
 
-	while (pipe_pop(bridge.from, chunk, SAMPLES_COUNT)) {
+	long chunk_fork_count = 0;
+
+	debug("thread_fdbm_fork: running...");
+	while (pipe_pop(bridge.from, passed->buffer, SAMPLES_COUNT)) {
+		debug("chunk %lu in fork\n", ++chunk_fork_count);
 		passed->bridge = bridge;
-		passed->buffer = chunk;
 		fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
 
-	free(chunk);
+	free(passed->buffer);
 	free(passed);
 	pthread_exit(NULL);
 }
 
-int fdbm_running = 0;
+#define secured_stuff(mutex, stuff) do { \
+    pthread_mutex_lock(&mutex);          \
+    do { stuff; } while(0);      		 \
+    pthread_mutex_unlock(&mutex);        \
+ } while(0)
+
+int global_fdbm_running = 0;
+pthread_mutex_t mutex_fdbm = PTHREAD_MUTEX_INITIALIZER;
 
 void* thread_fdbm(void* parameters) {
 
-	debug("thread_fdbm(%d): init...", fdbm_running);
-	// log_printf("FDBM Process is running...\n");
+	int local_fdbm_running;
+	secured_stuff(mutex_fdbm, local_fdbm_running = ++global_fdbm_running);
+
+	debug("thread_fdbm(%d): init...", local_fdbm_running);
 
 	struct lot_of_parameters catched = *(struct lot_of_parameters*)parameters;
 
@@ -352,11 +368,11 @@ void* thread_fdbm(void* parameters) {
 	memcpy(buffer, catched.buffer, RAW_BUFFER_SIZE);
 	debug("local buffer allocated");
 
-	debug("thread_fdbm: running...");
+	debug("thread_fdbm(%d): running...", local_fdbm_running);
 	// applyFBDM_simple1(buffer, SAMPLES_COUNT, 0);
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
+	debug("thread_fdbm(%d): running...", local_fdbm_running);
 
-	fdbm_running++;
 	pthread_exit(NULL);
 }

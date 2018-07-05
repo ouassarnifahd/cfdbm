@@ -1,8 +1,21 @@
 #general
 HOST_ARCH	:= $(shell uname -m)
 
+# makefile switches
+MK_EMBEDDED ?= yes
+MK_VERBOSE	?= no
+MK_LOGERR	?= yes
+
+# very important things happens here
+ifeq ($(MK_EMBEDDED), yes)
 ifneq ($(HOST_ARCH), armv7l)
 CC			:= $(shell which arm-linux-gnueabihf-gcc)
+ifneq ($(notdir $(CC)), arm-linux-gnueabihf-gcc)
+$(error Cross compiler not found! Please 'apt install crossbuild-essential-armhf' and rebuild)
+endif
+else
+CC			:= $(shell which gcc)
+endif
 else
 CC			:= $(shell which gcc)
 endif
@@ -23,12 +36,22 @@ binPath		:= bin
 #Flags
 wFlags 		:= -Wall -O3
 # Archs 		:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
+ifneq ($(HOST_ARCH), armv7l)
+ifeq ($(MK_EMBEDDED), yes)
+Archs 			:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
+LD_LIBRARY_PATH := /usr/lib/arm-linux-gnueabihf
+else
+Archs 			:= -ftree-vectorize -ffast-math
+# LD_LIBRARY_PATH := /usr/lib/x86_64-linux-gnu
+CFLAGS	 	+= -D __NO_NEON__
+endif
+else
 Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float -mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
-LibsPath	:= -L/usr/lib/arm-linux-gnueabihf
+endif
 Frameworks 	:= -lasound -lm -lpthread
 Libs		:= -I$(libPath)
-CFLAGS		:= $(wFlags) $(Archs) $(Libs)
-LDFLAGS 	:= $(LibsPath) $(Frameworks)
+CFLAGS		+= $(wFlags) $(Archs) $(Libs)
+LDFLAGS 	+= $(Frameworks)
 
 # build version
 include Makefile.buildver
@@ -44,8 +67,6 @@ buildFlags  := -D __BUILD__
 dbgFlags	:= -g -D __DEBUG__
 debugPath	:= debug
 verbose		?= context
-MK_VERBOSE	?= no
-MK_LOGERR	?= yes
 Release		?= no
 
 #targets
@@ -90,7 +111,7 @@ endif
 #Colors
 BLACK	:= \033[0;30m
 GRAY	:= \033[1;30m
-RED	:= \033[0;31m
+RED		:= \033[0;31m
 LRED	:= \033[1;31m
 GREEN	:= \033[0;32m
 LGREEN	:= \033[1;32m
@@ -109,7 +130,7 @@ NOCOLOR := \033[0m
 #common: auto rec scan
 inc 	:= $(shell find $(incPath) -name '*.h')
 src  	:= $(shell find $(buildPath) -name '*.c')
-scr	:= $(shell find $(scrPath) -name '*.m')
+scr		:= $(shell find $(scrPath) -name '*.m')
 
 obj	:= $(src:$(srcPath)/%c=$(objPath)/%o)
 dobj	:= $(src:$(srcPath)/%c=$(debugPath)/%o)
@@ -165,7 +186,7 @@ compile:
 		$(CC) -I $(incPath) $(CFLAGS) $(Flags) -c -o $(out) $(in); \
 	else \
 		echo "$(LRED)Generating $(LPURPLE)Binary $(LRED)file:$(GREEN) $(out)$(NOCOLOR)"; \
-		$(CC) -I $(incPath) $(LDFLAGS) $(CFLAGS) $(Flags) -o $(out) $(objects); \
+		$(CC) $(LDFLAGS) $(CFLAGS) $(Flags) -o $(out) $(objects); \
 	fi
 
 mrproper:

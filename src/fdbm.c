@@ -2,7 +2,6 @@
 #include "fdbm.h"
 #include "dft.h"
 #include "ipdild_data.h"
-#include "buffer_data.h"
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 

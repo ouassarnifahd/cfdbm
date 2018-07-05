@@ -1,15 +1,10 @@
 #ifndef __HEADER_DFT__
 #define __HEADER_DFT__
 
-#include "buffer_data.h"
-
 typedef struct {
     float *re;
     float *im;
 } fcomplex_t;
-
-// extern fcomplex_t fft_R;
-// extern fcomplex_t fft_L;
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);
 

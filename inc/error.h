@@ -16,17 +16,27 @@
 #define CLR_PPL "\033[0;35m"
 #define CLR_WIT "\033[0m"
 
-char out_buf[LOG_BUFFER_SIZE];
-char out_str[LOG_BUFFER_SIZE];
+char out_buf[LOG_BUFFER_SIZE * 2];
+char out_str[LOG_BUFFER_SIZE * 2];
 
 //perf
 #define CYCLE_TIME_NS (1e-9L)
 #define CYCLE_TIME_MS (CYCLE_TIME_NS * 1e6L)
 #define CYCLE_TIME_S  (CYCLE_TIME_MS * 1e3L)
 
+#if defined (__x86_64__) || defined (__i386__)
+INVISIBLE unsigned long long rdtsc(void) {
+    unsigned long hi = 0, lo = 0;
+    // asm volatile ("");
+    asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
+    return (unsigned long long)hi << 32 | (unsigned long long)lo;
+}
+#endif
+
 INVISIBLE unsigned long get_cyclecount(void) {
     #if defined (__x86_64__) || defined (__i386__)
-    // here intel/amd timestamp assembly...
+    // intel/amd timestamp assembly instruction rdtsc
+    return (unsigned long)rdtsc();
     #elif defined (__arm__)
     register unsigned int pmccntr;
     register unsigned int pmuseren;
@@ -72,9 +82,9 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     fprintf(stdout, "%s", out_buf); }
 
 #define error(MSG, ...) {\
-    sprintf(out_str, CLR_RED"[ERROR]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
-    fprintf(stderr, "%s\n", out_str); fflush(stderr); exit(0); }
+    int written_str = 0; \
+    written_str += sprintf(out_str + written_str, CLR_RED"[ERROR]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    sprintf(out_str + written_str, MSG, ##__VA_ARGS__); fprintf(stderr, "%s\n", out_str); fflush(stderr); exit(0); }
 
 #define warning(MSG, ...)
 
@@ -93,13 +103,10 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
   #ifdef __DEBUG_LOG_TIMESTAMP__
     #define __TSC__ 1
     static unsigned long tsc_run;
-    char tsc_str[LOG_BUFFER_SIZE];
-
     #define init_timestamp() { tsc_run = get_cyclecount(); }
     #define get_time_from_start() get_timediff(tsc_run, get_cyclecount())
   #else
     #define __TSC__ 0
-    char tsc_str[] = "\0";
   #endif // __DEBUG_LOG_TIMESTAMP__
 
   #define ctime_date(str_TIME, str) { \
@@ -139,31 +146,44 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
   #define log(str) {\
     logfile = fopen(LOGFILE_PATH, "a"); \
     if (!logfile) { fprintf(stderr, CLR_RED"[ERROR]"CLR_WIT" '%s' wont open!\n", LOGFILE_PATH); exit(0); } \
-    if (__TSC__ == 1) { sprintf(tsc_str, "["CLR_BLU"%3.8lf"CLR_WIT"]", get_time_from_start()); \
-    fprintf(logfile, "%s %s\n",tsc_str, str); } else { fprintf(logfile, "%s\n", str); } \
-    fflush(logfile); fclose(logfile); logfile = NULL; }
+    fprintf(logfile, "%s\n", str); fflush(logfile); fclose(logfile); logfile = NULL; }
 
   #undef error
-  #define error(MSG, ...) {\
-    sprintf(out_str, CLR_RED"[ ERROR ]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(log_str, "[ ERROR ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
-    strcat(log_str, out_buf); fprintf(stderr, "%s\n", out_str); \
-    fflush(stderr); if(__DEBUG__) log(log_str); exit(0); }
+  #define error(MSG, ...) { \
+    int written_str = 0, written_log = 0; \
+    if (__TSC__ == 1) { \
+      double time_it_here = get_time_from_start(); \
+      written_str += sprintf(out_str, "["CLR_BLU"%3.8lf"CLR_WIT"]", time_it_here); \
+      written_log += sprintf(log_str, "[%3.8lf]", time_it_here); } \
+    written_str += sprintf(out_str + written_str, CLR_RED"[ ERROR ]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "[ ERROR ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
+    written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
+    fprintf(stderr, "%s\n", out_str); fflush(stderr); log(log_str); exit(0); }
   #undef warning
-  #define warning(MSG, ...) {\
-    sprintf(out_str, CLR_YLW"[WARNING]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(log_str, "[WARNING] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
-    strcat(log_str, out_buf); fprintf(stdout, "%s\n", out_str); \
-    fflush(stdout); log(log_str); }
+  #define warning(MSG, ...) { \
+    int written_str = 0, written_log = 0; \
+    if (__TSC__ == 1) { \
+      double time_it_here = get_time_from_start(); \
+      written_str += sprintf(out_str, "["CLR_BLU"%3.8lf"CLR_WIT"]", time_it_here); \
+      written_log += sprintf(log_str, "[%3.8lf]", time_it_here); } \
+    written_str += sprintf(out_str + written_str, CLR_YLW"[WARNING]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "[WARNING] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
+    written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
+    fprintf(stdout, "%s\n", out_str); fflush(stdout); log(log_str); }
   #undef debug
-  #define debug(MSG, ...) {\
-    sprintf(out_str, CLR_PPL"[ DEBUG ]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(log_str, "[ DEBUG ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    sprintf(out_buf, MSG, ##__VA_ARGS__); strcat(out_str, out_buf); \
-    strcat(log_str, out_buf); fprintf(stdout, "%s\n", out_str); \
-    fflush(stdout); log(log_str); }
+  #define debug(MSG, ...) { \
+    int written_str = 0, written_log = 0; \
+    if (__TSC__ == 1) { \
+      double time_it_here = get_time_from_start(); \
+      written_str += sprintf(out_str, "["CLR_BLU"%3.8lf"CLR_WIT"]", time_it_here); \
+      written_log += sprintf(log_str, "[%3.8lf]", time_it_here); } \
+    written_str += sprintf(out_str + written_str, CLR_PPL"[ DEBUG ]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "[ DEBUG ] (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
+    written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
+    fprintf(stdout, "%s\n", out_str); fflush(stdout); log(log_str); }
 
   #undef log_printf
   #define log_printf(MSG, ...) {\

@@ -1,16 +1,6 @@
 #include "common.h"
 #include "dft.h"
 
-// fcomplex_t fft_R = {
-//     fft_re_R,
-//     fft_im_R,
-// };
-//
-// fcomplex_t fft_L = {
-//     fft_re_L,
-//     fft_im_L,
-// };
-
 // Twiddle factors (512 roots of unity)
 const float W[] = {
     1.00000, 0.99992, 0.99970, 0.99932, 0.99880, 0.99812, 0.99729, 0.99631,

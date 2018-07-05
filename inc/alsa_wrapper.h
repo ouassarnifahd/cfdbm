@@ -3,7 +3,14 @@
 
 #include <alsa/asoundlib.h>
 
+// time spent in capture = n / rate = 32 ms
+#define SAMPLES_COUNT (512)
+#define CHANNEL_SAMPLES_COUNT (SAMPLES_COUNT/2)
+
 int get_frame_bytes();
+#define RAW_BUFFER_SIZE (SAMPLES_COUNT * get_frame_bytes())
+
+#define SINT16_MAX (((1ull<<15)-1))
 
 // audio capture
 void capture_init();

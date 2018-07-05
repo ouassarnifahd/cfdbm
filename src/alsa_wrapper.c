@@ -1,6 +1,4 @@
 #include "common.h"
-#include "alsa_wrapper.h"
-#include "buffer_data.h"
 
 char *pdevice = "hw:0,0";       /* playback device */
 char *cdevice = "hw:0,0";       /* capture  device */
