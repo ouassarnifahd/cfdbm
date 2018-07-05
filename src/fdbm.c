@@ -23,17 +23,16 @@ static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int s
     }
 }
 
-void applyFBDM_simple1(char* buffer, int size, int doa) {
+void applyFDBM_simple1(char* buffer, int size, int doa) {
+    debug("Entering FDBM...");
     int16_t* samples = (int16_t*) buffer;
 
     float audio_R[SAMPLES_COUNT] = {0};
     float audio_L[SAMPLES_COUNT] = {0};
 
-    long tsc1fdbm = get_cyclecount();
     // split
     get_buffer_LR(samples, size, audio_L, audio_R);
-    long tsc2fdbm = get_cyclecount();
-    warning("spliting cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
+    warning("Buffer Splited!");
 
     // TODO? Function context stack expantion!!
     float fft_re_R[CHANNEL_SAMPLES_COUNT] = {0};
@@ -55,30 +54,25 @@ void applyFBDM_simple1(char* buffer, int size, int doa) {
     float data_ILD[CHANNEL_SAMPLES_COUNT] = {0};
     float data_IPD[CHANNEL_SAMPLES_COUNT] = {0};
 
-    tsc1fdbm = get_cyclecount();
     // 2D fft
     dft2_IPD_ILD(audio_L, audio_R, &fft_L, &fft_R, data_ILD, data_IPD, size);
-    tsc2fdbm = get_cyclecount();
-    warning("2D fft cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
+    warning("2D fft done!");
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
 
     // apply Gain
 
 
-    tsc1fdbm = get_cyclecount();
+
     // 2D ifft
     idft2(&fft_L, &fft_R, audio_L, audio_R, size);
-    tsc2fdbm = get_cyclecount();
-    warning("2D ifft cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
+    warning("2D ifft done!");
 
-    tsc1fdbm = get_cyclecount();
     // reassemble
     set_buffer_LR(audio_L, audio_R, samples, size);
-    tsc2fdbm = get_cyclecount();
-    warning("reassemble cycle time %lf ms", get_timediff_ms(tsc1fdbm, tsc2fdbm));
+    warning("Buffer Reassembled!");
 }
 
-void applyFBDM_simple2(char* buffer, int size, int doa1, int doa2);
+void applyFDBM_simple2(char* buffer, int size, int doa1, int doa2);
 
-void applyFBDM(char* buffer, int size, const int const * doa, int sd);
+void applyFDBM(char* buffer, int size, const int const * doa, int sd);

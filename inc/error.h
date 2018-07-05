@@ -8,7 +8,7 @@
 #define INVISIBLE static inline __attribute__((always_inline))
 #endif
 
-#ifndef sleep_ms()
+#ifndef sleep_ms
 #define NANO_SECOND_MULTIPLIER 1000000L
 #define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
 #endif
@@ -48,6 +48,7 @@ char out_str[LOG_BUFFER_SIZE];
 
 #ifdef __DEBUG__
   #include <time.h>
+  #define __DEBUG_USE_CLOCK__
 
   #define LOGFILE_PATH "./debug/logfile.mlb"
 
@@ -56,18 +57,18 @@ char out_str[LOG_BUFFER_SIZE];
 
   //perf (still too early for this!!)
   #if defined (__DEBUG_USE_CPU_INFO_FREQ__)
-  #include <pthread.h>
+    #include <pthread.h>
 
-  #define init_clk(x) static double clk_MHz_##x = 0
-  #define init_clk_lock(x) static pthread_mutex_t mutex_clk##x = PTHREAD_MUTEX_INITIALIZER
-  #define clk_lock(x) pthread_mutex_lock(&mutex_clk##x)
-  #define clk_unlock(x) pthread_mutex_unlock(&mutex_clk##x)
+    #define init_clk(x) static double clk_MHz_##x = 0
+    #define init_clk_lock(x) static pthread_mutex_t mutex_clk##x = PTHREAD_MUTEX_INITIALIZER
+    #define clk_lock(x) pthread_mutex_lock(&mutex_clk##x)
+    #define clk_unlock(x) pthread_mutex_unlock(&mutex_clk##x)
 
-  INVISIBLE void init_cpu_freq() {
+    INVISIBLE void init_cpu_freq() {
       // read the /proc/cpuinfo scroll..
-  }
+    }
 
-  static void* fetch_cpu_freq_routine(void* parameters) {
+    static void* fetch_cpu_freq_routine(void* parameters) {
       int delay = *(int*)parameters;
       while (1) {
           clk_lock()
@@ -76,35 +77,49 @@ char out_str[LOG_BUFFER_SIZE];
           sleep_ms(delay);
       }
       pthread_exit(NULL);
-  }
+    }
 
   #elif defined (__DEBUG_USE_CLOCK__)
 
-  static clock_t stamp;
+    #include <time.h>
+    #define get_cyclecount() clock()
+    #define get_cputimediff(tsc1, tsc2) (double)(tsc2-tsc1)/CLOCKS_PER_SEC
+
+    INVISIBLE double TimeSpecToSeconds(struct timespec* ts) {
+      return (double)ts->tv_sec + (double)ts->tv_nsec / 1000000000.0;
+    }
+    INVISIBLE struct timespec get_realtimecount() {
+      struct timespec rtc;
+      if(clock_gettime(CLOCK_MONOTONIC, &rtc));
+      return rtc;
+    }
+
+    #define get_realtimediff(tsc1, tsc2) (TimeSpecToSeconds(tsc2)-TimeSpecToSeconds(tsc1))
 
   #else // __DEBUG_USE_RDTSC__
-  #define KHz (10000L)
-  #define MHz (10000000L)
-  #define CPU_FREQUENCY (1000L * MHz)
-  #define CYCLE_TIME_S  (0.0000000001L) // 1e-9
-  #define CYCLE_TIME_MS (CYCLE_TIME_S * KHz) // 1e-6
-  #define CYCLE_TIME_NS (CYCLE_TIME_S * 1000L * MHz) // 1
 
-  #if defined (__x86_64__)
-  INVISIBLE unsigned long long rdtsc(void) {
+    #define KHz (10000L)
+    #define MHz (10000000L)
+    #define CPU_FREQUENCY (1000L * MHz)
+    #define CYCLE_TIME_S  (0.0000000001L) // 1e-9
+    #define CYCLE_TIME_MS (CYCLE_TIME_S * KHz) // 1e-6
+    #define CYCLE_TIME_NS (CYCLE_TIME_S * 1000L * MHz) // 1
+
+    #if defined (__x86_64__)
+    INVISIBLE unsigned long long rdtsc(void) {
       unsigned long hi = 0, lo = 0;
       asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
       return (unsigned long long)hi << 32 | (unsigned long long)lo;
-  }
-  #elif defined (__i386__)
-  INVISIBLE unsigned long long rdtsc(void) {
+    }
+    #elif defined (__i386__)
+    INVISIBLE unsigned long long rdtsc(void) {
       unsigned long x = 0;
       asm volatile ("rdtsc" : "=A" (x));
       return (unsigned long long)x;
-  }
-  #endif
+    }
+    #endif
 
-  INVISIBLE unsigned long get_cyclecount(void) {
+    INVISIBLE unsigned long get_cyclecount(void) {
       #if defined (__x86_64__) || defined (__i386__)
       // intel/amd timestamp assembly instruction rdtsc
       return (unsigned long)rdtsc();
@@ -128,39 +143,39 @@ char out_str[LOG_BUFFER_SIZE];
       if(!print_once++) warning("Incompatible architecture!");
       return 0;
       #endif
-  }
+    }
 
-  INVISIBLE unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {
+    INVISIBLE unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {
       return tsc2 - tsc1;
-  }
+    }
 
-  INVISIBLE double get_timediff(unsigned long tsc1, unsigned long tsc2) {
-      #ifdef __DEBUG_USE_CLOCK__
-
-      #else
+    INVISIBLE double get_cputimediff(unsigned long tsc1, unsigned long tsc2) {
       return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_S;
-      #endif
-  }
+    }
 
-  INVISIBLE double get_timediff_ns(unsigned long tsc1, unsigned long tsc2) {
-      #ifdef __DEBUG_USE_CLOCK__
-
-      #else
+    INVISIBLE double get_timediff_ns(unsigned long tsc1, unsigned long tsc2) {
       return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_NS;
-      #endif
-  }
+    }
 
-  INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
+    INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
       return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_MS;
-  }
+    }
 
   #endif // __DEBUG_USE_CPU_INFO_FREQ__
 
   #ifdef __DEBUG_LOG_TIMESTAMP__
     #define __TSC__ 1
-    static unsigned long tsc_run;
-    #define init_timestamp() { tsc_run = get_cyclecount(); }
-    #define get_time_from_start() get_timediff(tsc_run, get_cyclecount())
+    static clock_t tsc_start;
+    static struct timespec rtc_start;
+
+    #define init_timestamp() { tsc_start = get_cyclecount(); }
+    #define init_localtime() { rtc_start = get_realtimecount(); }
+    #define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
+
+    INVISIBLE double get_realtime_from_start() {
+        struct timespec rtc_now = get_realtimecount();
+        return get_realtimediff(&rtc_start, &rtc_now);
+    }
   #else
     #define __TSC__ 0
   #endif // __DEBUG_LOG_TIMESTAMP__
@@ -206,7 +221,7 @@ char out_str[LOG_BUFFER_SIZE];
     fprintf(logfile, "# Compiled on %s at %s\n", __DATE__, __TIME__); \
     fprintf(logfile, "# Executed on %s at %s\n", _date_, _time_); \
     fprintf(logfile, "###########################################################\n\n"); \
-    fflush(logfile); fclose(logfile); logfile = NULL; if (__TSC__ == 1) init_timestamp(); }
+    fflush(logfile); fclose(logfile); logfile = NULL; if (__TSC__ == 1) { init_timestamp(); init_localtime(); } }
 
   #define log(str) { \
     logfile = fopen(LOGFILE_PATH, "a"); \
@@ -225,9 +240,10 @@ char out_str[LOG_BUFFER_SIZE];
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
-      double time_it_here = get_time_from_start(); \
-      written_str += sprintf(out_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
-      written_log += sprintf(log_str, "[%3.8lf] ", time_it_here); } \
+      double stamp_it_here = get_cputime_from_start(); \
+      double time_it_here = get_realtime_from_start(); \
+      written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
+      written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
     written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
@@ -245,9 +261,10 @@ char out_str[LOG_BUFFER_SIZE];
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
-      double time_it_here = get_time_from_start(); \
-      written_str += sprintf(out_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
-      written_log += sprintf(log_str, "[%3.8lf] ", time_it_here); } \
+      double stamp_it_here = get_cputime_from_start(); \
+      double time_it_here = get_realtime_from_start(); \
+      written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
+      written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
     written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
@@ -264,9 +281,10 @@ char out_str[LOG_BUFFER_SIZE];
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
-      double time_it_here = get_time_from_start(); \
-      written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
-      written_log += sprintf(log_str + written_log, "[%3.8lf] ", time_it_here); } \
+      double stamp_it_here = get_cputime_from_start(); \
+      double time_it_here = get_realtime_from_start(); \
+      written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
+      written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
     written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
