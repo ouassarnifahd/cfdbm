@@ -4,7 +4,14 @@
 // #define __DEBUG_LOG_TIMESTAMP__
 // #define __DEBUG_LOG_THREADS__
 
-// #define INVISIBLE static inline __attribute__((always_inline))
+#ifndef INVISIBLE
+#define INVISIBLE static inline __attribute__((always_inline))
+#endif
+
+#ifndef sleep_ms()
+#define NANO_SECOND_MULTIPLIER 1000000L
+#define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
+#endif
 
 #define LOG_BUFFER_SIZE 512
 
@@ -17,71 +24,6 @@
 
 char out_buf[LOG_BUFFER_SIZE];
 char out_str[LOG_BUFFER_SIZE];
-
-//perf
-#define KHz (10000L)
-#define MHz (10000000L)
-#define GHz (1000000000L)
-#define CPU_FREQUENCY (1*GHz)
-#define CYCLE_TIME_S  (1/CPU_FREQUENCY)
-#define CYCLE_TIME_MS (CYCLE_TIME_S * KHz)
-#define CYCLE_TIME_NS (CYCLE_TIME_S * GHz)
-
-#if defined (__x86_64__)
-INVISIBLE unsigned long long rdtsc(void) {
-    unsigned long hi = 0, lo = 0;
-    asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
-    return (unsigned long long)hi << 32 | (unsigned long long)lo;
-}
-#elif defined (__i386__)
-INVISIBLE unsigned long long rdtsc(void) {
-    unsigned long x = 0;
-    asm volatile ("rdtsc" : "=A" (x));
-    return (unsigned long long)x;
-}
-#endif
-
-INVISIBLE unsigned long get_cyclecount(void) {
-    #if defined (__x86_64__) || defined (__i386__)
-    // intel/amd timestamp assembly instruction rdtsc
-    return (unsigned long)rdtsc();
-    #elif defined (__arm__)
-    register unsigned int pmccntr;
-    register unsigned int pmuseren;
-    register unsigned int pmcntenset;
-    // Read the user mode perf monitor counter access permissions.
-    asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
-    if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
-        asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
-        if (pmcntenset & 0x80000000ul) {  // Is it counting?
-            asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
-            // The counter is set up to count every 64th cycle
-            return (unsigned long) pmccntr << 6;  // Should optimize to << 6
-        }
-    }
-    return 1;
-    #else
-    static unsigned long long print_once = 0;
-    if(!print_once++) warning("Incompatible architecture!");
-    return 0;
-    #endif
-}
-
-INVISIBLE unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {
-    return tsc2 - tsc1;
-}
-
-INVISIBLE double get_timediff(unsigned long tsc1, unsigned long tsc2) {
-    return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_S;
-}
-
-INVISIBLE double get_timediff_ns(unsigned long tsc1, unsigned long tsc2) {
-    return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_NS;
-}
-
-INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
-    return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_MS;
-}
 
 #define init_log()
 
@@ -112,6 +54,108 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
   static FILE* logfile = NULL;
   char log_str[LOG_BUFFER_SIZE];
 
+  //perf (still too early for this!!)
+  #if defined (__DEBUG_USE_CPU_INFO_FREQ__)
+  #include <pthread.h>
+
+  #define init_clk(x) static double clk_MHz_##x = 0
+  #define init_clk_lock(x) static pthread_mutex_t mutex_clk##x = PTHREAD_MUTEX_INITIALIZER
+  #define clk_lock(x) pthread_mutex_lock(&mutex_clk##x)
+  #define clk_unlock(x) pthread_mutex_unlock(&mutex_clk##x)
+
+  INVISIBLE void init_cpu_freq() {
+      // read the /proc/cpuinfo scroll..
+  }
+
+  static void* fetch_cpu_freq_routine(void* parameters) {
+      int delay = *(int*)parameters;
+      while (1) {
+          clk_lock()
+          // use that magic here
+          clk_unlock()
+          sleep_ms(delay);
+      }
+      pthread_exit(NULL);
+  }
+
+  #elif defined (__DEBUG_USE_CLOCK__)
+
+  static clock_t stamp;
+
+  #else // __DEBUG_USE_RDTSC__
+  #define KHz (10000L)
+  #define MHz (10000000L)
+  #define CPU_FREQUENCY (1000L * MHz)
+  #define CYCLE_TIME_S  (0.0000000001L) // 1e-9
+  #define CYCLE_TIME_MS (CYCLE_TIME_S * KHz) // 1e-6
+  #define CYCLE_TIME_NS (CYCLE_TIME_S * 1000L * MHz) // 1
+
+  #if defined (__x86_64__)
+  INVISIBLE unsigned long long rdtsc(void) {
+      unsigned long hi = 0, lo = 0;
+      asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
+      return (unsigned long long)hi << 32 | (unsigned long long)lo;
+  }
+  #elif defined (__i386__)
+  INVISIBLE unsigned long long rdtsc(void) {
+      unsigned long x = 0;
+      asm volatile ("rdtsc" : "=A" (x));
+      return (unsigned long long)x;
+  }
+  #endif
+
+  INVISIBLE unsigned long get_cyclecount(void) {
+      #if defined (__x86_64__) || defined (__i386__)
+      // intel/amd timestamp assembly instruction rdtsc
+      return (unsigned long)rdtsc();
+      #elif defined (__arm__)
+      register unsigned int pmccntr;
+      register unsigned int pmuseren;
+      register unsigned int pmcntenset;
+      // Read the user mode perf monitor counter access permissions.
+      asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
+      if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
+          asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
+          if (pmcntenset & 0x80000000ul) {  // Is it counting?
+              asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
+              // The counter is set up to count every 64th cycle
+              return (unsigned long) pmccntr << 6;  // Should optimize to << 6
+          }
+      }
+      return 1;
+      #else
+      static unsigned long long print_once = 0;
+      if(!print_once++) warning("Incompatible architecture!");
+      return 0;
+      #endif
+  }
+
+  INVISIBLE unsigned long get_cyclediff(unsigned long tsc1, unsigned long tsc2) {
+      return tsc2 - tsc1;
+  }
+
+  INVISIBLE double get_timediff(unsigned long tsc1, unsigned long tsc2) {
+      #ifdef __DEBUG_USE_CLOCK__
+
+      #else
+      return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_S;
+      #endif
+  }
+
+  INVISIBLE double get_timediff_ns(unsigned long tsc1, unsigned long tsc2) {
+      #ifdef __DEBUG_USE_CLOCK__
+
+      #else
+      return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_NS;
+      #endif
+  }
+
+  INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
+      return (double)get_cyclediff(tsc1, tsc2) * (double)CYCLE_TIME_MS;
+  }
+
+  #endif // __DEBUG_USE_CPU_INFO_FREQ__
+
   #ifdef __DEBUG_LOG_TIMESTAMP__
     #define __TSC__ 1
     static unsigned long tsc_run;
@@ -125,7 +169,6 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     #define __TRD__ 1
     #include <pthread.h>
     #include <sched.h>
-    static int core_self = 0;
     static pthread_mutex_t lock_printf = PTHREAD_MUTEX_INITIALIZER;
     #define printf_lock() pthread_mutex_lock(&lock_printf)
     #define printf_unlock() pthread_mutex_unlock(&lock_printf)
@@ -163,8 +206,7 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     fprintf(logfile, "# Compiled on %s at %s\n", __DATE__, __TIME__); \
     fprintf(logfile, "# Executed on %s at %s\n", _date_, _time_); \
     fprintf(logfile, "###########################################################\n\n"); \
-    fflush(logfile); fclose(logfile); logfile = NULL; \
-    if (__TSC__ == 1) init_timestamp(); if (__TRD__ == 1) core_self = sched_getcpu(); }
+    fflush(logfile); fclose(logfile); logfile = NULL; if (__TSC__ == 1) init_timestamp(); }
 
   #define log(str) { \
     logfile = fopen(LOGFILE_PATH, "a"); \
@@ -179,9 +221,9 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     written_str += sprintf(out_str + written_str, CLR_RED"[ ERROR ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ ERROR ] "); \
     if (__TRD__ == 1) { \
-      int self = pthread_self(); int core = sched_getcpu();\
-      written_str += sprintf(out_str + written_str, CLR_BLU"{#%d@%d} "CLR_WIT, self, core); \
-      written_log += sprintf(log_str + written_log, "{#%d@%d} ", self, core); } \
+      unsigned long self = pthread_self(); int core = sched_getcpu();\
+      written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
+      written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
       double time_it_here = get_time_from_start(); \
       written_str += sprintf(out_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
@@ -199,9 +241,9 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     written_str += sprintf(out_str + written_str, CLR_YLW"[WARNING]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[WARNING] "); \
     if (__TRD__ == 1) { \
-      int self = pthread_self(); int core = sched_getcpu();\
-      written_str += sprintf(out_str + written_str, CLR_BLU"{#%d@%d} "CLR_WIT, self, core); \
-      written_log += sprintf(log_str + written_log, "{#%d@%d} ", self, core); } \
+      unsigned long self = pthread_self(); int core = sched_getcpu();\
+      written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
+      written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
       double time_it_here = get_time_from_start(); \
       written_str += sprintf(out_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
@@ -218,9 +260,9 @@ INVISIBLE double get_timediff_ms(unsigned long tsc1, unsigned long tsc2) {
     written_str += sprintf(out_str + written_str, CLR_PPL"[ DEBUG ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ DEBUG ] "); \
     if (__TRD__ == 1) { \
-      int self = pthread_self(); int core = sched_getcpu(); \
-      written_str += sprintf(out_str + written_str, CLR_BLU"{#%d@%d} "CLR_WIT, self, core); \
-      written_log += sprintf(log_str + written_log, "{#%d@%d} ", self, core); } \
+      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
+      written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
       double time_it_here = get_time_from_start(); \
       written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf"CLR_WIT"] ", time_it_here); \
