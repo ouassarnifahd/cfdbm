@@ -90,6 +90,8 @@ void threads_init() {
 	pthread_join(audio_playback_process, NULL);
 	playback_end();
 
+	free(fdbm_bridge);
+
 	pipe_producer_free(pipe_audio_in);
 	pipe_consumer_free(pipe_fdbm_in);
 	pipe_producer_free(pipe_fdbm_out);
@@ -97,8 +99,6 @@ void threads_init() {
 
 	pipe_free(pipe_from_fdbm);
 	pipe_free(pipe_into_fdbm);
-
-	free(fdbm_bridge);
 }
 
 void* thread_capture_audio(void* parameters) {
@@ -154,7 +154,7 @@ void* thread_playback_audio(void* parameters) {
 				ok = 0; break;
 			}
 			debug("chunk %lu played from pipe\n", ++chunk_play_count);
-			error("ENDING RUN TEST");
+			// error("ENDING RUN TEST");
 		}
     }
 
@@ -227,7 +227,7 @@ void* thread_fdbm(void* parameters) {
 	debug("local buffer allocated");
 
 	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	applyFDBM_simple1(buffer, SAMPLES_COUNT, 0);
+	// applyFDBM_simple1(buffer, SAMPLES_COUNT, 0);
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 	debug("thread_fdbm(%d): Done!", local_fdbm_running);
