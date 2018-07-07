@@ -1,0 +1,86 @@
+###########################################################
+# Compiled on Jul  7 2018 at 12:13:14
+# Executed on Jul  7 2018¶ at 12:13:22
+###########################################################
+
+[ DEBUG ] {#3069494784@2} [0.00007500|0.10012485] (main.c:main:11) This is a 100ms delayed test MSG
+Setting priority...
+
+[WARNING] {#3069494784@2} [0.00047000|0.10051880] (perfs.c:setscheduler:15) !!!Scheduler set to Round Robin with priority 99 FAILED!!!
+[ DEBUG ] {#3069494784@2} [0.00061300|0.20072149] (main.c:main:17) This is a 100ms delayed test MSG
+FBDM starting...
+
+[ DEBUG ] {#3069494784@2} [0.00087900|0.20098415] (threads.c:threads_init:39) Threads_init:
+[ DEBUG ] {#3069494784@2} [0.00112900|0.20123423] (threads.c:threads_init:52) main core 2 (out of 4)
+[ DEBUG ] {#3069494784@2} [0.03808800|0.23819620] (alsa_wrapper.c:playback_init:137) audio playback interface opened
+[ DEBUG ] {#3069494784@2} [0.03840200|0.23850773] (alsa_wrapper.c:playback_init:142) playback hw_params allocated
+[ DEBUG ] {#3069494784@2} [0.03859600|0.23870006] (alsa_wrapper.c:playback_init:147) playback hw_params initialized
+[ DEBUG ] {#3069494784@2} [0.03872600|0.23882985] (alsa_wrapper.c:playback_init:152) playback hw_params access setted
+[ DEBUG ] {#3069494784@2} [0.03884800|0.23895139] (alsa_wrapper.c:playback_init:157) playback hw_params format setted
+[ DEBUG ] {#3069494784@2} [0.03898100|0.23908552] (alsa_wrapper.c:playback_init:162) playback hw_params rate setted
+[ DEBUG ] {#3069494784@2} [0.03910300|0.23920676] (alsa_wrapper.c:playback_init:167) playback hw_params channels setted
+[ DEBUG ] {#3069494784@2} [0.03995000|0.24007867] (alsa_wrapper.c:playback_init:172) playback hw_params setted
+[ DEBUG ] {#3069494784@2} [0.04009100|0.24021921] (alsa_wrapper.c:playback_init:175) playback hw_params freed
+[ DEBUG ] {#3069494784@2} [0.04027200|0.24043533] (alsa_wrapper.c:playback_init:180) playback audio interface prepared
+[ DEBUG ] {#3069494784@2} [0.04038400|0.24054633] (threads.c:get_freeCORE:30) Free core 0 found!
+[ DEBUG ] {#3059315808@0} [0.04070000|0.24091153] (threads.c:thread_playback_audio:136) thread_playback_audio: init...
+[ DEBUG ] {#3059315808@0} [0.04099000|0.24120028] (threads.c:thread_playback_audio:142) audio buffer allocated
+[WARNING] {#3059315808@0} [0.04114900|0.24137694] (perfs.c:setscheduler:15) !!!Scheduler set to Round Robin with priority 99 FAILED!!!
+[ DEBUG ] {#3059315808@0} [0.04198700|0.24152015] (threads.c:thread_playback_audio:150) thread_playback_audio: running...
+[ DEBUG ] {#3069494784@2} [0.04228100|0.24176018] (alsa_wrapper.c:capture_init:26) audio capture interface opened
+[ DEBUG ] {#3069494784@2} [0.04245200|0.24193055] (alsa_wrapper.c:capture_init:31) capture hw_params allocated
+[ DEBUG ] {#3069494784@2} [0.04265600|0.24213388] (alsa_wrapper.c:capture_init:36) capture hw_params initialized
+[ DEBUG ] {#3069494784@2} [0.04279800|0.24227580] (alsa_wrapper.c:capture_init:41) capture hw_params access setted
+[ DEBUG ] {#3069494784@2} [0.04292200|0.24239930] (alsa_wrapper.c:capture_init:46) capture hw_params format setted
+[ DEBUG ] {#3069494784@2} [0.04306400|0.24254188] (alsa_wrapper.c:capture_init:51) capture hw_params rate setted
+[ DEBUG ] {#3069494784@2} [0.04319100|0.24266884] (alsa_wrapper.c:capture_init:56) capture hw_params channels setted
+[ DEBUG ] {#3069494784@2} [0.04400400|0.24350741] (alsa_wrapper.c:capture_init:61) capture hw_params setted
+[ DEBUG ] {#3069494784@2} [0.04414500|0.24364811] (alsa_wrapper.c:capture_init:64) capture hw_params freed
+[ DEBUG ] {#3069494784@2} [0.04432700|0.24384877] (alsa_wrapper.c:capture_init:69) capture audio interface prepared
+[ DEBUG ] {#3069494784@2} [0.04443300|0.24395306] (threads.c:get_freeCORE:30) Free core 1 found!
+[ DEBUG ] {#3069494784@2} [0.04476900|0.24425635] (threads.c:get_freeCORE:30) Free core 3 found!
+[ DEBUG ] {#3049256032@1} [0.04479100|0.24440681] (threads.c:thread_capture_audio:106) thread_capture_audio: init...
+[ DEBUG ] {#3049256032@1} [0.04526900|0.24462076] (threads.c:thread_capture_audio:113) audio buffer allocated
+[WARNING] {#3049256032@1} [0.04539200|0.24474351] (perfs.c:setscheduler:15) !!!Scheduler set to Round Robin with priority 99 FAILED!!!
+[ DEBUG ] {#3049256032@1} [0.04556100|0.24491272] (threads.c:thread_capture_audio:121) thread_capture_audio: running...
+[ DEBUG ] {#3040867424@3} [0.04626800|0.25064029] (threads.c:thread_fdbm_fork:185) thread_fdbm_fork: init...
+[ DEBUG ] {#3040867424@3} [0.04659800|0.25097246] (threads.c:thread_fdbm_fork:191) local buffer allocated
+[ DEBUG ] {#3040867424@3} [0.04673900|0.25111099] (threads.c:thread_fdbm_fork:195) thread_fdbm_fork: running...
+[ DEBUG ] {#3049256032@1} [0.04698000|0.27774987] (alsa_wrapper.c:capture_read:103) Frames to read = 0: Frames allready read = 512
+[ DEBUG ] {#3049256032@1} [0.04732900|0.27808966] (alsa_wrapper.c:capture_read:104) Read Success
+[ DEBUG ] {#3049256032@1} [0.04763200|0.27839411] (threads.c:thread_capture_audio:125) chunk 1 pushed to the pipe!
+[ DEBUG ] {#3040867424@3} [0.04771500|0.27862657] (threads.c:thread_fdbm_fork:197) chunk 2 in fork
+
+[ DEBUG ] {#3030381664@3} [0.04825600|0.27916701] (threads.c:thread_fdbm:221) thread_fdbm(1): init...
+[ DEBUG ] {#3030381664@3} [0.04946300|0.27959063] (threads.c:thread_fdbm:227) local buffer allocated
+[ DEBUG ] {#3030381664@3} [0.04966900|0.27979571] (threads.c:thread_fdbm:229) thread_fdbm(1): running...
+[ DEBUG ] {#3030381664@3} [0.04987800|0.28000484] (fdbm.c:applyFDBM_simple1:27) Entering FDBM...
+[WARNING] {#3030381664@3} [0.05007700|0.28020433] (fdbm.c:applyFDBM_simple1:35) Buffer Splited!
+[WARNING] {#3030381664@3} [0.07343200|0.30347580] (fdbm.c:applyFDBM_simple1:59) 2D fft done!
+[ DEBUG ] {#3049256032@1} [0.07746500|0.30967412] (alsa_wrapper.c:capture_read:103) Frames to read = 0: Frames allready read = 512
+[ DEBUG ] {#3049256032@1} [0.07766000|0.30986645] (alsa_wrapper.c:capture_read:104) Read Success
+[ DEBUG ] {#3049256032@1} [0.08033200|0.31000428] (threads.c:thread_capture_audio:125) chunk 3 pushed to the pipe!
+[ DEBUG ] {#3040867424@3} [0.08046800|0.31012566] (threads.c:thread_fdbm_fork:197) chunk 4 in fork
+
+[ DEBUG ] {#3019895904@3} [0.09148500|0.32053133] (threads.c:thread_fdbm:221) thread_fdbm(2): init...
+[ DEBUG ] {#3019895904@3} [0.09176600|0.32081253] (threads.c:thread_fdbm:227) local buffer allocated
+[ DEBUG ] {#3019895904@3} [0.09189100|0.32093507] (threads.c:thread_fdbm:229) thread_fdbm(2): running...
+[ DEBUG ] {#3019895904@3} [0.09200100|0.32104528] (fdbm.c:applyFDBM_simple1:27) Entering FDBM...
+[WARNING] {#3019895904@3} [0.09210500|0.32114940] (fdbm.c:applyFDBM_simple1:35) Buffer Splited!
+[ DEBUG ] {#3049256032@1} [0.10846400|0.34170575] (alsa_wrapper.c:capture_read:103) Frames to read = 0: Frames allready read = 512
+[ DEBUG ] {#3049256032@1} [0.10866700|0.34190566] (alsa_wrapper.c:capture_read:104) Read Success
+[ DEBUG ] {#3049256032@1} [0.11337000|0.34204828] (threads.c:thread_capture_audio:125) chunk 5 pushed to the pipe!
+[ DEBUG ] {#3040867424@3} [0.11350700|0.34216957] (threads.c:thread_fdbm_fork:197) chunk 6 in fork
+
+[WARNING] {#3019895904@3} [0.11695500|0.34503190] (fdbm.c:applyFDBM_simple1:59) 2D fft done!
+[WARNING] {#3030381664@3} [0.12669800|0.35475158] (fdbm.c:applyFDBM_simple1:68) 2D ifft done!
+[WARNING] {#3030381664@3} [0.12689500|0.35494679] (fdbm.c:applyFDBM_simple1:72) Buffer Reassembled!
+[ DEBUG ] {#3030381664@3} [0.12703000|0.35508108] (threads.c:thread_fdbm:233) thread_fdbm(1): Done!
+[ DEBUG ] {#3011507296@3} [0.12706200|0.35566920] (threads.c:thread_fdbm:221) thread_fdbm(3): init...
+[ DEBUG ] {#3011507296@3} [0.12797600|0.35585482] (threads.c:thread_fdbm:227) local buffer allocated
+[ DEBUG ] {#3011507296@3} [0.12797600|0.35585482] (threads.c:thread_fdbm:227) local buffer allocated
+[ DEBUG ] {#3011507296@3} [0.12828400|0.35600465] (threads.c:thread_fdbm:229) thread_fdbm(3): running...
+[ DEBUG ] {#3011507296@3} [0.12841900|0.35612286] (fdbm.c:applyFDBM_simple1:27) Entering FDBM...
+[ DEBUG ] {#3011507296@3} [0.12841900|0.35612286] (fdbm.c:applyFDBM_simple1:27) Entering FDBM...
+[WARNING] {#3011507296@3} [0.12866500|0.35625310] (fdbm.c:applyFDBM_simple1:35) Buffer Splited!
+[WARNING] {#3011507296@3} [0.12866500|0.35625310] (fdbm.c:applyFDBM_simple1:35) Buffer Splited!
