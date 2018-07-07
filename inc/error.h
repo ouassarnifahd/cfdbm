@@ -238,8 +238,7 @@ char out_str[LOG_BUFFER_SIZE];
   #define log(str) { \
     logfile = fopen(LOGFILE_PATH, "a"); \
     if (!logfile) { fprintf(stderr, CLR_RED"[ERROR]"CLR_WIT" '%s' wont open!\n", LOGFILE_PATH); exit(0); } \
-    if(__TRD__ == 1) printf_lock(); fprintf(logfile, "%s\n", str); if(__TRD__ == 1) printf_unlock(); \
-    fflush(logfile); fclose(logfile); logfile = NULL; }
+    fprintf(logfile, "%s\n", str); fflush(logfile); fclose(logfile); logfile = NULL; }
 
   #undef error
   #define error(MSG, ...) { \
@@ -260,8 +259,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
-    fprintf(stderr, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); \
-    fflush(stderr); log(log_str); exit(0); }
+    fprintf(stderr, "%s\n", out_str); fflush(stderr); log(log_str); exit(0); if (__TRD__ == 1) printf_unlock(); }
   #undef warning
   #define warning(MSG, ...) { \
     int written_str = 0, written_log = 0; \
@@ -281,7 +279,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
-    fprintf(stdout, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); fflush(stdout); log(log_str); }
+    fprintf(stdout, "%s\n", out_str); fflush(stdout); log(log_str); if (__TRD__ == 1) printf_unlock(); }
   #undef debug
   #define debug(MSG, ...) { \
     int written_str = 0, written_log = 0; \
@@ -301,12 +299,12 @@ char out_str[LOG_BUFFER_SIZE];
     written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
-    fprintf(stdout, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); fflush(stdout); log(log_str); }
+    fprintf(stdout, "%s\n", out_str); fflush(stdout); log(log_str); if (__TRD__ == 1) printf_unlock(); }
 
   #undef log_printf
   #define log_printf(MSG, ...) {\
     sprintf(log_str, MSG, ##__VA_ARGS__); if (__TRD__ == 1) printf_lock(); \
-    fprintf(stdout, "%s", log_str); if (__TRD__ == 1) printf_unlock(); log(log_str); }
+    fprintf(stdout, "%s", log_str); log(log_str); if (__TRD__ == 1) printf_unlock(); }
 #endif // __DEBUG__
 
 #endif /* end of include guard: ERROR_H */
