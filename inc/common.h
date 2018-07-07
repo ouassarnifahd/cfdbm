@@ -33,6 +33,6 @@
 #include "alsa_wrapper.h"
 // #include "opencv_wrapper.h"
 
-void setscheduler(void);
+void setscheduler(int prio);
 
 #endif /* end of include guard: __HEADER_COMMON__ */

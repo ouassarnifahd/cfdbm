@@ -1,6 +1,6 @@
 #include "common.h"
 
-void setscheduler(void) {
+void setscheduler(int prio) {
     struct sched_param sched_param;
     if (sched_getparam(0, &sched_param) < 0) {
         warning("Scheduler getparam failed...\n");

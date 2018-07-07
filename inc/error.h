@@ -13,6 +13,11 @@
 #define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
 #endif
 
+#ifndef __FILENAME__
+#include <string.h>
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+
 #define LOG_BUFFER_SIZE 512
 
 #define CLR_RED "\033[0;31m"
@@ -33,7 +38,7 @@ char out_str[LOG_BUFFER_SIZE];
 
 #define error(MSG, ...) {\
     int written_str = 0; \
-    written_str += sprintf(out_str + written_str, CLR_RED"[ERROR]"CLR_WIT" (%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, CLR_RED"[ERROR]"CLR_WIT" (%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     sprintf(out_str + written_str, MSG, ##__VA_ARGS__); fprintf(stderr, "%s\n", out_str); fflush(stderr); exit(0); }
 
 #define warning(MSG, ...)
@@ -48,6 +53,7 @@ char out_str[LOG_BUFFER_SIZE];
 
 #ifdef __DEBUG__
   #include <time.h>
+
   #define __DEBUG_USE_CLOCK__
 
   #define LOGFILE_PATH "./debug/logfile.mlb"
@@ -165,8 +171,14 @@ char out_str[LOG_BUFFER_SIZE];
 
   #ifdef __DEBUG_LOG_TIMESTAMP__
     #define __TSC__ 1
-    static clock_t tsc_start;
-    static struct timespec rtc_start;
+
+    #ifdef __MAIN__
+    clock_t tsc_start;
+    struct timespec rtc_start;
+    #else
+    extern clock_t tsc_start;
+    extern struct timespec rtc_start;
+    #endif
 
     #define init_timestamp() { tsc_start = get_cyclecount(); }
     #define init_localtime() { rtc_start = get_realtimecount(); }
@@ -244,8 +256,8 @@ char out_str[LOG_BUFFER_SIZE];
       double time_it_here = get_realtime_from_start(); \
       written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
       written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
-    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
     fprintf(stderr, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); \
@@ -265,8 +277,8 @@ char out_str[LOG_BUFFER_SIZE];
       double time_it_here = get_realtime_from_start(); \
       written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
       written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
-    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
     fprintf(stdout, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); fflush(stdout); log(log_str); }
@@ -285,8 +297,8 @@ char out_str[LOG_BUFFER_SIZE];
       double time_it_here = get_realtime_from_start(); \
       written_str += sprintf(out_str + written_str, "["CLR_GRN"%3.6lf|%3.6lf"CLR_WIT"] ", stamp_it_here, time_it_here); \
       written_log += sprintf(log_str + written_log, "[%3.8lf|%3.8lf] ", stamp_it_here, time_it_here); } \
-    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
-    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILE__, __func__, __LINE__); \
+    written_str += sprintf(out_str + written_str, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
+    written_log += sprintf(log_str + written_log, "(%s:%s:%i) ", __FILENAME__, __func__, __LINE__); \
     written_str += sprintf(out_str + written_str, MSG, ##__VA_ARGS__); \
     written_log += sprintf(log_str + written_log, MSG, ##__VA_ARGS__); \
     fprintf(stdout, "%s\n", out_str); if (__TRD__ == 1) printf_unlock(); fflush(stdout); log(log_str); }

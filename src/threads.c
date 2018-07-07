@@ -6,6 +6,7 @@
 
 // this is usefull!
 struct pipe_bridge_t {
+	pipe_t* gate;
 	pipe_consumer_t* from;
 	pipe_producer_t* to;
 };
@@ -60,13 +61,13 @@ void threads_init() {
 
 	pipe_producer_t* pipe_fdbm_out  = pipe_producer_new(pipe_from_fdbm);
 	pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
-	pipe_free(pipe_from_fdbm);
 
-	pipe_bridge_t fdbm_bridge = { .from = pipe_fdbm_in, .to = pipe_fdbm_out };
+	pipe_bridge_t fdbm_bridge = { .gate = pipe_from_fdbm, .from = pipe_fdbm_in, .to = pipe_fdbm_out };
 
-	attach_to_core(&attr_fdbm, get_freeCORE(thisCORE, manyCORES));
-	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_fork, &fdbm_bridge)) {
-		error("fdbm_process init failed"); perror(NULL);
+	playback_init();
+	attach_to_core(&attr_playback, get_freeCORE(thisCORE, manyCORES));
+	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, pipe_audio_out)) {
+		error("audio_playback_process init failed"); perror(NULL);
 	}
 
 	capture_init();
@@ -75,10 +76,9 @@ void threads_init() {
 		error("audio_capture_process init failed"); perror(NULL);
 	}
 
-	playback_init();
-	attach_to_core(&attr_playback, get_freeCORE(thisCORE, manyCORES));
-	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, pipe_audio_out)) {
-		error("audio_playback_process init failed"); perror(NULL);
+	attach_to_core(&attr_fdbm, get_freeCORE(thisCORE, manyCORES));
+	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_fork, &fdbm_bridge)) {
+		error("fdbm_process init failed"); perror(NULL);
 	}
 
 	pthread_join(fdbm_process, NULL);
@@ -88,6 +88,8 @@ void threads_init() {
 
 	pthread_join(audio_playback_process, NULL);
 	playback_end();
+
+	pipe_free(pipe_from_fdbm);
 
 	pipe_producer_free(pipe_audio_in);
 	pipe_consumer_free(pipe_fdbm_in);
@@ -117,7 +119,7 @@ void* thread_capture_audio(void* parameters) {
     while (ok) {
 		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
 		pipe_push(capture, victime, SAMPLES_COUNT);
-		debug("chunk %lu pushed to the pipe!", ++chunk_capture_count);
+		debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
     }
 
 	free(victime);
@@ -208,7 +210,7 @@ void* thread_playback_audio(void* parameters) {
 			if (playback_write(victime, RAW_BUFFER_SIZE) < 0) {
 				ok = 0; break;
 			}
-			log_printf("chunk %lu played\n", ++chunk_play_count);
+			debug("chunk %lu played from pipe\n", ++chunk_play_count);
 		}
     }
 
@@ -336,8 +338,9 @@ void* thread_fdbm_fork(void* parameters) {
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(bridge.from, passed->buffer, SAMPLES_COUNT)) {
 		debug("chunk %lu in fork\n", ++chunk_fork_count);
-		passed->bridge = bridge;
-		fork_me(thread_fdbm, passed);
+		// passed->bridge = bridge;
+		// thread_fdbm(passed);
+		// fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
 
