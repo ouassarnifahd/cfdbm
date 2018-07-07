@@ -145,6 +145,8 @@ else
 	SHOW :=
 endif
 
+.PHONY: all clean
+
 all: mrproper dep $(TARGETS)
 
 #dep scripts
@@ -158,7 +160,7 @@ depRes:
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
 	$(SHOW)$(RM) $(scrPath)/*.srn
 
-.NOTPARALLEL: $(Project) dbg$(Project)
+.NOTPARALLEL: $(Project) dbg$(Project) %.o
 
 $(scrPath)/%.srn: $(scrPath)/%.m
 	$(SHOW)#$(OCTAVE) $< 2> $@
