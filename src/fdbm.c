@@ -11,7 +11,7 @@ static void get_buffer_LR(const int16_t* buffer, int size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
         L[i] = buffer[2u * i]/(float)SINT16_MAX;
         R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
-        // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
+        log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 
@@ -19,7 +19,7 @@ static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int s
     for (register int i = 0; i < size/2; ++i) {
         buffer[2u * i] = limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
         buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
-        // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
+        log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
 
@@ -27,8 +27,8 @@ void applyFDBM_simple1(char* buffer, int size, int doa) {
     debug("Entering FDBM...");
     int16_t* samples = (int16_t*) buffer;
 
-    float audio_R[SAMPLES_COUNT] = {0};
-    float audio_L[SAMPLES_COUNT] = {0};
+    float audio_R[SAMPLES_COUNT];
+    float audio_L[SAMPLES_COUNT];
 
     // split
     get_buffer_LR(samples, size, audio_L, audio_R);

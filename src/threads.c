@@ -122,7 +122,7 @@ void* thread_capture_audio(void* parameters) {
     while (ok) {
 		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
 		pipe_push(capture, victime, SAMPLES_COUNT);
-		debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
+		// debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
     }
 
 	free(victime);
@@ -194,7 +194,7 @@ void* thread_fdbm_fork(void* parameters) {
 
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(passed->bridge.from, passed->buffer, SAMPLES_COUNT)) {
-		debug("chunk %lu in fork\n", ++chunk_fork_count);
+		// debug("chunk %lu in fork\n", ++chunk_fork_count);
 		fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
