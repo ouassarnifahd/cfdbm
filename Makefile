@@ -1,5 +1,7 @@
 #general
 HOST_ARCH	:= $(shell uname -m)
+HOST_CORES	:= $(shell nproc --all)
+MAKE_PARAM  := --no-print-directory -j$(HOST_CORES)
 
 # makefile switches
 MK_EMBEDDED ?= yes
@@ -22,7 +24,7 @@ endif
 
 RM			:= $(shell which rm) -rf
 MKDIR		:= $(shell which mkdir) -p
-MAKE		:= $(shell which make) --no-print-directory
+MAKE		:= $(shell which make) $(MAKE_PARAM)
 OCTAVE		:= $(shell which octave)
 
 #Paths
@@ -155,6 +157,8 @@ depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
 	$(SHOW)$(RM) $(scrPath)/*.srn
+
+.NOTPARALLEL: $(Project) dbg$(Project)
 
 $(scrPath)/%.srn: $(scrPath)/%.m
 	$(SHOW)#$(OCTAVE) $< 2> $@
