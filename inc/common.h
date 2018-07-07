@@ -13,23 +13,22 @@
 #include <time.h>
 #include <math.h>
 
-// TODO !!!
-#define __DEBUG_LOG_TIMESTAMP__
-#define __DEBUG_LOG_THREADS__
-// #define __DEBUG_LOG_CORES__
-
 #define INVISIBLE static inline __attribute__((always_inline))
 
 // timeee
 #define NANO_SECOND_MULTIPLIER 1000000L
 #define sleep_ms(ms) nanosleep((const struct timespec[]){{0, (ms * NANO_SECOND_MULTIPLIER)}}, NULL)
 
-#include "error.h"
 #include "preprocessor.h"
+
+#define __DEBUG_LOG_TIMESTAMP__
+#define __DEBUG_LOG_THREADS__
+#include "error.h"
 
 #ifndef __NO_NEON__
 #include "neon_wrapper.h"
 #endif
+
 #include "alsa_wrapper.h"
 // #include "opencv_wrapper.h"
 

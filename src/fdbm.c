@@ -11,15 +11,15 @@ static void get_buffer_LR(const int16_t* buffer, int size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
         L[i] = buffer[2u * i]/(float)SINT16_MAX;
         R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
-        log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
+        // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 
 static void set_buffer_LR(const float* L, const float* R, int16_t* buffer, int size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = L[i]; //limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
-        buffer[2u * i + 1u] = R[i]; //limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
-        log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
+        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)L[i] * SINT16_MAX, SINT16_MAX);
+        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)R[i] * SINT16_MAX, SINT16_MAX);
+        // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
 
@@ -57,12 +57,11 @@ void applyFDBM_simple1(char* buffer, int size, int doa) {
     // 2D fft
     dft2_IPD_ILD(audio_L, audio_R, &fft_L, &fft_R, data_ILD, data_IPD, size);
     warning("2D fft done!");
+
     // compare with DataBase (dicotomie):
     // -90:90 --> -90:0 --> -45:0 --> -45:-25 --> -45:-35 --> -40:-35 --> -40
 
     // apply Gain
-
-
 
     // 2D ifft
     idft2(&fft_L, &fft_R, audio_L, audio_R, size);

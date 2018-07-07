@@ -154,6 +154,7 @@ void* thread_playback_audio(void* parameters) {
 				ok = 0; break;
 			}
 			debug("chunk %lu played from pipe\n", ++chunk_play_count);
+			error("ENDING RUN TEST");
 		}
     }
 
@@ -194,7 +195,6 @@ void* thread_fdbm_fork(void* parameters) {
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(passed->bridge.from, passed->buffer, SAMPLES_COUNT)) {
 		debug("chunk %lu in fork\n", ++chunk_fork_count);
-		// thread_fdbm(passed);
 		fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
