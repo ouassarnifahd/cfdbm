@@ -6,7 +6,7 @@ void setscheduler(int prio) {
         warning("Scheduler getparam failed...\n");
         return;
     }
-    sched_param.sched_priority = sched_get_priority_max(SCHED_RR);
+    sched_param.sched_priority = prio; // sched_get_priority_max(SCHED_RR);
     if (!sched_setscheduler(0, SCHED_RR, &sched_param)) {
         debug("Scheduler set to Round Robin with priority %i...", sched_param.sched_priority);
         fflush(stdout);

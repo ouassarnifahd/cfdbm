@@ -11,7 +11,7 @@ int main(int argc, char const *argv[]) {
     debug("This is a 100ms delayed test MSG");
     #endif
     log_printf("Setting priority...\n");
-    setscheduler(20);
+    setscheduler(10);
     #ifdef __DEBUGED__
     sleep_ms(100);
     debug("This is a 100ms delayed test MSG");

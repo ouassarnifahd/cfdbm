@@ -74,9 +74,9 @@ verbose		?= context
 Release		?= no
 
 #targets
-TARGETS		:= dbg$(Project)
+TARGETS		:= $(dobj) dbg$(Project)
 ifeq ($(Release), yes)
-TARGETS		:= $(Project)
+TARGETS		:= $(obj) $(Project)
 endif
 
 #verbose options: alloc, op&data, context, memory, print, graphics, all
@@ -136,7 +136,7 @@ inc 	:= $(shell find $(incPath) -name '*.h')
 src  	:= $(shell find $(buildPath) -name '*.c')
 scr		:= $(shell find $(scrPath) -name '*.m')
 
-obj	:= $(src:$(srcPath)/%c=$(objPath)/%o)
+obj		:= $(src:$(srcPath)/%c=$(objPath)/%o)
 dobj	:= $(src:$(srcPath)/%c=$(debugPath)/%o)
 
 ifeq ($(MK_VERBOSE), no)
@@ -145,7 +145,7 @@ else
 	SHOW :=
 endif
 
-.PHONY: all clean
+.NOTPARALLEL: dbg$(Project)
 
 all: mrproper dep $(TARGETS)
 
@@ -159,8 +159,6 @@ depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
 	$(SHOW)$(RM) $(scrPath)/*.srn
-
-.NOTPARALLEL: $(Project) dbg$(Project) %.o
 
 $(scrPath)/%.srn: $(scrPath)/%.m
 	$(SHOW)#$(OCTAVE) $< 2> $@

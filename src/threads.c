@@ -12,7 +12,7 @@ struct pipe_bridge_t {
 };
 typedef struct pipe_bridge_t pipe_bridge_t;
 
-#define BUFFER_CHUNKS 100
+#define BUFFER_CHUNKS 50
 
 int wasfreeCORE = 0;
 
@@ -114,7 +114,8 @@ void* thread_capture_audio(void* parameters) {
 
 	long chunk_capture_count = 0;
 
-	setscheduler(20);
+	// set RR realtime prio
+	setscheduler(1);
 
     int r, ok = 1;
 
@@ -122,7 +123,8 @@ void* thread_capture_audio(void* parameters) {
     while (ok) {
 		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
 		pipe_push(capture, victime, SAMPLES_COUNT);
-		// debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
+		sleep_ms(10);
+		debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
     }
 
 	free(victime);
@@ -143,7 +145,8 @@ void* thread_playback_audio(void* parameters) {
 
 	long chunk_play_count = 0;
 
-	setscheduler(20);
+	// set RR realtime prio
+	setscheduler(1);
 
     int ok = 1;
 
@@ -154,6 +157,7 @@ void* thread_playback_audio(void* parameters) {
 				ok = 0; break;
 			}
 			debug("chunk %lu played from pipe\n", ++chunk_play_count);
+			sleep_ms(10);
 			// error("ENDING RUN TEST");
 		}
     }
@@ -190,11 +194,11 @@ void* thread_fdbm_fork(void* parameters) {
 	passed->buffer = malloc(RAW_BUFFER_SIZE);
 	debug("local buffer allocated");
 
-	long chunk_fork_count = 0;
+	// set RR realtime prio
+	setscheduler(2);
 
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(passed->bridge.from, passed->buffer, SAMPLES_COUNT)) {
-		// debug("chunk %lu in fork\n", ++chunk_fork_count);
 		fork_me(thread_fdbm, passed);
 		sleep_ms(10);
 	}
@@ -214,23 +218,21 @@ int global_fdbm_running = 0;
 pthread_mutex_t mutex_fdbm = PTHREAD_MUTEX_INITIALIZER;
 
 void* thread_fdbm(void* parameters) {
-
 	int local_fdbm_running;
 	secured_stuff(mutex_fdbm, local_fdbm_running = ++global_fdbm_running);
-
 	debug("thread_fdbm(%d): init...", local_fdbm_running);
 
 	struct lot_of_parameters catched = *(struct lot_of_parameters*)parameters;
-
 	char buffer[RAW_BUFFER_SIZE];
 	memcpy(buffer, catched.buffer, RAW_BUFFER_SIZE);
-	debug("local buffer allocated");
+
+	// set RR realtime prio
+	setscheduler(4);
 
 	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	// applyFDBM_simple1(buffer, SAMPLES_COUNT, 0);
+	applyFDBM_simple1(buffer, SAMPLES_COUNT, DOA_CENTER);
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 	debug("thread_fdbm(%d): Done!", local_fdbm_running);
-
 	pthread_exit(NULL);
 }
