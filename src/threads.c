@@ -45,8 +45,6 @@ void threads_init() {
 	pthread_attr_init(&attr_playback);
 	pthread_attr_init(&attr_fdbm);
 
-	// printf("ID: %lu, CPU: %d\n", pthread_self(), sched_getcpu());
-	// int N_cores = sysconf(_SC_NPROCESSORS_ONLN);
 	int thisCORE = sched_getcpu();
 	int manyCORES = sysconf(_SC_NPROCESSORS_ONLN);
 	debug("main core %d (out of %d)", thisCORE, manyCORES);
@@ -55,23 +53,29 @@ void threads_init() {
 	pipe_t* pipe_into_fdbm = pipe_new(get_frame_bytes(), SAMPLES_COUNT * BUFFER_CHUNKS);
 	pipe_t* pipe_from_fdbm = pipe_new(get_frame_bytes(), SAMPLES_COUNT * BUFFER_CHUNKS);
 
+	// First STEP
 	pipe_producer_t* pipe_audio_in = pipe_producer_new(pipe_into_fdbm);
 	pipe_consumer_t* pipe_fdbm_in  = pipe_consumer_new(pipe_into_fdbm);
 
+	// Second STEP
 	pipe_producer_t* pipe_fdbm_out  = pipe_producer_new(pipe_from_fdbm);
 	pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
 
+	// THE Bridge
 	pipe_bridge_t* fdbm_bridge = malloc(sizeof(pipe_bridge_t));
 	fdbm_bridge->from = pipe_fdbm_in;
 	fdbm_bridge->to = pipe_fdbm_out;
 
+	// ALSA init...
 	playback_init();
+	capture_init();
+
+	// Here the fun starts... Good luck!
 	attach_to_core(&attr_playback, get_freeCORE(thisCORE, manyCORES));
 	if (pthread_create(&audio_playback_process, &attr_playback, thread_playback_audio, pipe_audio_out)) {
 		error("audio_playback_process init failed"); perror(NULL);
 	}
 
-	capture_init();
 	attach_to_core(&attr_capture, get_freeCORE(thisCORE, manyCORES));
 	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, pipe_audio_in)) {
 		error("audio_capture_process init failed"); perror(NULL);
@@ -82,12 +86,17 @@ void threads_init() {
 		error("fdbm_process init failed"); perror(NULL);
 	}
 
+	// SIGHANDLING interface
+
+	// The main core stops here and waits for all the others!!
 	pthread_join(fdbm_process, NULL);
-
 	pthread_join(audio_capture_process, NULL);
-	capture_end();
-
 	pthread_join(audio_playback_process, NULL);
+
+	// Return what you took! dont carry that weight!
+
+	// ALSA end.
+	capture_end();
 	playback_end();
 
 	free(fdbm_bridge);
@@ -123,7 +132,7 @@ void* thread_capture_audio(void* parameters) {
     while (ok) {
 		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
 		pipe_push(capture, victime, SAMPLES_COUNT);
-		sleep_ms(10);
+		// sleep_ms(10);
 		debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
     }
 
@@ -157,8 +166,8 @@ void* thread_playback_audio(void* parameters) {
 				ok = 0; break;
 			}
 			debug("chunk %lu played from pipe\n", ++chunk_play_count);
-			sleep_ms(10);
-			// error("ENDING RUN TEST");
+			// sleep_ms(10);
+			if(chunk_play_count == 100) error("ENDING RUN TEST");
 		}
     }
 
