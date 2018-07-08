@@ -24,8 +24,8 @@ struct fdbm_context {
     float data_ILD[ILDIPD_LEN];
     // mu data
     float mu[CHANNEL_SAMPLES_COUNT];
-    float* mu_ILD;
     float* mu_IPD;
+    float* mu_ILD;
     // Gain
     float Gain[CHANNEL_SAMPLES_COUNT];
 };
@@ -94,13 +94,8 @@ INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
 
 INVISIBLE void apply_mu(fdbm_context_t* ctx) {
     for (register int i = 0; i < ctx->channel_samples; ++i) {
-        // if (i < ctx->ildipd_samples) {
-            ctx->Gain[i] = pow16(1 - ctx->mu[i]);
-        // } else {
-        //     // (i = N + k --> k = N - i = 2 * N - i) is this right?
-        //     ctx->Gain[i] = ctx->Gain[ctx->channel_samples - i];
-        // }
         // here the magic!
+        ctx->Gain[i] = pow16(1 - ctx->mu[i]);
         ctx->fft_L.re[i] *= ctx->Gain[i];
         ctx->fft_L.im[i] *= ctx->Gain[i];
         ctx->fft_R.re[i] *= ctx->Gain[i];
