@@ -1,7 +1,8 @@
 #general
 HOST_ARCH	:= $(shell uname -m)
 HOST_CORES	:= $(shell nproc --all)
-MAKE_PARAM  := --no-print-directory -j$(HOST_CORES)
+MAKE_PARAM  := --no-print-directory
+# -j$(HOST_CORES)
 
 # makefile switches
 MK_EMBEDDED ?= yes
@@ -145,9 +146,10 @@ else
 	SHOW :=
 endif
 
-.NOTPARALLEL: dbg$(Project)
+# .NOTPARALLEL: dbg$(Project) %.o
 
-all: mrproper dep $(TARGETS)
+all: mrproper dep
+	$(SHOW)$(MAKE) $(TARGETS)
 
 #dep scripts
 dep: depRes $(scr:%m=%srn)
