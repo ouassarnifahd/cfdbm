@@ -209,7 +209,6 @@ void* thread_fdbm_fork(void* parameters) {
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(passed->bridge.from, passed->buffer, SAMPLES_COUNT)) {
 		fork_me(thread_fdbm, passed);
-		sleep_ms(10);
 	}
 
 	free(passed->buffer);
