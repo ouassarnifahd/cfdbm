@@ -118,6 +118,7 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx) {
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     debug("Entering FDBM... %lu samples", size);
     if (doa == DOA_NOT_INITIALISED) {
+        warning("NO CHANGES 'DOA_NOT_INITIALISED'!");
         return ;
     } else {
         // secure doa

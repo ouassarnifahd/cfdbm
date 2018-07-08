@@ -131,9 +131,10 @@ void* thread_capture_audio(void* parameters) {
 	debug("thread_capture_audio: running...");
     while (ok) {
 		if ((r = capture_read(victime, RAW_BUFFER_SIZE)) < 0) ok = 0;
+		debug("chunk size = %d", r);
 		pipe_push(capture, victime, SAMPLES_COUNT);
-		// sleep_ms(10);
-		debug("chunk %lu pushed to the pipe!", chunk_capture_count++);
+		debug("chunk %lu pushed to the pipe!", ++chunk_capture_count);
+		if(chunk_capture_count == 100) error("ENDING RUN TEST");
     }
 
 	free(victime);
@@ -149,7 +150,7 @@ void* thread_playback_audio(void* parameters) {
 
 	pipe_consumer_t* play = (pipe_consumer_t*)parameters;
 
-	char* victime = malloc(RAW_BUFFER_SIZE);
+	char victime[RAW_BUFFER_SIZE];
 	debug("audio buffer allocated");
 
 	long chunk_play_count = 0;
@@ -166,7 +167,6 @@ void* thread_playback_audio(void* parameters) {
 				ok = 0; break;
 			}
 			debug("chunk %lu played from pipe\n", ++chunk_play_count);
-			// sleep_ms(10);
 			if(chunk_play_count == 100) error("ENDING RUN TEST");
 		}
     }
@@ -204,7 +204,7 @@ void* thread_fdbm_fork(void* parameters) {
 	debug("local buffer allocated");
 
 	// set RR realtime prio
-	setscheduler(2);
+	setscheduler(5);
 
 	debug("thread_fdbm_fork: running...");
 	while (pipe_pop(passed->bridge.from, passed->buffer, SAMPLES_COUNT)) {
@@ -235,10 +235,10 @@ void* thread_fdbm(void* parameters) {
 	memcpy(buffer, catched.buffer, RAW_BUFFER_SIZE);
 
 	// set RR realtime prio
-	setscheduler(4);
+	setscheduler(10);
 
 	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	applyFDBM_simple1(buffer, SAMPLES_COUNT, DOA_CENTER);
+	applyFDBM_simple1(buffer, SAMPLES_COUNT, 20);
 
 	pipe_push(catched.bridge.to, buffer, SAMPLES_COUNT);
 	debug("thread_fdbm(%d): Done!", local_fdbm_running);
