@@ -16,7 +16,7 @@ typedef struct pipe_bridge_t pipe_bridge_t;
 
 // time aware buffer
 struct tsc_buffer {
-	char* x;
+	char* data;
 	struct timespec rt_start;
 	struct timespec rt_end;
 	double time_start;
@@ -164,7 +164,7 @@ void* thread_capture_audio(void* parameters) {
 
 	// char* buf = malloc(RAW_ALSA_BUFFER_SIZE);
 	char buf[RAW_ALSA_BUFFER_SIZE];
-	capt_buf.x = buf;
+	capt_buf.data = buf;
 
 	long chunk_capture_count = 0;
 
@@ -174,17 +174,17 @@ void* thread_capture_audio(void* parameters) {
     int r, ok = 1;
 
 	debug("thread_capture_audio: running...");
-    while (ok) {
+	while (ok) {
 		capt_buf.rt_start = get_realtimecount();
 		capt_buf.time_start = get_realtime_from_start();
-		if ((r = capture_read(capt_buf.x, RAW_ALSA_BUFFER_SIZE)) < 0) ok = 0;
+		if ((r = capture_read(capt_buf.data, RAW_ALSA_BUFFER_SIZE)) < 0) ok = 0;
 		capt_buf.rt_end = get_realtimecount();
 		capt_buf.time_end = get_realtime_from_start();
 		capt_buf.time_len = get_realtime_from(&capt_buf.rt_start);
 		pipe_push(capture, capt_buf.x, RAW_TO_SAMPLES(RAW_ALSA_BUFFER_SIZE));
 		++chunk_capture_count;
-		debug("chunk[%lu] { from %lfs to %lfs in %lfs }\n",
-			chunk_capture_count, capt_buf.time_start, capt_buf.time_end, capt_buf.time_len);
+		debug("chunk[%lu] captured { from %lfs to %lfs in %lfs }\n", chunk_capture_count, 
+			capt_buf.time_start, capt_buf.time_end, capt_buf.time_len);
 		// if(chunk_capture_count == 100) error("ENDING RUN TEST");
     }
 
@@ -197,7 +197,11 @@ void* thread_playback_audio(void* parameters) {
 	// log_printf("PLAYBACK Process is running...\n");
 
 	pipe_consumer_t* play = (pipe_consumer_t*)parameters;
+
+	timed_buffer_t play_buf;
+
 	char victime[RAW_ALSA_BUFFER_SIZE];
+	play_buf.data = victime;
 
 	long chunk_play_count = 0;
 
@@ -209,11 +213,17 @@ void* thread_playback_audio(void* parameters) {
 	debug("thread_playback_audio: running...");
     while (ok) {
 		while(pipe_pop(play, victime, RAW_TO_SAMPLES(RAW_ALSA_BUFFER_SIZE))) {
+			play_buf.rt_start = get_realtimecount();
+			play_buf.time_start = get_realtime_from_start();
 			if (playback_write(victime, RAW_ALSA_BUFFER_SIZE) < 0) {
 				ok = 0; break;
 			}
+			play_buf.rt_end = get_realtimecount();
+			play_buf.time_end = get_realtime_from_start();
+			play_buf.time_len = get_realtime_from(&play_buf.rt_start);
 			++chunk_play_count;
-			debug("chunk %lu played from pipe\n", chunk_play_count);
+			debug("chunk[%lu] played { from %lfs to %lfs in %lfs }\n", chunk_play_count,
+				play_buf.time_start, play_buf.time_end, play_buf.time_len);
 			// if(chunk_play_count == 100) error("ENDING RUN TEST");
 		}
     }
