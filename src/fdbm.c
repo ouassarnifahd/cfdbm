@@ -35,7 +35,12 @@ typedef struct fdbm_context fdbm_context_t;
 INVISIBLE void plot(const char* title, const float* data, size_t len) {
     #ifndef __arm__
     FILE *gnuplot = popen("gnuplot -p", "w");
-    fprintf(gnuplot, "set title '%s'; set grid; set xlabel 'Samples'; set ylabel 'Amplitude';\n", title);
+    // here config
+    fprintf(gnuplot, "set title '%s'\n", title);
+    fprintf(gnuplot, "set grid\n");
+    fprintf(gnuplot, "set xlabel 'Samples'\n");
+    fprintf(gnuplot, "set ylabel 'Amplitude'\n");
+    // here data...
     fprintf(gnuplot, "plot '-'\n");
     for (int i = 0; i < len; i++)
     fprintf(gnuplot, "%f\n", data[i]);
@@ -65,8 +70,8 @@ INVISIBLE void set_buffer_LR(const float* L, const float* R, int16_t* buffer, si
 INVISIBLE fdbm_context_t prepare_context(char* buffer) {
     fdbm_context_t ctx;
     ctx.raw_buffer = buffer;
-    ctx.raw_size = RAW_BUFFER_SIZE;
-    ctx.total_samples = SAMPLES_COUNT;
+    ctx.raw_size = RAW_FDBM_BUFFER_SIZE;
+    ctx.total_samples = RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE);
     ctx.channel_samples = CHANNEL_SAMPLES_COUNT;
     ctx.ildipd_samples = ILDIPD_LEN;
     // split
@@ -77,8 +82,8 @@ INVISIBLE fdbm_context_t prepare_context(char* buffer) {
     // 2D fft
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
     // PLOT
-    plot("IPD data", ctx.data_IPD, ctx.ildipd_samples);
-    // plot("IPD data", ctx.data_ILD, ctx.ildipd_samples);
+    // plot("IPD data", ctx.data_IPD, ctx.ildipd_samples);
+    // plot("ILD data", ctx.data_ILD, ctx.ildipd_samples);
 
     ctx.mu_IPD = ctx.mu;
     ctx.mu_ILD = ctx.mu + ctx.ildipd_samples;
@@ -88,11 +93,11 @@ INVISIBLE fdbm_context_t prepare_context(char* buffer) {
 // loop enrolling is necessary... (neon?)
 INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
     int i_theta = (doa + ILDIPD_DEG_MAX)/ILDIPD_DEG_STEP;
-    float* local_IPDtarget = IPDtarget[i_theta];
-    float* local_ILDtarget = ILDtarget[i_theta];
+    float* local_IPDtarget = (float*)IPDtarget[i_theta];
+    float* local_ILDtarget = (float*)ILDtarget[i_theta];
     for (register int i = 0; i < ctx->ildipd_samples; ++i) {
-        ctx->mu_IPD[i] = limit(-1.0, abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i], 1.0);
-        ctx->mu_ILD[i] = limit(-1.0, abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i], 1.0);
+        ctx->mu_IPD[i] = limit(0.0, abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i], 1.0);
+        ctx->mu_ILD[i] = limit(0.0, abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i], 1.0);
     }
     // PLOT
     // plot("mu plot", ctx->mu, ctx->channel_samples);
@@ -114,31 +119,32 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx) {
     idft2_SINE_WIN(&ctx->fft_L, &ctx->fft_R, ctx->L, ctx->R, ctx->channel_samples);
     // reassemble
     set_buffer_LR(ctx->L, ctx->R, (int16_t*)ctx->raw_buffer, ctx->total_samples);
+    // plot("Left data", ctx->L, ctx->channel_samples);
+    // plot("Right data", ctx->R, ctx->channel_samples);
 }
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
-    debug("Entering FDBM... %lu samples", size);
+    debug("Running FDBM... receiving %lu samples", size);
     if (doa == DOA_NOT_INITIALISED) {
         warning("NO CHANGES 'DOA_NOT_INITIALISED'!");
         return ;
     } else {
         // secure doa
         int local_doa = limit(DOA_LEFT, doa, DOA_RIGHT);
-        debug("Running FDBM... Selected doa = %d !", local_doa)
+        debug("Running FDBM... DOA = %d !", local_doa);
         // prepare context
         fdbm_context_t fdbm = prepare_context(buffer);
         debug("Running FDBM... comparing ILDIPD!");
         // compare with DataBase:
         compare_ILDIPD(&fdbm, local_doa);
-        debug("Running FDBM... Applying gain!")
+        debug("Running FDBM... Applying gain!");
         // apply Gain
         apply_mu(&fdbm);
         // generate output
         debug("Running FDBM... Finishing!");
         prepare_signal(&fdbm);
-        debug("Leaving FDBM");
     }
-    error("TEST FDBM: STOP!");
+    // error("TEST FDBM: STOP!");
 }
 
 void applyFDBM_simple2(char* buffer, size_t size, int doa1, int doa2);

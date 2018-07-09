@@ -3,7 +3,7 @@
 char *pdevice = "hw:0,0";       /* playback device */
 char *cdevice = "hw:0,0";       /* capture  device */
 
-unsigned int rate = 16000;
+unsigned int rate = DEFAULT_RATE;
 unsigned int channels = 2;
 int frame_bytes;
 
@@ -75,6 +75,8 @@ long capture_read(char* buffer, size_t len) {
     int read;
 
     int frames = len / frame_bytes;
+
+    // int frames_chunk = 256 / frame_bytes;
 
     while (frames > 0) {
         read = snd_pcm_readi(capture_handle, buffer, frames);

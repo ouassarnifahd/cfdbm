@@ -143,7 +143,12 @@ float log2f_approx_coeff[4] = {1.23149591368684f, -4.11852516267426f, 6.02197014
 INVISIBLE void plot(const char* title, const float* data, size_t len) {
     #ifndef __arm__
     FILE *gnuplot = popen("gnuplot -p", "w");
-    fprintf(gnuplot, "set title %s; set grid; set xlabel 'Samples'; set ylabel 'Amplitude';\n", title);
+    // here config
+    fprintf(gnuplot, "set title '%s'\n", title);
+    fprintf(gnuplot, "set grid\n");
+    fprintf(gnuplot, "set xlabel 'Samples'\n");
+    fprintf(gnuplot, "set ylabel 'Amplitude'\n");
+    // here data...
     fprintf(gnuplot, "plot '-'\n");
     for (int i = 0; i < len; i++)
     fprintf(gnuplot, "%f\n", data[i]);
@@ -207,7 +212,6 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
 void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* ILD, float* IPD, size_t len) {
 
     // time and frequency domain data arrays
-    #define MAX_ALLOWED 1000.0
     register int n, k;      // time and frequency domain indices
     float Xr_l_re, Xr_l_im, P[CHANNEL_SAMPLES_COUNT];
 
@@ -275,7 +279,7 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b, len_2 = len >> 1;
     for (n = 0; n < len; ++n) {
-        xl[n] = 0; xr[n] = 0;
+        // xl[n] = 0; xr[n] = 0;
         a = 0; b = to_sin;
         for (k = 0; k < len; ++k) {
             if (k <= len_2) {

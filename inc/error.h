@@ -112,19 +112,17 @@ char out_str[LOG_BUFFER_SIZE];
       #define CYCLE_TIME_MS (CYCLE_TIME_S * KHz) // 1e-6
       #define CYCLE_TIME_NS (CYCLE_TIME_S * 1000L * MHz) // 1
 
-      #if defined (__x86_64__)
       INVISIBLE unsigned long long rdtsc(void) {
-        unsigned long hi = 0, lo = 0;
-        asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
-        return (unsigned long long)hi << 32 | (unsigned long long)lo;
+        #if defined (__x86_64__)
+          unsigned long hi = 0, lo = 0;
+          asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
+          return (unsigned long long)hi << 32 | (unsigned long long)lo;
+        #elif defined (__i386__)
+          unsigned long x = 0;
+          asm volatile ("rdtsc" : "=A" (x));
+          return (unsigned long long)x;
+        #endif
       }
-      #elif defined (__i386__)
-      INVISIBLE unsigned long long rdtsc(void) {
-        unsigned long x = 0;
-        asm volatile ("rdtsc" : "=A" (x));
-        return (unsigned long long)x;
-      }
-      #endif
 
       INVISIBLE unsigned long get_cyclecount(void) {
         #if defined (__x86_64__) || defined (__i386__)
@@ -177,9 +175,13 @@ char out_str[LOG_BUFFER_SIZE];
     #define init_localtime() do { rtc_start = get_realtimecount(); } while(0)
     #define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
 
+    INVISIBLE double get_realtime_from(struct timespec* t_start) {
+        struct timespec t_now = get_realtimecount();
+        return get_realtimediff(t_start, &t_now);
+    }
+
     INVISIBLE double get_realtime_from_start() {
-        struct timespec rtc_now = get_realtimecount();
-        return get_realtimediff(&rtc_start, &rtc_now);
+        return get_realtime_from(&rtc_start);
     }
   #else
     #define __TSC__ 0

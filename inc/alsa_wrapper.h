@@ -4,12 +4,17 @@
 // TODO: this isnt the way see: PulseAUDIO!!!
 #include <alsa/asoundlib.h>
 
+#define DEFAULT_RATE 16000
 // time spent in capture = n / rate = 32 ms
 #define SAMPLES_COUNT (1024)
 #define CHANNEL_SAMPLES_COUNT (SAMPLES_COUNT/2)
 
 int get_frame_bytes();
-#define RAW_BUFFER_SIZE (SAMPLES_COUNT * get_frame_bytes())
+#define SAMPLES_TO_RAW(SAMPLES) (SAMPLES * get_frame_bytes())
+#define RAW_TO_SAMPLES(RAW)     (RAW / get_frame_bytes())
+
+#define RAW_FDBM_BUFFER_SIZE (SAMPLES_TO_RAW(SAMPLES_COUNT))
+#define RAW_ALSA_BUFFER_SIZE (RAW_FDBM_BUFFER_SIZE / 2)
 
 #define SINT16_MAX (((1ull<<16)-1))
 
