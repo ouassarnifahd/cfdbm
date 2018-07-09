@@ -139,6 +139,20 @@ const float SINE[] = {
 
 float log2f_approx_coeff[4] = {1.23149591368684f, -4.11852516267426f, 6.02197014179219f, -3.13396450166353f};
 
+// plot (gnuplot)
+INVISIBLE void plot(const char* title, const float* data, size_t len) {
+    #ifndef __arm__
+    FILE *gnuplot = popen("gnuplot -p", "w");
+    fprintf(gnuplot, "set title %s; set grid; set xlabel 'Samples'; set ylabel 'Amplitude';\n", title);
+    fprintf(gnuplot, "plot '-'\n");
+    for (int i = 0; i < len; i++)
+    fprintf(gnuplot, "%f\n", data[i]);
+    fprintf(gnuplot, "e\n");
+    fflush(gnuplot);
+    pclose(gnuplot);
+    #endif
+}
+
 INVISIBLE float FastArcTan(float x) {
     return 0.7853 * x - x * ((int)x - 1) * (0.2447 + 0.0663 * (int)x);
 }
@@ -193,8 +207,9 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
 void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* ILD, float* IPD, size_t len) {
 
     // time and frequency domain data arrays
+    #define MAX_ALLOWED 1000.0
     register int n, k;      // time and frequency domain indices
-    float Xr_l_re, Xr_l_im, P;
+    float Xr_l_re, Xr_l_im, P[CHANNEL_SAMPLES_COUNT];
 
     // Calculate DFT and power spectrum up to Nyquist frequency
     int to_sin = 3 * len / 4; // index offset for sin
@@ -212,17 +227,19 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
         }
 
         // Calculate abs and angle
-        P  = Xl->re[k] * Xl->re[k];
-        P += Xl->im[k] * Xl->im[k];
+        P[k]  = Xl->re[k] * Xl->re[k];
+        P[k] += Xl->im[k] * Xl->im[k];
         Xr_l_re  = Xr->re[k] * Xl->re[k];
         Xr_l_im  = Xr->re[k] * Xl->im[k];
         Xr_l_re -= Xr->im[k] * Xl->im[k];
         Xr_l_im += Xr->im[k] * Xl->re[k];
-        Xr_l_re /= P;
-        Xr_l_im /= P;
+        Xr_l_re /= P[k];
+        Xr_l_im /= P[k];
         IPD[k] = FastArcTan(Xr_l_im / Xr_l_re);
         ILD[k] = 20 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
     }
+    // plot fft_L
+    // plot("FFT Left", P, CHANNEL_SAMPLES_COUNT);
 }
 
 void idft(fcomplex_t* X, float* x, size_t len) {

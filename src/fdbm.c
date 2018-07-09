@@ -31,20 +31,19 @@ struct fdbm_context {
 };
 typedef struct fdbm_context fdbm_context_t;
 
-// expand __(-\*)__
-#define pow2(x) (x * x)
-// pow2(x) = (x * x)
-#define pow4(x) pow2(pow2(x))
-// pow4(x) = pow2((x * x)) = ((x * x) * (x * x))
-#define pow8(x) pow4(pow2(x))
-// pow8(x) = pow4((x * x)) = (((x * x) * (x * x)) * ((x * x) * (x * x)))
-#define pow16(x) pow4(pow4(x))
-// pow16(x) = pow4(((x * x) * (x * x))) = ((((x * x) * (x * x)) * ((x * x) * (x * x))) * (((x * x) * (x * x)) * ((x * x) * (x * x))))
-
-#define max(x,y) ((x<y)?y:x)
-#define abs(x) max(-x, x)
-
-#define limit(min, x, max) ((max<(x))? max : (((x)<min) ? min : (x)))
+// plot (gnuplot)
+INVISIBLE void plot(const char* title, const float* data, size_t len) {
+    #ifndef __arm__
+    FILE *gnuplot = popen("gnuplot -p", "w");
+    fprintf(gnuplot, "set title '%s'; set grid; set xlabel 'Samples'; set ylabel 'Amplitude';\n", title);
+    fprintf(gnuplot, "plot '-'\n");
+    for (int i = 0; i < len; i++)
+    fprintf(gnuplot, "%f\n", data[i]);
+    fprintf(gnuplot, "e\n");
+    fflush(gnuplot);
+    pclose(gnuplot);
+    #endif
+}
 
 // loop enrolling is necessary... (neon?)
 INVISIBLE void get_buffer_LR(const int16_t* buffer, size_t size, float* L, float* R) {
@@ -72,9 +71,14 @@ INVISIBLE fdbm_context_t prepare_context(char* buffer) {
     ctx.ildipd_samples = ILDIPD_LEN;
     // split
     get_buffer_LR((const int16_t*)ctx.raw_buffer, ctx.total_samples, ctx.L, ctx.R);
+    // plot("Left data", ctx.L, ctx.channel_samples);
+    // plot("Right data", ctx.R, ctx.channel_samples);
+
     // 2D fft
-    dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R,
-                 ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
+    dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
+    // PLOT
+    plot("IPD data", ctx.data_IPD, ctx.ildipd_samples);
+    // plot("IPD data", ctx.data_ILD, ctx.ildipd_samples);
 
     ctx.mu_IPD = ctx.mu;
     ctx.mu_ILD = ctx.mu + ctx.ildipd_samples;
@@ -87,9 +91,11 @@ INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
     float* local_IPDtarget = IPDtarget[i_theta];
     float* local_ILDtarget = ILDtarget[i_theta];
     for (register int i = 0; i < ctx->ildipd_samples; ++i) {
-        ctx->mu_IPD[i] = limit(-1.0, abs(ctx->data_IPD[i] - local_IPDtarget[i]) / IPDmaxmin[i], 1.0);
-        ctx->mu_ILD[i] = limit(-1.0, abs(ctx->data_ILD[i] - local_ILDtarget[i]) / ILDmaxmin[i], 1.0);
+        ctx->mu_IPD[i] = limit(-1.0, abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i], 1.0);
+        ctx->mu_ILD[i] = limit(-1.0, abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i], 1.0);
     }
+    // PLOT
+    // plot("mu plot", ctx->mu, ctx->channel_samples);
 }
 
 INVISIBLE void apply_mu(fdbm_context_t* ctx) {
@@ -118,15 +124,21 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     } else {
         // secure doa
         int local_doa = limit(DOA_LEFT, doa, DOA_RIGHT);
+        debug("Running FDBM... Selected doa = %d !", local_doa)
         // prepare context
         fdbm_context_t fdbm = prepare_context(buffer);
+        debug("Running FDBM... comparing ILDIPD!");
         // compare with DataBase:
         compare_ILDIPD(&fdbm, local_doa);
+        debug("Running FDBM... Applying gain!")
         // apply Gain
         apply_mu(&fdbm);
         // generate output
+        debug("Running FDBM... Finishing!");
         prepare_signal(&fdbm);
+        debug("Leaving FDBM");
     }
+    error("TEST FDBM: STOP!");
 }
 
 void applyFDBM_simple2(char* buffer, size_t size, int doa1, int doa2);

@@ -1,3 +1,5 @@
+// #undef __DEBUG__
+
 #include "common.h"
 #include "fdbm.h"
 #include "threads.h"
