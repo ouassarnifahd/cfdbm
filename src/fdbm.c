@@ -53,16 +53,16 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
 // loop enrolling is necessary... (neon?)
 INVISIBLE void get_buffer_LR(const int16_t* buffer, size_t size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = (float)buffer[2u * i]/(float)SINT16_MAX;
-        R[i] = (float)buffer[2u * i + 1u]/(float)SINT16_MAX;
+        L[i] = (double)buffer[2u * i]/(double)1000.0;
+        R[i] = (double)buffer[2u * i + 1u]/(double)1000.0;//SINT16_MAX;
         // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 // loop enrolling is necessary... (neon?)
 INVISIBLE void set_buffer_LR(const float* L, const float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i] * SINT16_MAX), SINT16_MAX);
-        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i] * SINT16_MAX), SINT16_MAX);
+        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i] * 1000.0), SINT16_MAX);
+        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i] * 1000.0), SINT16_MAX);
         // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
@@ -76,8 +76,8 @@ INVISIBLE fdbm_context_t prepare_context(char* buffer) {
     ctx.ildipd_samples = ILDIPD_LEN;
     // split
     get_buffer_LR((const int16_t*)ctx.raw_buffer, ctx.total_samples, ctx.L, ctx.R);
-    // plot("Left data", ctx.L, ctx.channel_samples);
-    // plot("Right data", ctx.R, ctx.channel_samples);
+    // plot("Left data before", ctx.L, ctx.channel_samples);
+    // plot("Right data before", ctx.R, ctx.channel_samples);
 
     // 2D fft
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
@@ -119,8 +119,8 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx) {
     idft2_SINE_WIN(&ctx->fft_L, &ctx->fft_R, ctx->L, ctx->R, ctx->channel_samples);
     // reassemble
     set_buffer_LR(ctx->L, ctx->R, (int16_t*)ctx->raw_buffer, ctx->total_samples);
-    // plot("Left data", ctx->L, ctx->channel_samples);
-    // plot("Right data", ctx->R, ctx->channel_samples);
+    // plot("Left data after", ctx->L, ctx->channel_samples);
+    // plot("Right data after", ctx->R, ctx->channel_samples);
 }
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {

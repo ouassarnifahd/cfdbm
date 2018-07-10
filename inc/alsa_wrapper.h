@@ -4,10 +4,11 @@
 // TODO: this isnt the way see: PulseAUDIO!!!
 #include <alsa/asoundlib.h>
 
-#define DEFAULT_RATE 16000
+// ALSA dammn you! Can't set rate less than 44100 Hz
+#define FDBM_RATE 44100
 // time spent in capture = n / rate = 32 ms
 #define CHANNEL_SAMPLES_COUNT (512)
-#define SAMPLES_COUNT (SAMPLES_COUNT * 2)
+#define SAMPLES_COUNT (CHANNEL_SAMPLES_COUNT * 2)
 
 int get_frame_bytes();
 #define SAMPLES_TO_RAW(SAMPLES) (SAMPLES * get_frame_bytes())

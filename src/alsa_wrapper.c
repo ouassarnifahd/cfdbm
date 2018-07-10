@@ -3,7 +3,7 @@
 char *pdevice = "hw:0,0";       /* playback device */
 char *cdevice = "hw:0,0";       /* capture  device */
 
-unsigned int rate = DEFAULT_RATE;
+unsigned int rate = FDBM_RATE;
 unsigned int channels = 2;
 int frame_bytes;
 
@@ -35,28 +35,36 @@ void capture_init() {
     }
     debug("capture hw_params initialized");
 
+    if ((err = snd_pcm_hw_params_set_rate_resample(capture_handle, capture_hw_params, 1)) < 0) {
+        error("cannot set hardware resample rate (%s)", snd_strerror(err));
+    }
+    debug("capture hw_params resample setted");
+
     if ((err = snd_pcm_hw_params_set_access(capture_handle, capture_hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
-        error("cannot set access type (%s)", snd_strerror (err));
+        error("cannot set access type (%s)", snd_strerror(err));
     }
     debug("capture hw_params access setted");
 
     if ((err = snd_pcm_hw_params_set_format(capture_handle, capture_hw_params, format)) < 0) {
-        error("cannot set sample format (%s)", snd_strerror (err));
+        error("cannot set sample format (%s)", snd_strerror(err));
     }
     debug("capture hw_params format setted");
 
-    if ((err = snd_pcm_hw_params_set_rate_near(capture_handle, capture_hw_params, &rate, 0)) < 0) {
-        error("cannot set sample rate (%s)", snd_strerror (err));
+    if ((err = snd_pcm_hw_params_set_rate(capture_handle, capture_hw_params, rate, 0)) < 0) {
+        error("cannot set sample rate (%s)", snd_strerror(err));
     }
-    debug("capture hw_params rate setted");
+    unsigned int _rate;
+    snd_pcm_hw_params_get_rate(capture_hw_params, &_rate, 0);
+    debug("capture hw_params rate setted to %u", _rate);
+
 
     if ((err = snd_pcm_hw_params_set_channels(capture_handle, capture_hw_params, channels)) < 0) {
-        error("cannot set channel count (%s)", snd_strerror (err));
+        error("cannot set channel count (%s)", snd_strerror(err));
     }
     debug("capture hw_params channels setted");
 
     if ((err = snd_pcm_hw_params(capture_handle, capture_hw_params)) < 0) {
-        error("cannot set parameters (%s)", snd_strerror (err));
+        error("cannot set parameters (%s)", snd_strerror(err));
     }
     debug("capture hw_params setted");
 
@@ -76,20 +84,18 @@ long capture_read(char* buffer, size_t len) {
 
     int frames = len / frame_bytes;
 
-    // int frames_chunk = 256 / frame_bytes;
-
     while (frames > 0) {
         read = snd_pcm_readi(capture_handle, buffer, frames);
 
         if (read == -EAGAIN || (read >= 0 && read < frames)) {
-            snd_pcm_wait(capture_handle, 1000);
+            snd_pcm_wait(capture_handle, 100);
         } else if (read == -EPIPE) {
             if(snd_pcm_prepare(capture_handle) < 0)
                 return -1;
         } else if (read == -ESTRPIPE) {
             int err;
             while ((err = snd_pcm_resume(capture_handle)) == -EAGAIN)
-                sleep(1);   /* wait until suspend flag is released */
+                sleep_ms(10);   /* wait until suspend flag is released */
             if (err < 0) {
                 if (snd_pcm_prepare(capture_handle) < 0) {
                     return -1;
@@ -106,16 +112,6 @@ long capture_read(char* buffer, size_t len) {
 		debug("Read Success");
     }
 
-    // do {
-    //     snd_pcm_wait(capture_handle, 1000);
-    //     err = snd_pcm_readi(capture_handle, buffer, len);
-    //     if (err > 0) {
-    //         buffer += err * frame_bytes;
-    //         len    -= err;
-    //     }
-    //     debug("read = %li, len = %li", err, len);
-    // } while (err >= 1 && len > 0);
-
     return len;
 }
 
@@ -128,7 +124,7 @@ void capture_end() {
 
 void playback_init() {
 
-    long err;
+    long err, play_rate = FDBM_RATE;
 
     // int buff_size, loops;
     // seconds  = atoi(argv[3]);
@@ -148,6 +144,11 @@ void playback_init() {
     }
     debug("playback hw_params initialized");
 
+    if ((err = snd_pcm_hw_params_set_rate_resample(playback_handle, playback_hw_params, 1)) < 0) {
+        error("cannot set hardware resample rate (%s)", snd_strerror(err));
+    }
+    debug("playback hw_params resample setted");
+
     if ((err = snd_pcm_hw_params_set_access(playback_handle, playback_hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
         error("cannot set access type (%s)", snd_strerror (err));
     }
@@ -158,15 +159,18 @@ void playback_init() {
     }
     debug("playback hw_params format setted");
 
-    if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, playback_hw_params, &rate, 0)) < 0) {
+    if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, playback_hw_params, &play_rate, 0)) < 0) {
         error("cannot set sample rate (%s)", snd_strerror (err));
     }
-    debug("playback hw_params rate setted");
+    unsigned int _rate;
+    snd_pcm_hw_params_get_rate(playback_hw_params, &_rate, 0);
+    debug("playback hw_params rate setted to %u", _rate);
 
     if ((err = snd_pcm_hw_params_set_channels(playback_handle, playback_hw_params, channels)) < 0) {
         error("cannot set channel count (%s)", snd_strerror (err));
     }
-    debug("playback hw_params channels setted");
+    snd_pcm_hw_params_get_channels(playback_hw_params, &tmp);
+    debug("playback hw_params channels setted to %i", );
 
     if ((err = snd_pcm_hw_params(playback_handle, playback_hw_params)) < 0) {
         error("cannot set parameters (%s)", snd_strerror (err));
@@ -194,8 +198,7 @@ void playback_init() {
     // else if (tmp == 2)
     //     debug("(stereo)");
     //
-    // snd_pcm_hw_params_get_rate(playback_hw_params, &tmp, 0);
-    // debug("rate: %d bps", tmp);
+    //
     //
     // debug("seconds: %d", seconds);
     //
@@ -237,7 +240,7 @@ long playback_write(char* buffer, size_t len) {
         int written = snd_pcm_writei(playback_handle, buffer, frames);
 
         if (written == -EAGAIN || (written >= 0 && written < frames)) {
-            snd_pcm_wait(playback_handle, 1000);
+            snd_pcm_wait(playback_handle, 100);
         }
         else if (written == -EPIPE) {
             if(snd_pcm_prepare(playback_handle) < 0)
@@ -245,7 +248,7 @@ long playback_write(char* buffer, size_t len) {
         } else if (written == -ESTRPIPE) {
             int err;
             while ((err = snd_pcm_resume(playback_handle)) == -EAGAIN)
-                sleep(1);   /* wait until suspend flag is released */
+                sleep_ms(10);   /* wait until suspend flag is released */
             if (err < 0) {
                 if (snd_pcm_prepare(playback_handle) < 0) {
                     return -1;
@@ -265,21 +268,6 @@ long playback_write(char* buffer, size_t len) {
     }
 
     return total * frame_bytes;
-    // long err, err2;
-    //
-    // do {
-    //     snd_pcm_wait(playback_handle, 1000);
-    //     err = snd_pcm_writei(playback_handle, buffer, len);
-    //     if (err > 0) {
-    //         buffer += err * frame_bytes;
-    //         len    -= err;
-    //     } else {
-    //         snd_pcm_recover(playback_handle, err, 1);
-    //     }
-    //     debug("write = %li, len = %li", err, len);
-    // } while (err >= 1 && len > 0);
-    //
-    // return err;
 
 }
 

@@ -144,10 +144,28 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
     #ifndef __arm__
     FILE *gnuplot = popen("gnuplot -p", "w");
     // here config
-    fprintf(gnuplot, "set title '%s'\n", title);
-    fprintf(gnuplot, "set grid\n");
-    fprintf(gnuplot, "set xlabel 'Samples'\n");
-    fprintf(gnuplot, "set ylabel 'Amplitude'\n");
+    fprintf(gnuplot, "set title '%s';\n", title);
+    fprintf(gnuplot, "set grid;\n");
+    fprintf(gnuplot, "set xlabel 'Samples';\n");
+    fprintf(gnuplot, "set ylabel 'Amplitude';\n");
+    // here data...
+    fprintf(gnuplot, "plot '-'\n");
+    for (int i = 0; i < len; i++)
+    fprintf(gnuplot, "%f\n", data[i]);
+    fprintf(gnuplot, "e\n");
+    fflush(gnuplot);
+    pclose(gnuplot);
+    #endif
+}
+
+INVISIBLE void fft_plot(const float* data, size_t len) {
+    #ifndef __arm__
+    FILE *gnuplot = popen("gnuplot -p", "w");
+    // here config
+    fprintf(gnuplot, "set title 'FFT';\n");
+    fprintf(gnuplot, "set grid;\n");
+    fprintf(gnuplot, "set xlabel 'FREQ';\n");
+    fprintf(gnuplot, "set ylabel 'dB';\n");
     // here data...
     fprintf(gnuplot, "plot '-'\n");
     for (int i = 0; i < len; i++)
@@ -213,7 +231,7 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
 
     // time and frequency domain data arrays
     register int n, k;      // time and frequency domain indices
-    float Xr_l_re, Xr_l_im, P[CHANNEL_SAMPLES_COUNT];
+    float Xr_l_re, Xr_l_im, P[CHANNEL_SAMPLES_COUNT], A[CHANNEL_SAMPLES_COUNT];
 
     // Calculate DFT and power spectrum up to Nyquist frequency
     int to_sin = 3 * len / 4; // index offset for sin
@@ -227,12 +245,20 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
             Xl->im[k] -= xl[n] * W[b % len];
             Xr->re[k] += xr[n] * W[a % len];
             Xr->im[k] -= xr[n] * W[b % len];
-            a += k; b += k;
+            a += k; b = (b + k) % len;
         }
 
         // Calculate abs and angle
         P[k]  = Xl->re[k] * Xl->re[k];
         P[k] += Xl->im[k] * Xl->im[k];
+        P[k]  = sqrt(P[k]);
+        // P[k]  = 20 * log10f_fast(P[k]);
+        //
+        // A[k]  = Xr->re[k] * Xr->re[k];
+        // A[k] += Xr->im[k] * Xr->im[k];
+        // A[k]  = sqrt(A[k]);
+        // A[k]  = 20 * log10f_fast(A[k]);
+
         Xr_l_re  = Xr->re[k] * Xl->re[k];
         Xr_l_im  = Xr->re[k] * Xl->im[k];
         Xr_l_re -= Xr->im[k] * Xl->im[k];
@@ -243,7 +269,10 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
         ILD[k] = 20 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
     }
     // plot fft_L
-    // plot("FFT Left", P, CHANNEL_SAMPLES_COUNT);
+    // fft_plot(P, CHANNEL_SAMPLES_COUNT/2);
+    // plot("FFT Right", A, CHANNEL_SAMPLES_COUNT/2);
+
+
 }
 
 void idft(fcomplex_t* X, float* x, size_t len) {
