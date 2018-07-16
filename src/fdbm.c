@@ -15,20 +15,20 @@ struct fdbm_context {
     size_t channel_samples;
     size_t ildipd_samples;
     // signal data
-    float L[CHANNEL_SAMPLES_COUNT];
-    float R[CHANNEL_SAMPLES_COUNT];
+    int16_t L[CHANNEL_SAMPLES_COUNT];
+    int16_t R[CHANNEL_SAMPLES_COUNT];
     // fft data
     fcomplex_t fft_L;
     fcomplex_t fft_R;
     // IPDILD data
-    float data_IPD[ILDIPD_LEN];
-    float data_ILD[ILDIPD_LEN];
+    int16_t data_IPD[ILDIPD_LEN];
+    int16_t data_ILD[ILDIPD_LEN];
     // mu data
-    float mu[CHANNEL_SAMPLES_COUNT];
-    float* mu_IPD;
-    float* mu_ILD;
+    int16_t mu[CHANNEL_SAMPLES_COUNT];
+    int16_t* mu_IPD;
+    int16_t* mu_ILD;
     // Gain
-    float Gain[CHANNEL_SAMPLES_COUNT];
+    int16_t Gain[CHANNEL_SAMPLES_COUNT];
 };
 typedef struct fdbm_context fdbm_context_t;
 
@@ -55,16 +55,16 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
 // loop enrolling is necessary... (neon?)
 INVISIBLE void get_buffer_LR(int16_t* buffer, size_t size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = buffer[2u * i]/(float)SINT16_MAX;
-        R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
+        L[i] = buffer[2u * i];//(float)SINT16_MAX;
+        R[i] = buffer[2u * i + 1u];//(float)SINT16_MAX;
         // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 // loop enrolling is necessary... (neon?)
 INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i] * SINT16_MAX), SINT16_MAX);//L[i] * SINT16_MAX;
-        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i] * SINT16_MAX), SINT16_MAX);//R[i] * SINT16_MAX;
+        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i]), SINT16_MAX);//L[i] * SINT16_MAX;
+        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i]), SINT16_MAX);//R[i] * SINT16_MAX;
         // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
