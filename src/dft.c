@@ -271,8 +271,6 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
     // plot fft_L
     // fft_plot(P, CHANNEL_SAMPLES_COUNT/2);
     // plot("FFT Right", A, CHANNEL_SAMPLES_COUNT/2);
-
-
 }
 
 void idft(fcomplex_t* X, float* x, size_t len) {
@@ -324,7 +322,7 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
             }
             a += n; b += n;
         }
-        xl[n] *= SINE[n];
-        xr[n] *= SINE[n];
+        // xl[n] *= SINE[n];
+        // xr[n] *= SINE[n];
     }
 }

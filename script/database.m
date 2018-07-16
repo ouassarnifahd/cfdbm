@@ -8,7 +8,8 @@ pkg load signal control
 
 %% Load MIT HRTF DataBase
 i = 0;
-fs = 16000;
+% fs = 16000;
+fs = 44100;
 for theta = [270:5:355 0:5:90]
     i+=1;, DeG = num2str(theta);
     nameL = ['script/elev0-MIT/L0e' repmat('0',1,3-length(DeG)) DeG 'a.wav'];
@@ -60,11 +61,12 @@ c_header = fopen('inc/ipdild_data.h', 'w');
 fprintf(c_header, '#ifndef __IPDILD_DATA__\n');
 fprintf(c_header, '#define __IPDILD_DATA__\n\n');
 
-for ddeg=1:180/5+1
+fprintf(c_header, '#define ILDIPD_DEG_MAX %d\n', theta[1]);
+fprintf(c_header, '#define ILDIPD_DEG_MIN %d\n', theta[end]);
+fprintf(c_header, '#define ILDIPD_DEG_STEP %d\n', theta[2] - theta[1]);
+fprintf(c_header, '#define ILDIPD_LEN %d\n\n', N/2);
 
-end
-
-fprintf(c_header, 'const float ILDtarget[][%d] = {', N/2);
+fprintf(c_header, 'const float ILDtarget[][ILDIPD_LEN] = {');
 for theta_=1:180/5+1
     ILDtarget = ILD(1:N/2,find(theta==-90 + 5 * (theta_ - 1)));
     fprintf(c_header, '{ %12.8f,', ILDtarget(1));

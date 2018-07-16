@@ -244,7 +244,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_RED"[ ERROR ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ ERROR ] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
@@ -266,7 +266,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_YLW"[WARNING]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[WARNING] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
@@ -288,7 +288,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_PPL"[ DEBUG ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ DEBUG ] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
