@@ -322,7 +322,7 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
             }
             a += n; b += n;
         }
-        // xl[n] *= SINE[n];
-        // xr[n] *= SINE[n];
+        xl[n] *= SINE[n];
+        xr[n] *= SINE[n];
     }
 }

@@ -126,7 +126,7 @@ int main()
 	int ret;
 	int camera_fd;
 
-	camera_fd = open("/dev/video1",O_RDWR);
+	camera_fd = open("/dev/video0",O_RDWR);
 
 	struct v4l2_fmtdesc fmt;
 	memset(&fmt,0x0,sizeof(fmt));
@@ -145,7 +145,7 @@ int main()
 	ret = ioctl(camera_fd, VIDIOC_QUERYCAP, &cap);
 	if(ret < 0)
 	{
-		printf("get vidieo capability error,error code: %d \n", errno);
+		printf("get video capability error,error code: %d \n", errno);
 		return -1;
 	}
 	printf("{ Capability: driver:'%s', card:'%s',buf_info:'%s',version:%d,capabilities:0x%x}\n",\

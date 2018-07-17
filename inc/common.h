@@ -45,10 +45,10 @@
 #include "neon_wrapper.h"
 #endif
 
-// #define __USE_ALSA__
+#define __USE_ALSA__
 #include "audio_wrapper.h"
 
-// #include "opencv_wrapper.h"
+#include "opencv_wrapper.h"
 
 void setscheduler(int prio);
 

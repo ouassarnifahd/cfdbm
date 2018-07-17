@@ -15,10 +15,11 @@
 #define RAW_TO_SAMPLES(RAW)     (RAW / FRAME_BYTES)
 
 #define RAW_FDBM_BUFFER_SIZE (SAMPLES_TO_RAW(SAMPLES_COUNT))
-#define RAW_AUDIO_BUFFER_SIZE (RAW_FDBM_BUFFER_SIZE )
+#define RAW_AUDIO_BUFFER_SIZE (RAW_FDBM_BUFFER_SIZE)
 
 #define SINT16_MAX (((1ull<<16)-1))
 
+// fast audio driver
 #ifdef __USE_ALSA__
 #include "alsa_wrapper.h"
 
@@ -29,6 +30,7 @@
 #define playback_end    alsa_playback_end
 #define playback_write  alsa_playback_write
 
+// easier audio driver
 #else // __USE_PULSEAUDIO__
 #include "pa_wrapper.h"
 

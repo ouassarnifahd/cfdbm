@@ -15,20 +15,20 @@ struct fdbm_context {
     size_t channel_samples;
     size_t ildipd_samples;
     // signal data
-    int16_t L[CHANNEL_SAMPLES_COUNT];
-    int16_t R[CHANNEL_SAMPLES_COUNT];
+    float L[CHANNEL_SAMPLES_COUNT];
+    float R[CHANNEL_SAMPLES_COUNT];
     // fft data
     fcomplex_t fft_L;
     fcomplex_t fft_R;
     // IPDILD data
-    int16_t data_IPD[ILDIPD_LEN];
-    int16_t data_ILD[ILDIPD_LEN];
+    float data_IPD[ILDIPD_LEN];
+    float data_ILD[ILDIPD_LEN];
     // mu data
-    int16_t mu[CHANNEL_SAMPLES_COUNT];
-    int16_t* mu_IPD;
-    int16_t* mu_ILD;
+    float mu[CHANNEL_SAMPLES_COUNT];
+    float* mu_IPD;
+    float* mu_ILD;
     // Gain
-    int16_t Gain[CHANNEL_SAMPLES_COUNT];
+    float Gain[CHANNEL_SAMPLES_COUNT];
 };
 typedef struct fdbm_context fdbm_context_t;
 
@@ -55,16 +55,16 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
 // loop enrolling is necessary... (neon?)
 INVISIBLE void get_buffer_LR(int16_t* buffer, size_t size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = buffer[2u * i];//(float)SINT16_MAX;
-        R[i] = buffer[2u * i + 1u];//(float)SINT16_MAX;
+        L[i] = buffer[2u * i]/(float)SINT16_MAX;
+        R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
         // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
     }
 }
 // loop enrolling is necessary... (neon?)
 INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i]), SINT16_MAX);//L[i] * SINT16_MAX;
-        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i]), SINT16_MAX);//R[i] * SINT16_MAX;
+        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i] * SINT16_MAX), SINT16_MAX);//L[i] * SINT16_MAX;
+        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i] * SINT16_MAX), SINT16_MAX);//R[i] * SINT16_MAX;
         // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
     }
 }
@@ -81,12 +81,12 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     // ctx.in_buffer = buffer;
 
     // split
-    // get_buffer_LR(ctx.in_buffer, ctx.total_samples, ctx.L, ctx.R);
+    get_buffer_LR(ctx.in_buffer, ctx.total_samples, ctx.L, ctx.R);
     // plot("Left data before", ctx.L, ctx.channel_samples);
     // plot("Right data before", ctx.R, ctx.channel_samples);
 
     // 2D fft
-    // dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
+    dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
     // plot("IPD data", ctx.data_IPD, ctx.ildipd_samples);
     // plot("ILD data", ctx.data_ILD, ctx.ildipd_samples);
 
@@ -121,9 +121,9 @@ INVISIBLE void apply_mu(fdbm_context_t* ctx) {
 
 INVISIBLE void prepare_signal(fdbm_context_t* ctx, char* buffer) {
     // 2D ifft
-    // idft2_SINE_WIN(&ctx->fft_L, &ctx->fft_R, ctx->L, ctx->R, ctx->channel_samples);
+    idft2_SINE_WIN(&ctx->fft_L, &ctx->fft_R, ctx->L, ctx->R, ctx->channel_samples);
     // reassemble
-    // set_buffer_LR(ctx->L, ctx->R, (int16_t*)ctx->out_buffer, ctx->total_samples);
+    set_buffer_LR(ctx->L, ctx->R, (int16_t*)ctx->out_buffer, ctx->total_samples);
     // for (register int i = 0; i < ctx->total_samples; ++i) {
     //     ctx->out_buffer[i] = ctx->in_buffer[i] + ctx->out_buffer[i];
     // }
@@ -135,7 +135,7 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx, char* buffer) {
 // plot_sync
 int global_counterMemcpy = 0;
 int global_counterTitle = 0;
-#define PLOT_CHUNKS 30
+#define PLOT_CHUNKS 60
 m_init(mutex_plot);
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
@@ -145,7 +145,7 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     int local_counterTitle;
 
     secured_stuff(mutex_plot, local_counterMemcpy =
-        (global_counterMemcpy < PLOT_CHUNKS) ? global_counterMemcpy + 1:0);
+        (global_counterMemcpy < PLOT_CHUNKS) ? global_counterMemcpy + 1: 0);
 
     // static float fft_data_1s[CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS];
     static float input_data[CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS];
@@ -167,10 +167,10 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
 
         debug("Running FDBM... comparing ILDIPD!");
         // compare with DataBase:
-        // compare_ILDIPD(&fdbm, local_doa);
+        compare_ILDIPD(&fdbm, local_doa);
         debug("Running FDBM... Applying gain!");
         // apply Gain
-        // apply_mu(&fdbm);
+        apply_mu(&fdbm);
         // generate output
         debug("Running FDBM... Finishing!");
         prepare_signal(&fdbm, buffer);
@@ -183,13 +183,15 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
             char inputTitle[20], outputTitle[20];
             sprintf(inputTitle, "INPUT #%d", local_counterTitle);
             sprintf(outputTitle, "OUTPUT #%d", local_counterTitle);
-            // plot(inputTitle, input_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
-            // plot(outputTitle, output_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
-            if(local_counterTitle > 4 ) error("TEST FDBM: STOP!");
+            plot(inputTitle, input_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
+            plot(outputTitle, output_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
         }
+        if(local_counterTitle > 2 ) error("TEST FDBM: STOP!");
     }
 }
 
-void applyFDBM_simple2(char* buffer, size_t size, int doa1, int doa2);
+void applyFDBM_simple2(char* buffer, size_t size, int doa1, int doa2) {
+
+}
 
 void applyFDBM(char* buffer, size_t size, const int const * doa, int sd);
