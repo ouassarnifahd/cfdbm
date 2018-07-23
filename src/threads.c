@@ -89,7 +89,7 @@ void threads_init() {
 	#ifdef __THRD_PARTY_PIPES__
 	  pipe_t* pipe_into_fdbm = pipe_new(1, frame_bytes * SAMPLES_COUNT * BUFFER_CHUNKS);
 	  pipe_t* pipe_from_fdbm = pipe_new(1, frame_bytes * SAMPLES_COUNT * BUFFER_CHUNKS);
-	  pipe_t* pipe_fdbm_doa  = pipe_new(sizeof(int), DOA_BUFFER);
+	  // pipe_t* pipe_fdbm_doa  = pipe_new(sizeof(int), DOA_BUFFER);
 
 	  // First STEP
 	  pipe_producer_t* pipe_audio_in = pipe_producer_new(pipe_into_fdbm);
@@ -100,21 +100,21 @@ void threads_init() {
 	  pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
 
 	  // Third STEP
-	  pipe_producer_t* pipe_doa_in  = pipe_producer_new(pipe_fdbm_doa);
-	  pipe_consumer_t* pipe_doa_out = pipe_consumer_new(pipe_fdbm_doa);
+	  // pipe_producer_t* pipe_doa_in  = pipe_producer_new(pipe_fdbm_doa);
+	  // pipe_consumer_t* pipe_doa_out = pipe_consumer_new(pipe_fdbm_doa);
 
 	  // THE Bridge
 	  pipe_bridge_t* bridge = fdbm_bridge;
 	  pipe_generic_t* pipes = fdbm_bridge;
 	  bridge->from = pipe_fdbm_in;
 	  bridge->to   = pipe_fdbm_out;
-	  pipes[2]     = pipe_doa_out;
+	  // pipes[2]     = pipe_doa_out;
 	#else // __LINUX_PIPES__
 	  // linux ITC (man pipe) TODO!!! next time
 	  // http://tldp.org/LDP/lpg/node11.html
 	  int* pipe_into_fdbm = malloc(2 * sizeof(int)); pipe(pipe_into_fdbm);
 	  int* pipe_from_fdbm = malloc(2 * sizeof(int)); pipe(pipe_from_fdbm);
-	  int* pipe_fdbm_doa  = malloc(2 * sizeof(int)); pipe(pipe_fdbm_doa);
+	  // int* pipe_fdbm_doa  = malloc(2 * sizeof(int)); pipe(pipe_fdbm_doa);
 
 	  // First STEP
 	  int* pipe_audio_in = &pipe_into_fdbm[1];
@@ -133,7 +133,7 @@ void threads_init() {
 	  int* pipes = fdbm_bridge;
 	  bridge->from = *pipe_fdbm_in;
 	  bridge->to   = *pipe_fdbm_out;
-	  pipes[2]     = *pipe_fdbm_doa;
+	  // pipes[2]     = *pipe_fdbm_doa;
 	#endif // __THRD_PARTY_PIPES__
 
 	log_printf(" [ OK ]\n");
@@ -180,9 +180,9 @@ void threads_init() {
 	// OpenCV init...
 	log_printf("OpenCV face detection...");
 	attach_to_core(&attr_openCV, audioProcessingCORE);
-	if(pthread_create(&openCV_process, &attr_openCV, thread_openCV, NULL)) {
-			error("fdbm_process init failed"); perror(NULL);
-		}
+	// if(pthread_create(&openCV_process, &attr_openCV, thread_openCV, NULL)) {
+	// 		error("fdbm_process init failed"); perror(NULL);
+	// 	}
 	pthread_setname_np(fdbm_process, "CFDBM doa");
 	log_printf(" [ ON ]\n");
 	// SIGHANDLING interface
@@ -382,7 +382,7 @@ void* thread_fdbm_fork(void* parameters) {
 		#endif
 
 		// if (local_fdbm_running > 200 && local_fdbm_running < 215)
-		applyFDBM_simple1(buffer, RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE), DOA_CENTER);
+		// applyFDBM_simple1(buffer, RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE), DOA_CENTER);
 		// sleep(2);
 
 		#ifdef __THRD_PARTY_PIPES__
