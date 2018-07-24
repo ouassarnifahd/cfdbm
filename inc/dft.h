@@ -3,8 +3,6 @@
 
 #include "alsa_wrapper.h"
 
-#define FFT_NYQUIST_FREQ_BUFFER (CHANNEL_SAMPLES_COUNT/2)
-
 typedef struct {
     float re[CHANNEL_SAMPLES_COUNT];
     float im[CHANNEL_SAMPLES_COUNT];
