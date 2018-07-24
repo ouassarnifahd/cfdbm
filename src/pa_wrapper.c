@@ -6,7 +6,7 @@
 
 static const pa_sample_spec ss = {
     .format = PA_SAMPLE_S16LE,
-    .rate = FDBM_RATE,
+    .rate = RATE,
     .channels = CHANNELS
 };
 

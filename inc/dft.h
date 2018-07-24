@@ -6,8 +6,8 @@
 #define FFT_NYQUIST_FREQ_BUFFER (CHANNEL_SAMPLES_COUNT/2)
 
 typedef struct {
-    float re[FFT_NYQUIST_FREQ_BUFFER];
-    float im[FFT_NYQUIST_FREQ_BUFFER];
+    float re[CHANNEL_SAMPLES_COUNT];
+    float im[CHANNEL_SAMPLES_COUNT];
 } fcomplex_t;
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);

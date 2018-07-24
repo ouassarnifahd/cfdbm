@@ -1,9 +1,6 @@
 #ifndef __HEADER_ALSA_WRAPPER__
 #define __HEADER_ALSA_WRAPPER__
 
-// frame_bytes
-int alsa_get_frame_bytes();
-
 // audio capture
 void alsa_capture_init();
 

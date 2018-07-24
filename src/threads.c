@@ -81,7 +81,7 @@ void threads_init() {
 	void* fdbm_bridge = malloc(3 * sizeof(pipe_generic_t*));
 
 	#ifdef __USE_ALSA__
-	  int frame_bytes = alsa_get_frame_bytes();
+	  int frame_bytes = 4;//input->buffer.bytes_per_frame;
 	#else // __USE_PULSEAUDIO__
 	  int frame_bytes = 4;
 	#endif
@@ -250,7 +250,7 @@ void* thread_capture_audio(void* parameters) {
 		  capt_buf.rt_start = get_realtimecount();
 		  capt_buf.time_start = get_realtime_from_start();
 		#endif
-		if (capture_read(capt_buf.data, RAW_AUDIO_BUFFER_SIZE) < 0) ok = 0;
+		if (capture_read(capt_buf.data, SAMPLES_COUNT) < 0) ok = 0;
 		++chunk_capture_count;
 		#ifdef __DEBUG__
 		  capt_buf.rt_end = get_realtimecount();
@@ -307,7 +307,7 @@ void* thread_playback_audio(void* parameters) {
 			  play_buf.rt_start = get_realtimecount();
 			  play_buf.time_start = get_realtime_from_start();
 			#endif
-			if (playback_write(play_buf.data, RAW_AUDIO_BUFFER_SIZE) < 0) {
+			if (playback_write(play_buf.data, SAMPLES_COUNT) < 0) {
 				ok = 0; break;
 			}
 			++chunk_play_count;
@@ -341,7 +341,7 @@ INVISIBLE void fork_me(routine_t routine, void* parameters) {
 	}
 }
 
-#define THREADS 4
+#define MAX_INSTANCES 5
 
 int forked = 0;
 int global_fdbm_count = 0;
@@ -382,8 +382,10 @@ void* thread_fdbm_fork(void* parameters) {
 		#endif
 
 		// if (local_fdbm_running > 200 && local_fdbm_running < 215)
-		// applyFDBM_simple1(buffer, RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE), DOA_CENTER);
-		// sleep(2);
+		debug("buffer in  @%X", buffer);
+		applyFDBM_simple1(buffer, SAMPLES_COUNT, DOA_CENTER);
+		debug("buffer out @%X", buffer);
+		// sleep_ms(30);
 
 		#ifdef __THRD_PARTY_PIPES__
 		pipe_push(bridge->to, buffer, RAW_FDBM_BUFFER_SIZE); }

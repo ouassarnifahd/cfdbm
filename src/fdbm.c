@@ -3,14 +3,21 @@
 #include "dft.h"
 #include "ipdild_data.h"
 
-// #define FDBM_STEREO_OUTPUT
+// demo flags
+#define DEMO_5SEC   0
+
+// debug flags
+#define FDBM        1   // OK
+#define BUF_TO_LR   1   // OK
+#define FFT_IFFT    1
+#define ILD_IPD     0
+#define APPLY_MU    0
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 struct fdbm_context {
     // raw data
-    int16_t in_buffer[SAMPLES_COUNT];
-    int16_t out_buffer[SAMPLES_COUNT];
-    size_t raw_size;
+    int16_t* io_samples;
+    int16_t samples[SAMPLES_COUNT];
     size_t total_samples;
     size_t channel_samples;
     size_t ildipd_samples;
@@ -55,38 +62,41 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
 // loop enrolling is necessary... (neon?)
 INVISIBLE void get_buffer_LR(int16_t* buffer, size_t size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = buffer[2u * i]/(float)SINT16_MAX;
-        R[i] = buffer[2u * i + 1u]/(float)SINT16_MAX;
-        // log_printf("(L=%hi, R=%hi) -> (L=%f, R=%f)\n", buffer[2u * i], buffer[2u * i + 1u], L[i], R[i]);
+        L[i] = buffer[2u * i];
+        R[i] = buffer[2u * i + 1u];
     }
 }
 // loop enrolling is necessary... (neon?)
 INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = limit(-SINT16_MAX, (int16_t)(L[i] * SINT16_MAX), SINT16_MAX);//L[i] * SINT16_MAX;
-        buffer[2u * i + 1u] = limit(-SINT16_MAX, (int16_t)(R[i] * SINT16_MAX), SINT16_MAX);//R[i] * SINT16_MAX;
-        // log_printf("(L=%f, R=%f) -> (L=%hi, R=%hi)\n", L[i], R[i], buffer[2u * i], buffer[2u * i + 1u]);
+        buffer[2u * i] = L[i]; //limit(-SINT16_MAX, (L[i]), SINT16_MAX);
+        buffer[2u * i + 1u] = R[i]; //limit(-SINT16_MAX, (R[i]), SINT16_MAX);
     }
 }
 
 INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     fdbm_context_t ctx;
-    ctx.raw_size = RAW_FDBM_BUFFER_SIZE;
-    ctx.total_samples = RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE);
+    ctx.total_samples = SAMPLES_COUNT;
     ctx.channel_samples = CHANNEL_SAMPLES_COUNT;
     ctx.ildipd_samples = ILDIPD_LEN;
 
     // memcpy
-    memcpy(ctx.in_buffer, buffer, ctx.raw_size);
-    // ctx.in_buffer = buffer;
+    ctx.io_samples = buffer;
+    for (size_t i = 0; i < ctx.total_samples; i++) {
+        ctx.samples[i] = ctx.io_samples[i];
+    }
 
     // split
-    get_buffer_LR(ctx.in_buffer, ctx.total_samples, ctx.L, ctx.R);
+    #if (BUF_TO_LR == 1)
+    get_buffer_LR(ctx.samples, ctx.total_samples, ctx.L, ctx.R);
+    #endif
     // plot("Left data before", ctx.L, ctx.channel_samples);
     // plot("Right data before", ctx.R, ctx.channel_samples);
 
     // 2D fft
+    #if (FFT_IFFT == 1)
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data_ILD, ctx.data_IPD, ctx.channel_samples);
+    #endif
     // plot("IPD data", ctx.data_IPD, ctx.ildipd_samples);
     // plot("ILD data", ctx.data_ILD, ctx.ildipd_samples);
 
@@ -97,6 +107,7 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
 
 // loop enrolling is necessary... (neon?)
 INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
+    #if (ILD_IPD == 1)
     int i_theta = (doa + ILDIPD_DEG_MAX)/ILDIPD_DEG_STEP;
     float* local_IPDtarget = (float*)IPDtarget[i_theta];
     float* local_ILDtarget = (float*)ILDtarget[i_theta];
@@ -106,9 +117,11 @@ INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
     }
     // PLOT
     // plot("mu plot", ctx->mu, ctx->channel_samples);
+    #endif
 }
 
 INVISIBLE void apply_mu(fdbm_context_t* ctx) {
+    #if (APPLY_MU == 1)
     for (register int i = 0; i < ctx->channel_samples; ++i) {
         // here the magic!
         ctx->Gain[i] = pow16(1 - ctx->mu[i]);
@@ -117,19 +130,26 @@ INVISIBLE void apply_mu(fdbm_context_t* ctx) {
         ctx->fft_R.re[i] *= ctx->Gain[i];
         ctx->fft_R.im[i] *= ctx->Gain[i];
     }
+    #endif
 }
 
 INVISIBLE void prepare_signal(fdbm_context_t* ctx, char* buffer) {
     // 2D ifft
+    #if (FFT_IFFT == 1)
     idft2_SINE_WIN(&ctx->fft_L, &ctx->fft_R, ctx->L, ctx->R, ctx->channel_samples);
+    #endif
+
     // reassemble
-    set_buffer_LR(ctx->L, ctx->R, (int16_t*)ctx->out_buffer, ctx->total_samples);
-    // for (register int i = 0; i < ctx->total_samples; ++i) {
-    //     ctx->out_buffer[i] = ctx->in_buffer[i] + ctx->out_buffer[i];
-    // }
-    memcpy(buffer, ctx->out_buffer, ctx->raw_size);
+    #if (BUF_TO_LR == 1)
+    set_buffer_LR(ctx->L, ctx->R, ctx->samples, ctx->total_samples);
+    #endif
     // plot("Left data after", ctx->L, ctx->channel_samples);
     // plot("Right data after", ctx->R, ctx->channel_samples);
+
+    // memcpy
+    for (size_t i = 0; i < ctx->total_samples; i++) {
+        ctx->io_samples[i] = ctx->samples[i];
+    }
 }
 
 // plot_sync
@@ -139,6 +159,7 @@ int global_counterTitle = 0;
 m_init(mutex_plot);
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
+    #if(FDBM == 1)
     debug("Running FDBM... receiving %lu samples", size);
 
     int local_counterMemcpy;
@@ -188,6 +209,7 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
         }
         if(local_counterTitle > 2 ) error("TEST FDBM: STOP!");
     }
+    #endif
 }
 
 void applyFDBM_simple2(char* buffer, size_t size, int doa1, int doa2) {
