@@ -63,9 +63,11 @@ typedef void* (*routine_t) (void*);
 #define DOA_BUFFER 	  20
 
 INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
-	cpu_set_t core_i;
+	cpu_set_t core_i, core_j;
 	CPU_ZERO(&core_i);
 	CPU_SET(i, &core_i);
+	pthread_attr_getaffinity_np(attr, sizeof(cpu_set_t), &core_j);
+	core_i |= core_j;
 	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
 }
 
@@ -174,8 +176,9 @@ void threads_init() {
 	// Assigning CORES
 	int audioIO_CORE = get_freeCORE(thisCORE, manyCORES);
 	debug("audioIO_CORE = %d", audioIO_CORE);
-	int audioProcessingCORE = get_freeCORE(thisCORE, manyCORES);
-	debug("fdbmCORE     = %d", audioProcessingCORE);
+	int audioProcessingCORE1 = get_freeCORE(thisCORE, manyCORES);
+	int audioProcessingCORE2 = get_freeCORE(thisCORE, manyCORES);
+	debug("fdbmCORE     = %d,%d", audioProcessingCORE2, audioProcessingCORE2);
 	int opencvCORE = get_freeCORE(thisCORE, manyCORES);
 	debug("opencvCORE   = %d", opencvCORE);
 
@@ -197,7 +200,8 @@ void threads_init() {
 	log_printf(" [ ON ]\n");
 
 	log_printf("FDBM   worker... ");
-	attach_to_core(&attr_fdbm, audioProcessingCORE);
+	attach_to_core(&attr_fdbm, audioProcessingCORE1);
+	attach_to_core(&attr_fdbm, audioProcessingCORE2);
 	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_pool, fdbm_bridge)) {
 			error("fdbm_process init failed"); perror(NULL);
 		}
