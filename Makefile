@@ -37,7 +37,7 @@ objPath		:= obj
 binPath		:= bin
 
 #Flags
-wFlags 		:= -Wall -O3
+wFlags 		:= -Wall
 # Archs 	:= -march=armv7-a -mfloat-abi=hard -mfpu=neon
 ifneq ($(HOST_ARCH), armv7l)
 ifeq ($(MK_EMBEDDED), yes)
@@ -53,7 +53,7 @@ else
 Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float \
 			-mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
 endif
-Frameworks 	:= -lasound -lm -lpthread
+Frameworks 	:= -lasound -lpulse -lpulse-simple -lm -lpthread
 Libs		:= -I$(libPath)
 CFLAGS		+= $(wFlags) $(Archs) $(Libs)
 LDFLAGS 	+= $(Frameworks)
@@ -160,10 +160,10 @@ tools/%: tools/%.c
 depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
-	$(SHOW)$(RM) $(scrPath)/*.srn
+	$(SHOW)#$(RM) $(scrPath)/*.srn
 
 $(scrPath)/%.srn: $(scrPath)/%.m
-	$(SHOW)#$(OCTAVE) $< 2> $@
+	$(SHOW)$(OCTAVE) $< 2> $@
 
 #main build
 $(Project): $(obj)

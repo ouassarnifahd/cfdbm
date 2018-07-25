@@ -112,19 +112,17 @@ char out_str[LOG_BUFFER_SIZE];
       #define CYCLE_TIME_MS (CYCLE_TIME_S * KHz) // 1e-6
       #define CYCLE_TIME_NS (CYCLE_TIME_S * 1000L * MHz) // 1
 
-      #if defined (__x86_64__)
       INVISIBLE unsigned long long rdtsc(void) {
-        unsigned long hi = 0, lo = 0;
-        asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
-        return (unsigned long long)hi << 32 | (unsigned long long)lo;
+        #if defined (__x86_64__)
+          unsigned long hi = 0, lo = 0;
+          asm volatile ("rdtsc" : "=a" (lo) , "=d" (hi));
+          return (unsigned long long)hi << 32 | (unsigned long long)lo;
+        #elif defined (__i386__)
+          unsigned long x = 0;
+          asm volatile ("rdtsc" : "=A" (x));
+          return (unsigned long long)x;
+        #endif
       }
-      #elif defined (__i386__)
-      INVISIBLE unsigned long long rdtsc(void) {
-        unsigned long x = 0;
-        asm volatile ("rdtsc" : "=A" (x));
-        return (unsigned long long)x;
-      }
-      #endif
 
       INVISIBLE unsigned long get_cyclecount(void) {
         #if defined (__x86_64__) || defined (__i386__)
@@ -177,9 +175,13 @@ char out_str[LOG_BUFFER_SIZE];
     #define init_localtime() do { rtc_start = get_realtimecount(); } while(0)
     #define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
 
+    INVISIBLE double get_realtime_from(struct timespec* t_start) {
+        struct timespec t_now = get_realtimecount();
+        return get_realtimediff(t_start, &t_now);
+    }
+
     INVISIBLE double get_realtime_from_start() {
-        struct timespec rtc_now = get_realtimecount();
-        return get_realtimediff(&rtc_start, &rtc_now);
+        return get_realtime_from(&rtc_start);
     }
   #else
     #define __TSC__ 0
@@ -242,7 +244,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_RED"[ ERROR ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ ERROR ] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
@@ -264,7 +266,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_YLW"[WARNING]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[WARNING] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \
@@ -286,7 +288,7 @@ char out_str[LOG_BUFFER_SIZE];
     written_str += sprintf(out_str + written_str, CLR_PPL"[ DEBUG ]"CLR_WIT" "); \
     written_log += sprintf(log_str + written_log, "[ DEBUG ] "); \
     if (__TRD__ == 1) { \
-      unsigned long self = pthread_self(); int core = sched_getcpu(); \
+      unsigned long self = getpid(); int core = sched_getcpu(); \
       written_str += sprintf(out_str + written_str, "{"CLR_BLU"#%lu"CLR_WIT"@"CLR_RED"%d"CLR_WIT"} ", self, core); \
       written_log += sprintf(log_str + written_log, "{#%lu@%d} ", self, core); } \
     if (__TSC__ == 1) { \

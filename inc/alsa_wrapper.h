@@ -1,38 +1,18 @@
 #ifndef __HEADER_ALSA_WRAPPER__
 #define __HEADER_ALSA_WRAPPER__
 
-// TODO: this isnt the way see: PulseAUDIO!!!
-#include <alsa/asoundlib.h>
-
-// time spent in capture = n / rate = 32 ms
-#define SAMPLES_COUNT (1024)
-#define CHANNEL_SAMPLES_COUNT (SAMPLES_COUNT/2)
-
-int get_frame_bytes();
-#define RAW_BUFFER_SIZE (SAMPLES_COUNT * get_frame_bytes())
-
-#define SINT16_MAX (((1ull<<16)-1))
-
 // audio capture
-void capture_init();
+void alsa_capture_init();
 
-void capture_end();
+void alsa_capture_end();
 
-long capture_read(char* buffer, size_t len);
+long alsa_capture_read(char* buffer, size_t len);
 
 // audio playback
-void playback_init();
+void alsa_playback_init();
 
-void playback_end();
+void alsa_playback_end();
 
-long playback_write(char* buffer, size_t len);
-
-// old API
-// long readbuf(snd_pcm_t *handle, char *buf, long len, size_t *frames, size_t *max);
-// long writebuf(snd_pcm_t *handle, char *buf, long len, size_t *frames);
-//
-// link
-// void capture_playback_link(char* buffer, size_t len);
-// void capture_playback_unlink();
+long alsa_playback_write(char* buffer, size_t len);
 
 #endif /* end of include guard: __HEADER_ALSA_WRAPPER__ */

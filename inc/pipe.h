@@ -22,8 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#pragma once /* If your compiler doesn't support this construct, feel free to
+/* If your compiler doesn't support this construct, feel free to
                 use include guards. Most do, so I'm keeping it in. */
+
+#ifndef __THRD_PARTY_PIPES__
+#define __THRD_PARTY_PIPES__
 
 #include <stddef.h>
 
@@ -41,7 +44,7 @@ extern "C" {
 #define PURE
 #define MALLOC_LIKE
 #define NO_NULL_POINTERS
-#define WARN_UNUSED_RESULT 
+#define WARN_UNUSED_RESULT
 #if (_MSC_VER == 1900)
     #define restrict __restrict
 #endif
@@ -266,3 +269,5 @@ void pipe_run_test_suite(void);
 #endif
 
 /* vim: set et ts=4 sw=4 softtabstop=4 textwidth=80: */
+
+#endif /* end of include guard: __THRD_PARTY_PIPES__ */
