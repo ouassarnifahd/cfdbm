@@ -67,7 +67,7 @@ INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
 	CPU_ZERO(&core_i);
 	CPU_SET(i, &core_i);
 	pthread_attr_getaffinity_np(attr, sizeof(cpu_set_t), &core_j);
-	core_i |= core_j;
+	CPU_OR(&core_i, &core_i, &core_j);
 	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
 }
 
