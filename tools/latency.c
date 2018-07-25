@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
                 gettimestamp(chandle, &c_tstamp);
 
                 // goto __end;
-#if 0
+#if 1
                 printf("Playback:\n");
                 showstat(phandle, frames_out);
                 printf("Capture:\n");

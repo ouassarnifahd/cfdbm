@@ -1,15 +1,19 @@
 // #undef __DEBUG__
-
 #include "common.h"
 #include "fdbm.h"
 #include "threads.h"
 #include "pipe.h"
+#include "thpool.h"
+#include "wav.h"
+
+// demo flags
+#define DEMO 1
 
 // this is usefull!
 struct pipe_bridge_t {
 	#ifdef __THRD_PARTY_PIPES__
-	  pipe_generic_t* from;
-	  pipe_generic_t* to;
+	  pipe_consumer_t* from;
+	  pipe_producer_t* to;
 	#else
 	  int from;
 	  int to;
@@ -17,18 +21,41 @@ struct pipe_bridge_t {
 };
 typedef struct pipe_bridge_t pipe_bridge_t;
 
+// timing ...
+struct period_t {
+	struct timespec rt_start;
+	double time_start;
+	double time_len;
+	double time_end;
+};
+typedef struct period_t period_t;
+
+#define PERIOD_BEGIN(period) do { \
+	(period)->rt_start = get_realtimecount(); \
+	(period)->time_start = get_realtime_from_start(); \
+} while(0)
+#define PERIOD_FINISH(period) do { \
+	(period)->time_end = get_realtime_from_start(); \
+	(period)->time_len = get_realtime_from(&(period)->rt_start); \
+} while(0)
+#define PERIOD_START(period) (period)->time_start
+#define PERIOD_END(period) (period)->time_end
+#define PERIOD_LEN(period) (period)->time_len
+
+#if (DEMO == 1)
+period_t audio_latency = {0};
+int audio_skiped = 0;
+#define DEMO_TIME 5
+#endif
+
 // time aware buffer
 struct tsc_buffer {
 	char* data;
-	#ifdef __DEBUG__
-	  struct timespec rt_start;
-	  struct timespec rt_end;
-	  double time_start;
-	  double time_len;
-	  double time_end;
-	#endif
+	period_t period;
 };
 typedef struct tsc_buffer timed_buffer_t;
+
+#define BUFFER_LATENCY 25
 
 typedef void* (*routine_t) (void*);
 
@@ -76,7 +103,7 @@ void threads_init() {
 	debug("main core %d (out of %d)", thisCORE, manyCORES);
 
 	// A tribute to pipes and pipelines...
-	log_printf("PIPES init...\t");
+	log_printf("PIPES init...    ");
 	// THE Bridge
 	void* fdbm_bridge = malloc(3 * sizeof(pipe_generic_t*));
 
@@ -87,9 +114,9 @@ void threads_init() {
 	#endif
 
 	#ifdef __THRD_PARTY_PIPES__
-	  pipe_t* pipe_into_fdbm = pipe_new(1, frame_bytes * SAMPLES_COUNT * BUFFER_CHUNKS);
-	  pipe_t* pipe_from_fdbm = pipe_new(1, frame_bytes * SAMPLES_COUNT * BUFFER_CHUNKS);
-	  // pipe_t* pipe_fdbm_doa  = pipe_new(sizeof(int), DOA_BUFFER);
+	  pipe_t* pipe_into_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
+	  pipe_t* pipe_from_fdbm = pipe_new(frame_bytes, SAMPLES_COUNT * BUFFER_CHUNKS);
+	  pipe_t* pipe_fdbm_doa  = pipe_new(sizeof(int), DOA_BUFFER);
 
 	  // First STEP
 	  pipe_producer_t* pipe_audio_in = pipe_producer_new(pipe_into_fdbm);
@@ -100,15 +127,15 @@ void threads_init() {
 	  pipe_consumer_t* pipe_audio_out = pipe_consumer_new(pipe_from_fdbm);
 
 	  // Third STEP
-	  // pipe_producer_t* pipe_doa_in  = pipe_producer_new(pipe_fdbm_doa);
-	  // pipe_consumer_t* pipe_doa_out = pipe_consumer_new(pipe_fdbm_doa);
+	  pipe_producer_t* pipe_doa_in  = pipe_producer_new(pipe_fdbm_doa);
+	  pipe_consumer_t* pipe_doa_out = pipe_consumer_new(pipe_fdbm_doa);
 
 	  // THE Bridge
 	  pipe_bridge_t* bridge = fdbm_bridge;
-	  pipe_generic_t* pipes = fdbm_bridge;
+	  char* pipes = fdbm_bridge;
 	  bridge->from = pipe_fdbm_in;
 	  bridge->to   = pipe_fdbm_out;
-	  // pipes[2]     = pipe_doa_out;
+	  memcpy(pipes + sizeof(pipe_bridge_t), pipe_doa_out, sizeof(pipe_consumer_t*));
 	#else // __LINUX_PIPES__
 	  // linux ITC (man pipe) TODO!!! next time
 	  // http://tldp.org/LDP/lpg/node11.html
@@ -130,7 +157,7 @@ void threads_init() {
 
 	  // THE Bridge
 	  pipe_bridge_t* bridge = fdbm_bridge;
-	  int* pipes = fdbm_bridge;
+	  int** pipes = fdbm_bridge;
 	  bridge->from = *pipe_fdbm_in;
 	  bridge->to   = *pipe_fdbm_out;
 	  // pipes[2]     = *pipe_fdbm_doa;
@@ -139,7 +166,7 @@ void threads_init() {
 	log_printf(" [ OK ]\n");
 
 	// AUDIO init...
-	log_printf("AUDIO starting...");
+	log_printf("AUDIO init...    ");
 	playback_init();
 	capture_init();
 	log_printf(" [ OK ]\n");
@@ -161,7 +188,7 @@ void threads_init() {
 	pthread_setname_np(audio_playback_process, "CFDBM playback");
 	log_printf(" [ ON ]\n");
 
-	log_printf("AUDIO Capture...\t");
+	log_printf("AUDIO Capture... ");
 	attach_to_core(&attr_capture, audioIO_CORE);
 	if (pthread_create(&audio_capture_process, &attr_capture, thread_capture_audio, pipe_audio_in)) {
 		error("audio_capture_process init failed"); perror(NULL);
@@ -169,26 +196,26 @@ void threads_init() {
 	pthread_setname_np(audio_capture_process, "CFDBM capture");
 	log_printf(" [ ON ]\n");
 
-	log_printf("FDBM worker...\t");
+	log_printf("FDBM   worker... ");
 	attach_to_core(&attr_fdbm, audioProcessingCORE);
-	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_fork, fdbm_bridge)) {
+	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_pool, fdbm_bridge)) {
 			error("fdbm_process init failed"); perror(NULL);
 		}
-	pthread_setname_np(fdbm_process, "CFDBM worker");
+	pthread_setname_np(fdbm_process, "CFDBM pool");
 	log_printf(" [ ON ]\n");
 
 	// OpenCV init...
-	log_printf("OpenCV face detection...");
+	log_printf("OpenCV worker... ");
 	attach_to_core(&attr_openCV, audioProcessingCORE);
-	// if(pthread_create(&openCV_process, &attr_openCV, thread_openCV, NULL)) {
-	// 		error("fdbm_process init failed"); perror(NULL);
-	// 	}
-	pthread_setname_np(fdbm_process, "CFDBM doa");
+	if(pthread_create(&openCV_process, &attr_openCV, thread_openCV, pipe_doa_in)) {
+			error("fdbm_process init failed"); perror(NULL);
+	}
+	pthread_setname_np(openCV_process, "CFDBM camera");
 	log_printf(" [ ON ]\n");
 	// SIGHANDLING interface
 
 	// The main core stops here and waits for all the others!!
-	pthread_join(fdbm_process, NULL);
+	pthread_join(openCV_process, NULL);
 	pthread_join(fdbm_process, NULL);
 	pthread_join(audio_capture_process, NULL);
 	pthread_join(audio_playback_process, NULL);
@@ -197,6 +224,7 @@ void threads_init() {
 	pthread_attr_destroy(&attr_capture);
 	pthread_attr_destroy(&attr_playback);
 	pthread_attr_destroy(&attr_fdbm);
+	pthread_attr_destroy(&attr_openCV);
 
 	// ALSA end.
 	capture_end();
@@ -208,15 +236,18 @@ void threads_init() {
 
 	// pipeline.
 	#ifdef __THRD_PARTY_PIPES__
-	pipe_producer_free(pipe_audio_in);
-	pipe_consumer_free(pipe_fdbm_in);
-	pipe_producer_free(pipe_fdbm_out);
-	pipe_consumer_free(pipe_audio_out);
-	pipe_free(pipe_from_fdbm);
-	pipe_free(pipe_into_fdbm);
+	  pipe_producer_free(pipe_audio_in);
+	  pipe_consumer_free(pipe_fdbm_in);
+	  pipe_producer_free(pipe_doa_in);
+	  pipe_consumer_free(pipe_doa_out);
+	  pipe_producer_free(pipe_fdbm_out);
+	  pipe_consumer_free(pipe_audio_out);
+	  pipe_free(pipe_from_fdbm);
+	  pipe_free(pipe_into_fdbm);
+	  pipe_free(pipe_fdbm_doa);
 	#else // __LINUX_PIPES__
-	free(pipe_into_fdbm);
-	free(pipe_from_fdbm);
+	  free(pipe_into_fdbm);
+	  free(pipe_from_fdbm);
 	#endif
 }
 
@@ -232,6 +263,19 @@ void* thread_capture_audio(void* parameters) {
 	debug("capture = %d", capture);
 	#endif
 
+	#if (DEMO == 1)
+	  FILE* wav_in = fopen("demo_input.wav","wb");
+	  int sample_count = 0;
+	  int first_buffer = 1;
+	  write_wav_header(wav_in, CHANNELS, RATE, 2, DEMO_TIME * RATE);
+	  wav_sample_t sample = {
+        CHANNELS,
+        2,
+        2 * CHANNELS,
+        NULL
+      };
+	#endif
+
 	timed_buffer_t capt_buf;
 
 	char buf[RAW_AUDIO_BUFFER_SIZE];
@@ -240,32 +284,53 @@ void* thread_capture_audio(void* parameters) {
 	long chunk_capture_count = 0;
 
 	// set RR realtime prio
-	setscheduler(10);
+	setscheduler(20);
 
     int ok = 1;
 
 	debug("thread_capture_audio: running...");
 	while (ok) {
 		#ifdef __DEBUG__
-		  capt_buf.rt_start = get_realtimecount();
-		  capt_buf.time_start = get_realtime_from_start();
+		  PERIOD_BEGIN(&capt_buf.period);
 		#endif
 		if (capture_read(capt_buf.data, SAMPLES_COUNT) < 0) ok = 0;
 		++chunk_capture_count;
 		#ifdef __DEBUG__
-		  capt_buf.rt_end = get_realtimecount();
-		  capt_buf.time_end = get_realtime_from_start();
-		  capt_buf.time_len = get_realtime_from(&capt_buf.rt_start);
-		  debug("chunk[%lu] captured { from %lfs to %lfs in %lfs }\n", chunk_capture_count,
-			capt_buf.time_start, capt_buf.time_end, capt_buf.time_len);
+		  PERIOD_FINISH(&capt_buf.period);
+		  debug("%u = chunk[%lu] captured { from %lfs to %lfs in %lfs }\n",
+		  	(unsigned int)SAMPLES_COUNT, chunk_capture_count,
+			PERIOD_START(&capt_buf.period), PERIOD_END(&capt_buf.period),
+			PERIOD_LEN(&capt_buf.period));
 		  // if(chunk_capture_count == 1000) break;
 		#endif
 		#ifdef __THRD_PARTY_PIPES__
-		pipe_push(capture, capt_buf.data, RAW_AUDIO_BUFFER_SIZE);
+		pipe_push(capture, capt_buf.data, SAMPLES_COUNT);
 		#else // __LINUX_PIPES__
-		write(capture, capt_buf.data, RAW_AUDIO_BUFFER_SIZE);
+		write(capture, capt_buf.data, SAMPLES_COUNT);
 		#endif
-		sleep_ms(20);
+		#if(DEMO == 1)
+		  int16_t *sample_io = capt_buf.data;
+		  int16_t sampleData[CHANNELS];
+		  if (first_buffer) {
+			  first_buffer = 0;
+		  	PERIOD_BEGIN(&audio_latency);
+		  }
+		  for (register int i = 0; i < SAMPLES_COUNT; i++) {
+			for (register int j = 0; j < CHANNELS; j++) {
+			  sampleData[j] = sample_io[2u * i + j];
+			}
+			sample.sampleData = sampleData;
+			write_wav_sample(wav_in, &sample);
+		  }
+		  sample_count += SAMPLES_COUNT;
+		  if (sample_count > RATE * DEMO_TIME) {
+			fclose(wav_in);
+			break;
+		  }
+		#else
+		// idle time (purpose: reduce consumption)
+		sleep_ms(BUFFER_LATENCY);
+		#endif
 	}
 
 	pthread_exit(NULL);
@@ -283,6 +348,19 @@ void* thread_playback_audio(void* parameters) {
 	debug("play = %d", play);
 	#endif
 
+	#if (DEMO == 1)
+	  FILE* wav_out = fopen("demo_output.wav","wb");
+	  int sample_count = 0;
+	  int first_buffer = 1;
+	  write_wav_header(wav_out, CHANNELS, RATE, 2, DEMO_TIME * RATE);
+	  wav_sample_t sample = {
+        CHANNELS,
+        2,
+        2 * CHANNELS,
+        NULL
+      };
+	#endif
+
 	timed_buffer_t play_buf;
 
 	char victime[RAW_AUDIO_BUFFER_SIZE];
@@ -291,33 +369,61 @@ void* thread_playback_audio(void* parameters) {
 	long chunk_play_count = 0;
 
 	// set RR realtime prio
-	setscheduler(10);
+	setscheduler(20);
 
     int ok = 1;
 
 	debug("thread_playback_audio: running...");
     while (ok) {
 		#ifdef __THRD_PARTY_PIPES__
-		while(pipe_pop(play, play_buf.data, RAW_AUDIO_BUFFER_SIZE))
+		while(pipe_pop(play, play_buf.data, SAMPLES_COUNT))
 		#else // __LINUX_PIPES__
-		while(read(play, play_buf.data, RAW_AUDIO_BUFFER_SIZE) > 0)
+		while(read(play, play_buf.data, SAMPLES_COUNT) > 0)
 		#endif
 		{
 			#ifdef __DEBUG__
-			  play_buf.rt_start = get_realtimecount();
-			  play_buf.time_start = get_realtime_from_start();
+			  PERIOD_BEGIN(&play_buf.period);
 			#endif
 			if (playback_write(play_buf.data, SAMPLES_COUNT) < 0) {
 				ok = 0; break;
 			}
 			++chunk_play_count;
 			#ifdef __DEBUG__
-			  play_buf.rt_end = get_realtimecount();
-			  play_buf.time_end = get_realtime_from_start();
-			  play_buf.time_len = get_realtime_from(&play_buf.rt_start);
-			  debug("chunk[%lu] played  { from %lfs to %lfs in %lfs }\n", chunk_play_count,
-				play_buf.time_start, play_buf.time_end, play_buf.time_len);
+			  PERIOD_FINISH(&play_buf.period);
+			  debug("%u = chunk[%lu] played  { from %lfs to %lfs in %lfs }\n",
+			  	(unsigned int)SAMPLES_COUNT, chunk_play_count,
+				PERIOD_START(&play_buf.period), PERIOD_END(&play_buf.period),
+				PERIOD_LEN(&play_buf.period));
 			  // if(chunk_play_count == 1000) { ok = 0; break; }
+			#endif
+			#if(DEMO == 1)
+			  int16_t *sample_io = play_buf.data;
+			  int16_t sampleData[CHANNELS] = {0};
+			  if (first_buffer) {
+				  first_buffer = 0;
+				  PERIOD_FINISH(&audio_latency);
+				  audio_skiped = (int)(RATE * PERIOD_LEN(&audio_latency));
+				  for (register int i = 0; i < audio_skiped; i++) {
+					sample.sampleData = sampleData;
+					write_wav_sample(wav_out, &sample);
+				  }
+				  sample_count += audio_skiped;
+			  }
+			  for (register int i = 0; i < SAMPLES_COUNT; i++) {
+				for (register int j = 0; j < CHANNELS; j++) {
+				  sampleData[j] = sample_io[2u * i + j];
+				}
+				sample.sampleData = sampleData;
+				write_wav_sample(wav_out, &sample);
+			  }
+			  sample_count += SAMPLES_COUNT;
+			  if (sample_count > RATE * DEMO_TIME) {
+				fclose(wav_out);
+				error("DEMO: END!");
+			  }
+			#else
+			// idle time (purpose: reduce consumption)
+			sleep_ms(BUFFER_LATENCY);
 			#endif
 		}
     }
@@ -326,75 +432,49 @@ void* thread_playback_audio(void* parameters) {
 
 void* thread_openCV(void* parameters) {
 
-}
+	debug("thread_openCV: init...");
+	// log_printf("CAPTURE Process is running...\n");
 
-// Here is the FDBM...
-INVISIBLE void fork_me(routine_t routine, void* parameters) {
-	// lost child
-	pthread_t lost_child;
-	pthread_attr_t attr_lost_child;
-	pthread_attr_init(&attr_lost_child);
-	pthread_attr_setdetachstate(&attr_lost_child, PTHREAD_CREATE_DETACHED);
-	attach_to_core(&attr_lost_child, sched_getcpu());
-	if(pthread_create(&lost_child, &attr_lost_child, routine, parameters)) {
-		error("fork failled!"); perror(NULL);
+	#ifdef __THRD_PARTY_PIPES__
+	pipe_producer_t* doa_flow = (pipe_producer_t*)parameters;
+	#else // __LINUX_PIPES__
+	int doa_flow = *(int *)parameters;
+	debug("doa_flow = %d", doa_flow);
+	#endif
+
+	for (;;) {
+		/* code */
+		sleep_ms(100);
 	}
+
+	pthread_exit(NULL);
 }
 
-#define MAX_INSTANCES 5
+#define MAX_WORKERS 2
 
-int forked = 0;
-int global_fdbm_count = 0;
-m_init(mutex_fdbm_fork);
+#define POOL_IDLE_COUNT(thpool) MAX_WORKERS - thpool_num_threads_working(thpool)
 
-void* thread_fdbm_fork(void* parameters) {
+void* thread_fdbm_pool(void* parameters) {
 
-	debug("thread_fdbm_fork: init...");
-	pipe_bridge_t* bridge = (pipe_bridge_t*)parameters;
+	debug("thread_fdbm_pool: init...");
+	threadpool fdbm_pool = thpool_init(MAX_WORKERS);
+	int idle_threads = POOL_IDLE_COUNT(fdbm_pool);
 
-	// set RR realtime prio
-	setscheduler(10);
-
-	// synchronization
-	int local_forked = 0;
-	int need_fork = 1;
-
-	debug("thread_fdbm_fork: running...");
+	debug("thread_fdbm_pool: running...");
 	for(;;)
 	{
-		// // if(signal) break;
-		// debug("need_fork = %s", need_fork?"yes":"no");
-		// if (need_fork) fork_me(thread_fdbm, bridge);
-		// else error("FN!");
-		// do {
-		// 	secured_stuff(mutex_fdbm_fork, local_forked = forked);
-		// 	// sleep_ms(10);
-		// } while(!local_forked);
-		// secured_stuff(mutex_fdbm_fork, need_fork = (global_fdbm_count < THREADS));
-
-		char* buffer = malloc(RAW_FDBM_BUFFER_SIZE);
-
-		// fetching audio
-		#ifdef __THRD_PARTY_PIPES__
-		if(pipe_pop(bridge->from, buffer, RAW_FDBM_BUFFER_SIZE)) {
-		#else // __LINUX_PIPES__
-		while(read(bridge->from, buffer, RAW_FDBM_BUFFER_SIZE) < 0);
-		#endif
-
-		// if (local_fdbm_running > 200 && local_fdbm_running < 215)
-		debug("buffer in  @%X", buffer);
-		applyFDBM_simple1(buffer, SAMPLES_COUNT, DOA_CENTER);
-		debug("buffer out @%X", buffer);
-		// sleep_ms(30);
-
-		#ifdef __THRD_PARTY_PIPES__
-		pipe_push(bridge->to, buffer, RAW_FDBM_BUFFER_SIZE); }
-		#else // __LINUX_PIPES__
-		write(bridge->to, buffer, RAW_FDBM_BUFFER_SIZE);
-		#endif
-
-		free(buffer);
+		debug("POOL: %d IDLE threads out of %d !", idle_threads, (int)MAX_WORKERS);
+		if (POOL_IDLE_COUNT(fdbm_pool) > 0) {
+			thpool_add_work(fdbm_pool, thread_fdbm_worker, parameters);
+		}
+		// delaying the workers to ensure the FIFO quality of the pipe
+		sleep_ms(3 * BUFFER_LATENCY / 4);
+		idle_threads = POOL_IDLE_COUNT(fdbm_pool);
 	}
+
+	// free the pool
+	thpool_wait(fdbm_pool);
+	thpool_destroy(fdbm_pool);
 
 	pthread_exit(NULL);
 }
@@ -402,42 +482,38 @@ void* thread_fdbm_fork(void* parameters) {
 int global_fdbm_running = 0;
 m_init(mutex_fdbm);
 
-void* thread_fdbm(void* parameters) {
+void* thread_fdbm_worker(void* parameters) {
 	// set RR realtime prio
-	setscheduler(20);
+	setscheduler(15);
 
 	// local routine count
 	int local_fdbm_running;
-	secured_stuff(mutex_fdbm, local_fdbm_running = ++global_fdbm_running; forked = 1);
-
-	// synchronization
-	secured_stuff(mutex_fdbm_fork, ++global_fdbm_count);
+	secured_stuff(mutex_fdbm, local_fdbm_running = ++global_fdbm_running);
 	debug("thread_fdbm(%d): init...", local_fdbm_running);
 
+	// local variables
 	pipe_bridge_t bridge = *(pipe_bridge_t*)parameters;
 	char* buffer = malloc(RAW_FDBM_BUFFER_SIZE);
 	debug("thread_fdbm(%d): buffer allocated", local_fdbm_running);
 
-	// fetching audio
+	// pull raw audio
 	#ifdef __THRD_PARTY_PIPES__
-	if(pipe_pop(bridge.from, buffer, RAW_FDBM_BUFFER_SIZE)) {
+	if(pipe_pop(bridge.from, buffer, SAMPLES_COUNT)) {
 	#else // __LINUX_PIPES__
-	while(read(bridge.from, buffer, RAW_FDBM_BUFFER_SIZE) < 0);
+	while(read(bridge.from, buffer, SAMPLES_COUNT) < 0);
 	#endif
 
+	// algorithms
 	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	// if (local_fdbm_running > 200 && local_fdbm_running < 215)
-	// applyFDBM_simple1(buffer, RAW_TO_SAMPLES(RAW_FDBM_BUFFER_SIZE), DOA_CENTER);
-	// sleep(2);
+	applyFDBM_simple1(buffer, SAMPLES_COUNT, DOA_CENTER);
 
+	// push processed audio
 	#ifdef __THRD_PARTY_PIPES__
-	pipe_push(bridge.to, buffer, RAW_FDBM_BUFFER_SIZE); }
+	pipe_push(bridge.to, buffer, SAMPLES_COUNT); }
 	#else // __LINUX_PIPES__
-	write(bridge.to, buffer, RAW_FDBM_BUFFER_SIZE);
+	write(bridge.to, buffer, SAMPLES_COUNT);
 	#endif
 
 	free(buffer);
-	secured_stuff(mutex_fdbm_fork, --global_fdbm_count);
 	debug("thread_fdbm(%d): Done!\n", local_fdbm_running);
-	pthread_exit(NULL);
 }

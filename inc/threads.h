@@ -5,11 +5,11 @@ void threads_init(void);
 
 void* thread_capture_audio(void* parameters);
 
-void* thread_video_capture(void* parameters);
+void* thread_openCV(void* parameters);
 
-void* thread_fdbm_fork(void* parameters);
+void* thread_fdbm_pool(void* parameters);
 
-void* thread_fdbm(void* parameters);
+void* thread_fdbm_worker(void* parameters);
 
 void* thread_playback_audio(void* parameters);
 
