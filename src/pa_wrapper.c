@@ -1,6 +1,8 @@
 #include "common.h"
 #include "audio_wrapper.h"
 
+#ifndef __arm__
+
 #include <pulse/simple.h>
 #include <pulse/error.h>
 
@@ -93,3 +95,4 @@ long pa_playback_write(char* buffer, size_t len) {
         pa_playback_end();
     }
 }
+#endif
