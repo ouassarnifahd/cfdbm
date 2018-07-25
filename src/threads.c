@@ -7,7 +7,7 @@
 #include "wav.h"
 
 // demo flags
-#define DEMO 1
+#define DEMO 0
 
 // this is usefull!
 struct pipe_bridge_t {
