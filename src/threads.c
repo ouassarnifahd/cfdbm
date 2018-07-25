@@ -454,7 +454,7 @@ void* thread_openCV(void* parameters) {
 	pthread_exit(NULL);
 }
 
-#define MAX_WORKERS 2
+#define MAX_WORKERS 10
 
 #define POOL_IDLE_COUNT(thpool) MAX_WORKERS - thpool_num_threads_working(thpool)
 
