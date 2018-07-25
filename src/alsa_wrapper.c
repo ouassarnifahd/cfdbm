@@ -160,6 +160,7 @@ static void alsa_audio_init(audio_t *audio) {
     audio->buffer.bytes = audio->buffer.bytes_per_sample * audio->buffer.samples;
     // audio->buffer.data.raw  = aligned_alloc(MEM_ALIGN, audio->buffer.bytes);
     // alloc_check(audio->buffer.data.raw);
+    debug("ALSA library version: %s", SND_LIB_VERSION_STR);
 
     if ((err = snd_pcm_open(&audio->device.pcm, audio->device.name, audio->device.stream, 0)) < 0) {
         error("cannot open audio device %s (%s)", audio->device.name, snd_strerror (err));

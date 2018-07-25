@@ -3,20 +3,18 @@
 #include "dft.h"
 #include "ipdild_data.h"
 
-// demo flags
-#define DEMO_5SEC   0
-
 // debug flags
 #define FDBM        1   // OK
 #define BUF_TO_LR   1   // OK
-#define FFT_IFFT    1
-#define ILD_IPD     0
-#define APPLY_MU    0
+#define FFT_IFFT    1   // OK (should be optimized)
+#define ILD_IPD     0   // NOT YET
+#define APPLY_MU    0   // NOT YET
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 struct fdbm_context {
-    // raw data
+    // audio driver memory pointer
     int16_t* io_samples;
+    // algorithm samples
     int16_t samples[SAMPLES_COUNT];
     size_t total_samples;
     size_t channel_samples;
@@ -66,11 +64,12 @@ INVISIBLE void get_buffer_LR(int16_t* buffer, size_t size, float* L, float* R) {
         R[i] = buffer[2u * i + 1u];
     }
 }
+
 // loop enrolling is necessary... (neon?)
 INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
-        buffer[2u * i] = L[i]; //limit(-SINT16_MAX, (L[i]), SINT16_MAX);
-        buffer[2u * i + 1u] = R[i]; //limit(-SINT16_MAX, (R[i]), SINT16_MAX);
+        buffer[2u * i] = L[i];
+        buffer[2u * i + 1u] = R[i];
     }
 }
 
@@ -106,17 +105,27 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
 }
 
 // loop enrolling is necessary... (neon?)
+int ten = 0;
 INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
     #if (ILD_IPD == 1)
     int i_theta = (doa + ILDIPD_DEG_MAX)/ILDIPD_DEG_STEP;
     float* local_IPDtarget = (float*)IPDtarget[i_theta];
     float* local_ILDtarget = (float*)ILDtarget[i_theta];
     for (register int i = 0; i < ctx->ildipd_samples; ++i) {
-        ctx->mu_IPD[i] = limit(0.0, abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i], 1.0);
-        ctx->mu_ILD[i] = limit(0.0, abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i], 1.0);
+        ctx->mu_IPD[i] = abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i];
+        ctx->mu_ILD[i] = abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i];
     }
     // PLOT
     // plot("mu plot", ctx->mu, ctx->channel_samples);
+    // if(ten >= 100 && ten < 120) {
+        char text[20];
+        sprintf(text, "mu[%d]", ten++);
+        // plot(text, ctx->mu, ctx->channel_samples);
+        for (size_t i = 0; i < ctx->channel_samples/4; i+=4) {
+            debug("%f, %f, %f, %f", ctx->mu[4u * i], ctx->mu[4u * i + 1], ctx->mu[4u * i + 2], ctx->mu[4u * i + 3]);
+        }
+        // ten++;
+    // }
     #endif
 }
 
@@ -124,7 +133,7 @@ INVISIBLE void apply_mu(fdbm_context_t* ctx) {
     #if (APPLY_MU == 1)
     for (register int i = 0; i < ctx->channel_samples; ++i) {
         // here the magic!
-        ctx->Gain[i] = pow16(1 - ctx->mu[i]);
+        ctx->Gain[i] = pow16(1 - ctx->mu[i]/SINT16_MAX);
         ctx->fft_L.re[i] *= ctx->Gain[i];
         ctx->fft_L.im[i] *= ctx->Gain[i];
         ctx->fft_R.re[i] *= ctx->Gain[i];
