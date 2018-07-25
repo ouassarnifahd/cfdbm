@@ -48,12 +48,13 @@ else
 Archs 		:= -ftree-vectorize -ffast-math
 # LD_LIBRARY_PATH := /usr/lib/x86_64-linux-gnu
 CFLAGS	 	+= -D __NO_NEON__
+Frameworks 	+= -lpulse -lpulse-simple
 endif
 else
 Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float \
 			-mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
 endif
-Frameworks 	:= -lasound -lpulse -lpulse-simple -lm -lpthread
+Frameworks 	+= -lasound -lm -lpthread
 Libs		:= -I$(libPath)
 CFLAGS		+= $(wFlags) $(Archs) $(Libs)
 LDFLAGS 	+= $(Frameworks)
