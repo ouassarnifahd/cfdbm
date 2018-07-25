@@ -210,7 +210,7 @@ void threads_init() {
 
 	// OpenCV init...
 	log_printf("OpenCV worker... ");
-	attach_to_core(&attr_openCV, audioProcessingCORE);
+	attach_to_core(&attr_openCV, opencvCORE);
 	if(pthread_create(&openCV_process, &attr_openCV, thread_openCV, pipe_doa_in)) {
 			error("fdbm_process init failed"); perror(NULL);
 	}
