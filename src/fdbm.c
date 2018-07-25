@@ -170,17 +170,6 @@ m_init(mutex_plot);
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     #if(FDBM == 1)
     debug("Running FDBM... receiving %lu samples", size);
-
-    int local_counterMemcpy;
-    int local_counterTitle;
-
-    secured_stuff(mutex_plot, local_counterMemcpy =
-        (global_counterMemcpy < PLOT_CHUNKS) ? global_counterMemcpy + 1: 0);
-
-    // static float fft_data_1s[CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS];
-    static float input_data[CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS];
-    static float output_data[CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS];
-
     if (doa == DOA_NOT_INITIALISED) {
         warning("NO CHANGES 'DOA_NOT_INITIALISED'!");
         return ;
@@ -190,11 +179,6 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
         debug("Running FDBM... DOA = %d !", local_doa);
         // prepare context
         fdbm_context_t fdbm = prepare_context(buffer);
-
-        if (local_counterMemcpy < PLOT_CHUNKS) {
-            memcpy(input_data + local_counterMemcpy * CHANNEL_SAMPLES_COUNT, fdbm.L, CHANNEL_SAMPLES_COUNT * sizeof(float));
-        }
-
         debug("Running FDBM... comparing ILDIPD!");
         // compare with DataBase:
         compare_ILDIPD(&fdbm, local_doa);
@@ -204,19 +188,6 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
         // generate output
         debug("Running FDBM... Finishing!");
         prepare_signal(&fdbm, buffer);
-
-        // debug 1s plot
-        memcpy(output_data + local_counterMemcpy * CHANNEL_SAMPLES_COUNT, fdbm.L, CHANNEL_SAMPLES_COUNT * sizeof(float));
-
-        if (local_counterMemcpy > PLOT_CHUNKS) {
-            secured_stuff(mutex_plot, local_counterTitle = global_counterTitle++);
-            char inputTitle[20], outputTitle[20];
-            sprintf(inputTitle, "INPUT #%d", local_counterTitle);
-            sprintf(outputTitle, "OUTPUT #%d", local_counterTitle);
-            plot(inputTitle, input_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
-            plot(outputTitle, output_data, CHANNEL_SAMPLES_COUNT * PLOT_CHUNKS);
-        }
-        if(local_counterTitle > 2 ) error("TEST FDBM: STOP!");
     }
     #endif
 }
