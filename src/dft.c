@@ -208,6 +208,38 @@ INVISIBLE float log2f_approx(float X) {
 
 #define log10f_fast(x) (log2f_approx(x)*0.3010299956639812f)
 
+#ifndef __NO_NEON__
+INVISIBLE float32x4_t FastArcTanq_f32(float32x4_t v) {
+    float32x4_t _a0 = vmovq_n_f32(0.7853);
+    float32x4_t _a1 = vmovq_n_f32(1.0000);
+    float32x4_t _a2 = vmovq_n_f32(0.2447);
+    float32x4_t _a3 = vmovq_n_f32(0.0663);
+    float32x4_t v_int = vreinterpretq_f32_s32(vreinterpretq_s32_f32(v));
+    // return _a0 * v - v * (v_int - _a1) * (_a2 + _a3 * v_int);
+    return vmlsq_f32(vmulq_f32(_a0, v), v, vmulq_f32(vsubq_f32(v_int, _a1),
+        vmlaq_f32(_a2, _a3, v_int)));
+}
+
+INVISIBLE float32x4_t log2f_approxq_f32(float32x4_t v) {
+    float32x4_t result = vmovq_n_f32(0.0);
+    for (size_t i = 0; i < 4; i++) {
+        result.val[i] = log2f_approx(v.val[i]);
+    }
+    return result;
+}
+
+#define log10f_fastq_f32(v) (vmulq_f32(log2f_approxq_f32(v), vmovq_n_f32(0.30102999)))
+#endif
+
+INVISIBLE float sqrtf_fast(float x) {
+    unsigned int i = *(unsigned int*) &x;
+    // adjust bias
+    i += 127 << 23;
+    // approximation of square root
+    i >>= 1;
+    return *(float*) &i;
+}
+
 // TODO debug and check results
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
@@ -222,12 +254,9 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
         X->re[k] = 0; X->im[k] = 0;
         a = 0; b = to_sin;
         for (n = 0; n < len; ++n) {
-
             X->re[k] += x[n] * W[a % len];
             X->im[k] -= x[n] * W[b % len];
             a += k; b += k;
-            // debug("k = %d, n = %d, x = %f, re = %f, im = %f; (cos = %f, sin = %f)",
-            //     k, n, x[n], X->re[k], X->im[k], W[a % len], W[b % len]);
         }
         X->re[len-k] =  X->re[k];
         X->im[len-k] = -X->im[k];
@@ -238,16 +267,21 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
 }
 
 // TODO optimise
-void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* ILD, float* IPD, size_t len) {
+void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IPDILD, size_t icut, size_t len) {
+
+    // debug("Entering FFT (IPDILD @%X)", IPDILD); // why????
 
     // time and frequency domain data arrays
     register int n, k;      // time and frequency domain indexes
-    float Xr_l_re, Xr_l_im, P[CHANNEL_SAMPLES_COUNT], A[CHANNEL_SAMPLES_COUNT];
 
-    // Calculate DFT and power spectrum up to Nyquist frequency
+    float IPDILD_local[CHANNEL_SAMPLES_COUNT/2];
+
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b, len_2 = len >> 1;
-    for (k = 0; k <= len_2; ++k) {
+
+    #ifdef __NO_NEON__
+      for (k = 0; k <= len_2; ++k) {
+        float Xr_l_re = 0, Xr_l_im = 0, cabs_Xl = 0;
         Xl->re[k] = 0; Xl->im[k] = 0;
         Xr->re[k] = 0; Xr->im[k] = 0;
         a = 0; b = to_sin;
@@ -258,36 +292,115 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IL
             Xr->im[k] -= xr[n] * W[b % len];
             a += k; b = (b + k) % len;
         }
+        // mirror
         Xl->re[len-k] =  Xl->re[k];
         Xl->im[len-k] = -Xl->im[k];
         Xr->re[len-k] =  Xr->re[k];
         Xr->im[len-k] = -Xr->im[k];
 
         // Calculate abs and angle
-        P[k]  = Xl->re[k] * Xl->re[k];
-        P[k] += Xl->im[k] * Xl->im[k];
-        P[k]  = sqrt(P[k]);
-
-        // FFT_PLOT
-        // P[k]  = 20 * log10f_fast(P[k]);
-        //
-        // A[k]  = Xr->re[k] * Xr->re[k];
-        // A[k] += Xr->im[k] * Xr->im[k];
-        // A[k]  = sqrt(A[k]);
-        // A[k]  = 20 * log10f_fast(A[k]);
+        cabs_Xl  = Xl->re[k] * Xl->re[k];
+        cabs_Xl += Xl->im[k] * Xl->im[k];
+        cabs_Xl  = sqrtf_fast(cabs_Xl);
 
         Xr_l_re  = Xr->re[k] * Xl->re[k];
         Xr_l_im  = Xr->re[k] * Xl->im[k];
         Xr_l_re -= Xr->im[k] * Xl->im[k];
         Xr_l_im += Xr->im[k] * Xl->re[k];
-        Xr_l_re /= P[k];
-        Xr_l_im /= P[k];
-        IPD[k] = FastArcTan(Xr_l_im / Xr_l_re);
-        ILD[k] = 20 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
-    }
-    // plot fft_L
-    // fft_plot(P, CHANNEL_SAMPLES_COUNT/2);
-    // plot("FFT Right", A, CHANNEL_SAMPLES_COUNT/2);
+        Xr_l_re /= cabs_Xl;
+        Xr_l_im /= cabs_Xl;
+
+        // Seg. Fault here
+        if (k < icut) {
+            IPDILD_local[k] = FastArcTan(Xr_l_im / Xr_l_re);
+        } else {
+            IPDILD_local[k] = 10 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
+        }
+      }
+    #else // __USE_NEON__
+      for (k = 0; k <= len_2; k+=4) {
+        // load
+        float32x4_t _Xl_re   = vmovq_n_f32(0.0);
+        float32x4_t _Xl_im   = vmovq_n_f32(0.0);
+        float32x4_t _Xr_re   = vmovq_n_f32(0.0);
+        float32x4_t _Xr_im   = vmovq_n_f32(0.0);
+        float32x4_t _cabs_Xl = vmovq_n_f32(0.0);
+        float32x4_t _Xr_l_re = vmovq_n_f32(0.0);
+        float32x4_t _Xr_l_im = vmovq_n_f32(0.0);
+        float32x4_t _IPD     = vmovq_n_f32(0.0);
+        float32x4_t _ILD     = vmovq_n_f32(0.0);
+
+        // TODO think about this
+        for (n = 0; n < len; n++) {
+            // prepare sin/cos
+            int _k = k;
+            a = 0; b = to_sin;
+            float Wcos[4], Wsin[4];
+            for (register int i = 0; i < 4; ++i) {
+                Wcos[i] = W[a % len]; a += _k;
+                Wsin[i] = W[b % len]; b += _k;
+                ++_k;
+            }
+            float32x4_t _Wcos = vld1q_f32(Wcos);
+            float32x4_t _Wsin = vld1q_f32(Wsin);
+
+            float32x4_t _xl   = vld1q_dup_f32(&xl[n]);
+            float32x4_t _xr   = vld1q_dup_f32(&xr[n]);
+
+            // mult and add/sub accumulation
+            _Xl_re = vmlaq_f32(_Xl_re, _xl, _Wcos);
+            _Xl_im = vmlsq_f32(_Xl_im, _xl, _Wsin);
+            _Xr_re = vmlaq_f32(_Xr_re, _xr, _Wcos);
+            _Xr_im = vmlsq_f32(_Xr_im, _xr, _Wsin);
+
+        }
+
+        // store values
+        vst1q_f32(&Xl->re[k], _Xl_re);
+        vst1q_f32(&Xl->im[k], _Xl_im);
+        vst1q_f32(&Xr->re[k], _Xr_re);
+        vst1q_f32(&Xr->im[k], _Xr_im);
+        // and mirrored values
+        float32x4_t _Xl_re_rev = vrev64q_f32(_Xl_re);
+          _Xl_re_rev = vcombine_f32(vget_high_f32(_Xl_re_rev), vget_low_f32(_Xl_re_rev));
+          vst1q_f32(&Xl->re[len-(k+1)], _Xl_re_rev);
+        float32x4_t _Xl_im_rev = vrev64q_f32(_Xl_im);
+          _Xl_im_rev = vcombine_f32(vget_high_f32(_Xl_im_rev), vget_low_f32(_Xl_im_rev));
+          vst1q_f32(&Xl->im[len-(k+1)], _Xl_im_rev);
+        float32x4_t _Xr_re_rev = vrev64q_f32(_Xr_re);
+          _Xr_re_rev = vcombine_f32(vget_high_f32(_Xr_re_rev), vget_low_f32(_Xr_re_rev));
+          vst1q_f32(&Xr->re[len-(k+1)], _Xr_re_rev);
+        float32x4_t _Xr_im_rev = vrev64q_f32(_Xr_im);
+          _Xr_im_rev = vcombine_f32(vget_high_f32(_Xr_im_rev), vget_low_f32(_Xr_im_rev));
+          vst1q_f32(&Xr->im[len-(k+1)], _Xr_im_rev);
+
+        // Calculate abs
+        _cabs_Xl = vmulq_f32(_Xl_re, _Xl_re);
+        _cabs_Xl = vmlaq_f32(_cabs_Xl, _Xl_im, _Xl_im);
+        _cabs_Xl = vsqrtq_f32(_cabs_Xl);
+
+        // Calculate Cr/Cl
+        _Xr_l_re = vmlsq_f32(vmulq_f32(_Xr_re, _Xl_re), _Xr_im, _Xl_im);
+        _Xr_l_re = vmulq_f32(_Xr_l_re, vrecpeq_f32(_cabs_Xl));
+        _Xr_l_im = vmlaq_f32(vmulq_f32(_Xr_re, _Xl_im), _Xr_im, _Xl_re);
+        _Xr_l_re = vmulq_f32(_Xr_l_im, vrecpeq_f32(_cabs_Xl));
+
+        if (k < icut) {
+            _IPD = FastArcTanq_f32(vmulq_f32(_Xr_l_im, vrecpeq_f32(_Xr_l_re)));
+            vst1q_f32(&IPDILD_local[k], _IPD);
+        } else {
+            _ILD = vmulq_f32(vmovq_n_f32(10.0), log10f_fastq_f32(
+                vmlaq_f32(vmulq_f32(_Xr_l_re, _Xr_l_re), _Xr_l_im, _Xr_l_im)));
+            vst1q_f32(&IPDILD_local[k], _ILD);
+        }
+
+      }
+    #endif
+
+    // this is the solution!
+    memcpy(IPDILD, IPDILD_local, sizeof(float) * CHANNEL_SAMPLES_COUNT/2);
+
+    // debug("leaving  FFT (IPDILD @%X)", IPDILD); // why????
 }
 
 void idft(fcomplex_t* X, float* x, size_t len) {
@@ -322,22 +435,17 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
 
     // Calculate IDFT
     int to_sin = 3 * len / 4; // index offset for sin
-    int a, b, len_2 = len >> 1;
-    for (n = 0; n < len; ++n) {
+    int a, b;
+
+    #ifdef __NO_NEON__
+      for (n = 0; n < len; ++n) {
         xl[n] = 0; xr[n] = 0;
         a = 0; b = to_sin;
         for (k = 0; k < len; ++k) {
-            // if (k < len_2) {
-                xl[n] += Xl->re[k] * W[a % len];
-                xl[n] -= Xl->im[k] * W[b % len];
-                xr[n] += Xr->re[k] * W[a % len];
-                xr[n] -= Xr->im[k] * W[b % len];
-            // } else {
-            //     xl[n] += Xl->re[len-k] * W[a % len];
-            //     xl[n] += Xl->im[len-k] * W[b % len];
-            //     xr[n] += Xr->re[len-k] * W[a % len];
-            //     xr[n] += Xr->im[len-k] * W[b % len];
-            // }
+            xl[n] += Xl->re[k] * W[a % len];
+            xl[n] -= Xl->im[k] * W[b % len];
+            xr[n] += Xr->re[k] * W[a % len];
+            xr[n] -= Xr->im[k] * W[b % len];
             a += n; b += n;
         }
         xl[n] /= len;
@@ -345,7 +453,47 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
         // not used
         // xl[n] *= SINE[n];
         // xr[n] *= SINE[n];
-    }
+      }
+    #else // __USE_NEON__
+      for (n = 0; n < len; n+=4) {
+        // load
+        float32x4_t _xl = vmovq_n_f32(0.0);
+        float32x4_t _xr = vmovq_n_f32(0.0);
+
+        for (k = 0; k < len; ++k) {
+            // prepare sin/cos
+            int _n = n;
+            a = 0; b = to_sin;
+            float Wcos[4], Wsin[4];
+            for (register int i = 0; i < 4; ++i) {
+                Wcos[i] = W[a % len]; a += _n;
+                Wsin[i] = W[b % len]; b += _n;
+                ++_n;
+            }
+            float32x4_t _Wcos = vld1q_f32(Wcos);
+            float32x4_t _Wsin = vld1q_f32(Wsin);
+
+            float32x4_t _Xl_re = vld1q_dup_f32(&Xl->re[n]);
+            float32x4_t _Xl_im = vld1q_dup_f32(&Xl->im[n]);
+            float32x4_t _Xr_re = vld1q_dup_f32(&Xr->re[n]);
+            float32x4_t _Xr_im = vld1q_dup_f32(&Xr->im[n]);
+
+            // mult and add/sub accumulation
+            _xl = vmlaq_f32(_xl, _Xl_re, _Wcos);
+            _xl = vmlsq_f32(_xl, _Xl_im, _Wsin);
+            _xr = vmlaq_f32(_xr, _Xr_re, _Wcos);
+            _xr = vmlsq_f32(_xr, _Xr_im, _Wsin);
+        }
+
+        // div by len
+        _xl = vmulq_f32(_xl, vrecpeq_f32(vld1q_dup_f32(&len)));
+        _xr = vmulq_f32(_xr, vrecpeq_f32(vld1q_dup_f32(&len)));
+
+        // store
+        vst1q_f32(_xr, &xr[k]);
+        vst1q_f32(_xl, &xl[k]);
+      }
+    #endif
 }
 
 // int main(int argc, char const *argv[]) {

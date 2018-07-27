@@ -164,7 +164,7 @@ depRes:
 	$(SHOW)#$(RM) $(scrPath)/*.srn
 
 $(scrPath)/%.srn: $(scrPath)/%.m
-	$(SHOW)$(OCTAVE) $< 2> $@
+	$(SHOW)#$(OCTAVE) $< 2> $@
 
 #main build
 $(Project): $(obj)

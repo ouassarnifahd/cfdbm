@@ -16,7 +16,10 @@
 
 // maths
 // expand __(-\*)__
-#define pow2(x) (x * x)
+#define _expand(MACRO) (MACRO)
+#define expand(x) _expand(_expand(x))
+// Sorry for this CC hope you'll do it till the end...
+#define pow2(x) (expand(x) * expand(x))
 // pow2(x) = (x * x)
 #define pow4(x) pow2(pow2(x))
 // pow4(x) = pow2((x * x)) = ((x * x) * (x * x))
@@ -28,6 +31,6 @@
 #define max(x,y) ((x<y)?y:x)
 #define abs(x) max(-x, x)
 
-#define limit(min, x, max) ((max<(x))? max : (((x)<min) ? min : (x)))
+#define limit(min, x, max) (((max) > (x)) ? (((x) > (min)) ? (x) : (min) ) : (max) )
 
 #endif /* end of include guard: __HEADER_PREPROCESSOR__ */

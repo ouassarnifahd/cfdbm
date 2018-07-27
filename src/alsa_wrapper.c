@@ -53,29 +53,6 @@ static void read_write_error(char* buffer, size_t frames) {
 //     alsa_playback_write(buffer.data.raw, buffer.frames);
 // }
 
-// alsa_related
-
-// #define AUDIO_INITIALISER(name, stream) { \
-//     .device = { \
-//         .name = name, .pcm = NULL, \
-//         .stream     = stream, \
-//         .hw_params  = NULL, \
-//     }, \
-//     .param = { \
-//         .access             = SND_PCM_ACCESS_RW_INTERLEAVED, \
-//         .format             = SND_PCM_FORMAT_S16_LE, \
-//         .periodsize         = UNINITIALISED, \
-//         .buffersize         = UNINITIALISED, \
-//         .periods            = PERIODS, \
-//         .rate               = RATE, \
-//         .channels           = CHANNELS, \
-//         .bytes_per_frame    = UNINITIALISED, \
-//     }, \
-//     .buffer = BUFFER_INITIALISER, \
-//     .read   = (stream == SND_PCM_STREAM_CAPTURE) ? alsa_capture_read: read_write_error , \
-//     .write  = (stream == SND_PCM_STREAM_PLAYBACK) ? alsa_playback_write: read_write_error, \
-// }
-
 audio_t alsa_input = {
     .device = {
         .name = CAPTURE_DEVICE,

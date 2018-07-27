@@ -66,7 +66,17 @@ INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
 	cpu_set_t core_i, core_j;
 	CPU_ZERO(&core_i);
 	CPU_SET(i, &core_i);
-	pthread_attr_getaffinity_np(attr, sizeof(cpu_set_t), &core_j);
+	// pthread_attr_getaffinity_np(attr, sizeof(cpu_set_t), &core_j);
+	// CPU_OR(&core_i, &core_i, &core_j);
+	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
+}
+
+INVISIBLE void attach_to_2cores(pthread_attr_t* attr, int i, int j) {
+	cpu_set_t core_i, core_j;
+	CPU_ZERO(&core_i);
+	CPU_ZERO(&core_j);
+	CPU_SET(i, &core_i);
+	CPU_SET(j, &core_j);
 	CPU_OR(&core_i, &core_i, &core_j);
 	pthread_attr_setaffinity_np(attr, sizeof(cpu_set_t), &core_i);
 }
@@ -177,10 +187,10 @@ void threads_init() {
 	int audioIO_CORE = get_freeCORE(thisCORE, manyCORES);
 	debug("audioIO_CORE = %d", audioIO_CORE);
 	int audioProcessingCORE1 = get_freeCORE(thisCORE, manyCORES);
-	int audioProcessingCORE2 = get_freeCORE(thisCORE, manyCORES);
-	debug("fdbmCORE     = %d,%d", audioProcessingCORE2, audioProcessingCORE2);
 	int opencvCORE = get_freeCORE(thisCORE, manyCORES);
 	debug("opencvCORE   = %d", opencvCORE);
+	int audioProcessingCORE2 = get_freeCORE(thisCORE, manyCORES);
+	debug("fdbmCORE     = %d,%d", audioProcessingCORE1, audioProcessingCORE2);
 
 	// Here the fun starts... Good luck!
 	log_printf("AUDIO Playback...");
@@ -200,8 +210,11 @@ void threads_init() {
 	log_printf(" [ ON ]\n");
 
 	log_printf("FDBM   worker... ");
+	#ifdef __arm__
+	attach_to_2cores(&attr_fdbm, audioProcessingCORE1, audioProcessingCORE2);
+	#else // __i386__
 	attach_to_core(&attr_fdbm, audioProcessingCORE1);
-	attach_to_core(&attr_fdbm, audioProcessingCORE2);
+	#endif
 	if(pthread_create(&fdbm_process, &attr_fdbm, thread_fdbm_pool, fdbm_bridge)) {
 			error("fdbm_process init failed"); perror(NULL);
 		}
@@ -454,7 +467,7 @@ void* thread_openCV(void* parameters) {
 	pthread_exit(NULL);
 }
 
-#define MAX_WORKERS 10
+#define MAX_WORKERS 1
 
 #define POOL_IDLE_COUNT(thpool) MAX_WORKERS - thpool_num_threads_working(thpool)
 

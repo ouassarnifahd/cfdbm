@@ -11,7 +11,7 @@ typedef struct {
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);
 
 void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr,
-                  float* ILD, float* IPD, size_t len);
+                 float* IPDILD, size_t icut, size_t len);
 
 void idft(fcomplex_t* X, float* x, size_t len);
 

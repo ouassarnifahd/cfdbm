@@ -3,7 +3,7 @@
 
 // PUBLIC DEFINES
 #define PLAYBACK_DEVICE         "plughw:0,0"
-#define CAPTURE_DEVICE          "plughw:1,0"
+#define CAPTURE_DEVICE          "plughw:2,0"
 #define RATE                    16000
 #define CHANNELS                2
 #define UNINITIALISED           0
@@ -61,15 +61,6 @@ struct buffer_t {
     size_t bytes_per_frame;
 };
 typedef struct buffer_t buffer_t;
-
-// #define BUFFER_INITIALISER { \
-//     .data.raw           = NULL, \
-//     .bytes              = UNINITIALISED, \
-//     .samples            = SAMPLES_COUNT, \
-//     .frames             = UNINITIALISED, \
-//     .bytes_per_sample   = UNINITIALISED, \
-//     .bytes_per_frame    = UNINITIALISED  \
-// }
 
 typedef long (*audioIO_t)(char*, size_t);
 
