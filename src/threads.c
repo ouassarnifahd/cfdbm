@@ -7,7 +7,46 @@
 #include "wav.h"
 
 // demo flags
-#define DEMO 0
+#define DEMO 1
+
+#if (DEMO == 1) && !defined(__DEBUG__)
+// WARNING this code is in use! Dont modify it unless you know what you are doing!
+#include <time.h>
+#define get_cyclecount() clock()
+#define get_cputimediff(tsc1, tsc2) (double)(tsc2-tsc1)/CLOCKS_PER_SEC
+
+INVISIBLE double TimeSpecToSeconds(struct timespec* ts) {
+  return (double)ts->tv_sec + (double)ts->tv_nsec / 1000000000.0;
+}
+INVISIBLE struct timespec get_realtimecount() {
+  struct timespec rtc;
+  if(clock_gettime(CLOCK_MONOTONIC, &rtc));
+  return rtc;
+}
+
+#define get_realtimediff(tsc1, tsc2) (TimeSpecToSeconds(tsc2)-TimeSpecToSeconds(tsc1))
+
+clock_t tsc_start;
+struct timespec rtc_start;
+
+#define init_timestamp() do { tsc_start = get_cyclecount(); } while(0)
+#define init_localtime() do { rtc_start = get_realtimecount(); } while(0)
+#define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
+
+INVISIBLE double get_realtime_from(struct timespec* t_start) {
+    struct timespec t_now = get_realtimecount();
+    return get_realtimediff(t_start, &t_now);
+}
+
+INVISIBLE double get_realtime_from_start() {
+    return get_realtime_from(&rtc_start);
+}
+#endif
+
+// temp config
+char wave_file[20];
+int manual_doa;
+// #ifdef OFFLINE_FDBM
 
 // this is usefull!
 struct pipe_bridge_t {
@@ -125,6 +164,10 @@ INVISIBLE pthread_t thread_dual_new(char* name, int core1, int core2, routine_t 
 void threads_init() {
 	debug("Threads_init:");
 
+	#if (DEMO == 1) && !defined(__DEBUG__)
+	init_localtime();
+	#endif
+
 	// SIGHANDLING interface
 
 	// The Thread...
@@ -236,6 +279,8 @@ void threads_init() {
 		fdbm_process = thread_single_new("CFDBM pool", audioProcessingCORE1, thread_fdbm_pool, fdbm_bridge);
 		#endif
 	log_printf(" [ ON ]\n");
+
+	log_printf("FDBM   DOA = %d\n", manual_doa);
 
 	// OpenCV worker...
 	log_printf("OpenCV worker... ");
@@ -547,7 +592,7 @@ void fdbm_worker(void* parameters) {
 
 	// algorithms
 	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	applyFDBM_simple1(buffer, SAMPLES_COUNT, 0);
+	applyFDBM_simple1(buffer, SAMPLES_COUNT, manual_doa);
 
 	// push processed audio
 	#ifdef __THRD_PARTY_PIPES__

@@ -3,9 +3,9 @@
 
 #define DOA_NOT_INITIALISED (1ull<<6)
 
-#define DOA_LEFT   (-70l)
+#define DOA_LEFT   (-45l)
 #define DOA_CENTER (  0l)
-#define DOA_RIGHT  ( 70l)
+#define DOA_RIGHT  ( 45l)
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa);
 

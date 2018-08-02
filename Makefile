@@ -26,7 +26,10 @@ endif
 RM			:= $(shell which rm) -rf
 MKDIR		:= $(shell which mkdir) -p
 MAKE		:= $(shell which make) $(MAKE_PARAM)
-OCTAVE		:= $(shell which octave)
+OCTAVE		:= $(shell which octave-cli)
+ifneq ($(notdir $(OCTAVE)), octave-cli)
+SKIP 		:= : 
+endif
 
 #Paths
 srcPath		:= src
@@ -78,10 +81,10 @@ Release		?= no
 #targets
 TARGETS		:= $(dobj) dbg$(Project)
 # skibadipappaaa nop bash!
-SKIP		:= : 
+SKIP		?= :
 ifeq ($(Release), yes)
 TARGETS		:= $(obj) $(Project)
-SKIP		:=
+SKIP		?=
 endif
 
 #verbose options: alloc, op&data, context, memory, print, graphics, all

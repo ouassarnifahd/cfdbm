@@ -102,6 +102,7 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
 
     // memcpy
     ctx.io_samples = (int16_t*)buffer;
+    debug("in buffer @%X", ctx.io_samples);
     for (size_t i = 0; i < ctx.total_samples; i++) {
         ctx.samples[i] = ctx.io_samples[i];
     }
@@ -118,6 +119,8 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     // 2D fft
     #if (FFT_IFFT == 1)
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data, ctx.ipd_samples, ctx.channel_samples);
+    memset(ctx.L, 0, sizeof(float)*CHANNEL_SAMPLES_COUNT);
+    memset(ctx.R, 0, sizeof(float)*CHANNEL_SAMPLES_COUNT);
     #endif
 
     #if (SAVE_STATS == 1)
@@ -142,10 +145,10 @@ INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
 
     for (register int i = 0; i < ctx->ipd_samples; ++i) {
         ctx->mu_IPD[i] = fabs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i];
-        debug("IPD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_IPD[i], local_IPDtarget[i], IPDmaxmin[i], ctx->mu_IPD[i]);
+        // debug("IPD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_IPD[i], local_IPDtarget[i], IPDmaxmin[i], ctx->mu_IPD[i]);
     }
     for (register int i = 0; i < ctx->ild_samples; ++i) {
-        debug("ILD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_ILD[i], local_ILDtarget[i], ILDmaxmin[i], ctx->mu_ILD[i]);
+        // debug("ILD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_ILD[i], local_ILDtarget[i], ILDmaxmin[i], ctx->mu_ILD[i]);
         ctx->mu_ILD[i] = fabs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i];
     }
     #endif
@@ -154,10 +157,7 @@ INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
 INVISIBLE void apply_Gain(fdbm_context_t* ctx) {
     #if (APPLY_GAIN == 1)
     // debug("Entering IPDILD (fft_L.im @%X)", ctx->fft_L.im); // why????
-    // float fft_L_re_G[CHANNEL_SAMPLES_COUNT];
-    // float fft_L_im_G[CHANNEL_SAMPLES_COUNT];
-    // float fft_R_re_G[CHANNEL_SAMPLES_COUNT];
-    // float fft_R_im_G[CHANNEL_SAMPLES_COUNT];
+
     for (register int i = 0; i < ctx->ipdild_samples; ++i) {
         // here the magic! (FFT = FFT * G)
         ctx->Gain[i] = pow16(1 - limit(0.0, ctx->mu[i], 1.0));
@@ -171,30 +171,23 @@ INVISIBLE void apply_Gain(fdbm_context_t* ctx) {
         //                                         i, ctx->channel_samples-i-1, ctx->Gain[i]);
 
         // first half
-        // fft_L_re_G[i] = ctx->fft_L.re[i] * ctx->Gain[i];
-        // fft_L_im_G[i] = ctx->fft_L.im[i] * ctx->Gain[i];
-        // fft_R_re_G[i] = ctx->fft_R.re[i] * ctx->Gain[i];
-        // fft_R_im_G[i] = ctx->fft_R.im[i] * ctx->Gain[i];
-        // debug("fft_L_re = %f * Gain = %f = %f", fft_L_re, ctx->Gain[i], ctx->fft_L.re[i]);
+        float res = ctx->Gain[i] * ctx->fft_L.re[i];
+        float diff = res - ctx->fft_L.re[i];
+        // debug("in = %f, g = %f, res = %f, diff = %f", ctx->fft_L.re[i], ctx->Gain[i], res, diff);
+        // debug("(fft_L_re = %f * Gain = %f) = %f", ctx->fft_L.re, ctx->Gain[i], ctx->Gain[i] * ctx->fft_L.re[i]);
+
         ctx->fft_L.re[i] *= ctx->Gain[i];
+        // debug("out = %f", ctx->fft_L.re[i]);
         ctx->fft_L.im[i] *= ctx->Gain[i];
         ctx->fft_R.re[i] *= ctx->Gain[i];
         ctx->fft_R.im[i] *= ctx->Gain[i];
         // second half mirrored!
-        // fft_L_re_G[ctx->channel_samples-i] = ctx->fft_L.re[ctx->channel_samples-i] * ctx->Gain[i];
-        // fft_L_im_G[ctx->channel_samples-i] = ctx->fft_L.im[ctx->channel_samples-i] * ctx->Gain[i];
-        // fft_R_re_G[ctx->channel_samples-i] = ctx->fft_R.re[ctx->channel_samples-i] * ctx->Gain[i];
-        // fft_R_im_G[ctx->channel_samples-i] = ctx->fft_R.im[ctx->channel_samples-i] * ctx->Gain[i];
         ctx->fft_L.re[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_L.im[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_R.re[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_R.im[ctx->channel_samples-i] *= ctx->Gain[i];
     }
     // debug("fft_L_re = %f * Gain = %f = %f", fft_L_re, ctx->Gain[i], ctx->fft_L.re[i]);
-    // memcpy(ctx->fft_L.re, fft_L_re_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
-    // memcpy(ctx->fft_L.im, fft_L_im_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
-    // memcpy(ctx->fft_R.re, fft_R_re_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
-    // memcpy(ctx->fft_R.im, fft_R_im_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
     // debug("leaving  IPDILD (fft_L.im @%X)", ctx->fft_L.im); // why????
     #endif
 }
@@ -215,6 +208,7 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx) {
         // debug("buffer diff at index %d = %d", i, (int)(ctx->io_samples[i] - ctx->samples[i]));
         ctx->io_samples[i] = ctx->samples[i];
     }
+    debug("out buffer @%X", ctx->io_samples);
 }
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
@@ -235,7 +229,7 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
         return ;
     } else {
         // secure doa
-        int local_doa = limit(DOA_LEFT, doa, DOA_RIGHT);
+        int local_doa = limit(IPDILD_DEG_MIN, doa, IPDILD_DEG_MAX);
         // prepare context
         debug("Running FDBM... DOA = %d !", local_doa);
         fdbm_context_t fdbm = prepare_context(buffer);
