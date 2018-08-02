@@ -28,7 +28,7 @@ MKDIR		:= $(shell which mkdir) -p
 MAKE		:= $(shell which make) $(MAKE_PARAM)
 OCTAVE		:= $(shell which octave-cli)
 ifneq ($(notdir $(OCTAVE)), octave-cli)
-SKIP 		:= : 
+SKIP 		:= :
 endif
 
 #Paths
@@ -80,6 +80,7 @@ Release		?= no
 
 #targets
 TARGETS		:= $(dobj) dbg$(Project)
+
 # skibadipappaaa nop bash!
 SKIP		?= :
 ifeq ($(Release), yes)
@@ -167,7 +168,7 @@ tools/%: tools/%.c
 depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
-	$(SHOW)$(SKIP)$(RM) $(scrPath)/*.srn
+	$(SHOW)#$(SKIP)$(RM) $(scrPath)/*.srn
 
 $(scrPath)/%.srn: $(scrPath)/%.m
 	$(SHOW)$(OCTAVE) $< 2> $@
