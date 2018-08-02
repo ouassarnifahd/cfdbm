@@ -3,7 +3,7 @@
 
 // PUBLIC DEFINES
 #define PLAYBACK_DEVICE         "plughw:0,0"
-#define CAPTURE_DEVICE          "plughw:2,0"
+#define CAPTURE_DEVICE          "plughw:1,0"
 #define RATE                    16000
 #define CHANNELS                2
 #define UNINITIALISED           0
