@@ -106,7 +106,7 @@ typedef struct tsc_buffer timed_buffer_t;
 
 typedef void* (*routine_t) (void*);
 
-#define AUDIO_CHUNKS 40
+#define AUDIO_CHUNKS 100
 #define   DOA_CHUNKS 20
 
 INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
@@ -533,7 +533,7 @@ void* thread_openCV(void* parameters) {
 #ifndef __arm__
   #define MAX_WORKERS 2
 #else // __arm__
-  #define MAX_WORKERS 5
+  #define MAX_WORKERS 10
 #endif
 
 #define POOL_IDLE_COUNT(thpool) MAX_WORKERS - thpool_num_threads_working(thpool)
