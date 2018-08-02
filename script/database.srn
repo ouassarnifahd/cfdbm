@@ -1,9 +1,0 @@
-parse error near line 64 of file /home/kalinka/Documents/Code/local-repo/script/database.m
-
-  syntax error
-
->>> fprintf(c_header, '#define ILDIPD_DEG_MAX %d\n', theta[1]);
-                                                          ^
-
-error: parse error while reading file /home/kalinka/Documents/Code/local-repo/script/database.m
-error: source: error sourcing file '/home/kalinka/Documents/Code/local-repo/script/database.m'

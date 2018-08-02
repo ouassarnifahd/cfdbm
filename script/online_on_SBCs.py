@@ -67,8 +67,8 @@ while True:
         IPDtest = np.angle(XIS[1:Fcut/fs*nfft])
         ILDtest = 20*np.log10(np.abs(XIS[Fcut/fs*nfft:end]))
 
-        muIPD = np.abs(IPDtest-IPDtarget(theta))/IPDmaxmin
-        muILD = np.abs(ILDtest-ILDtarget(theta))/ILDmaxmin
+        muIPD = np.abs(IPDtest-IPDtarget)/IPDmaxmin
+        muILD = np.abs(ILDtest-ILDtarget/ILDmaxmin
 
         # PowerL = 20*np.log10(np.abs(Xbuf[0,:]))
         # PowerR = 20*np.log10(np.abs(Xbuf[1,:]))

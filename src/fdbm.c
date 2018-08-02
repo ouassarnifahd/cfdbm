@@ -7,8 +7,11 @@
 #define FDBM        1   // OK
 #define BUF_TO_LR   1   // OK
 #define FFT_IFFT    1   // OK (Almost optimized)
-#define IPD_ILD     0   // NOT OK (Still Testing)
-#define APPLY_GAIN  0   // OK
+#define IPD_ILD     1   // NOT OK (Still Testing)
+#define APPLY_GAIN  1   // NOT OK
+
+// algorithm coherance?
+#define SAVE_STATS  0
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 struct fdbm_context {
@@ -19,7 +22,8 @@ struct fdbm_context {
     size_t total_samples;
     size_t channel_samples;
     size_t ipdild_samples;
-    size_t ipdild_icut;
+    size_t ipd_samples;
+    size_t ild_samples;
     // signal data
     float L[CHANNEL_SAMPLES_COUNT];
     float R[CHANNEL_SAMPLES_COUNT];
@@ -59,17 +63,32 @@ INVISIBLE void plot(const char* title, const float* data, size_t len) {
     #endif
 }
 
+#if (SAVE_STATS == 1)
+  int saved_chunks_count = 0;
+  m_init(mutex_stats);
+  #define FILE_init(name) func(FILE* F = fopen(name, "w"); fclose(F))
+  #define FILE_just_append(name, MSG, ...) func(FILE* F = fopen(name, "a"); fprintf(F, MSG, ##__VA_ARGS__); fclose(F))
+  #define FILE_secured_append(name, MSG, ...) secured_stuff(mutex_stats, FILE* F = fopen(name, "a"); fprintf(F, MSG, ##__VA_ARGS__); fclose(F))
+#endif
+
 INVISIBLE void get_buffer_LR(int16_t* buffer, size_t size, float* L, float* R) {
     for (register int i = 0; i < size/2; ++i) {
-        L[i] = buffer[2u * i];
-        R[i] = buffer[2u * i + 1u];
+        L[i]  = buffer[2u * i];
+        // L[i] /= SINT16_MAX;
+        R[i]  = buffer[2u * i + 1u];
+        // R[i] /= SINT16_MAX;
+        #if (SAVE_STATS == 1)
+          FILE_secured_append("LR_data.txt", "%f,%f\n", L[i], R[i]);
+        #endif
     }
 }
 
 INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
     for (register int i = 0; i < size/2; ++i) {
         buffer[2u * i] = L[i];
+        // buffer[2u * i] =  L[i] * SINT16_MAX;
         buffer[2u * i + 1u] = R[i];
+        // buffer[2u * i + 1u] = R[i] * SINT16_MAX;
     }
 }
 
@@ -78,7 +97,8 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     ctx.total_samples = SAMPLES_COUNT;
     ctx.channel_samples = CHANNEL_SAMPLES_COUNT;
     ctx.ipdild_samples = IPDILD_LEN;
-    ctx.ipdild_icut = expand(IPDILD_FCUT*CHANNEL_SAMPLES_COUNT/RATE);
+    ctx.ipd_samples = IPD_LEN;
+    ctx.ild_samples = ILD_LEN;
 
     // memcpy
     ctx.io_samples = (int16_t*)buffer;
@@ -93,17 +113,22 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
 
     // initializing pointers
     ctx.data_IPD = ctx.data;
-    ctx.data_ILD = ctx.data + ctx.ipdild_icut;
+    ctx.data_ILD = ctx.data + ctx.ipd_samples;
 
-    // debug(" FDBM data @%X, data_IPD @%X, data_ILD @%X", ctx.data, ctx.data_IPD, ctx.data_ILD);
     // 2D fft
     #if (FFT_IFFT == 1)
-    dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data, ctx.ipdild_icut, ctx.channel_samples);
+    dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data, ctx.ipd_samples, ctx.channel_samples);
     #endif
-    // debug("FDBM data @%X, data_IPD @%X, data_ILD @%X", ctx.data, ctx.data_IPD, ctx.data_ILD);
 
+    #if (SAVE_STATS == 1)
+      secured_stuff(mutex_stats,
+      for (size_t i = 0; i < CHANNEL_SAMPLES_COUNT; i++)
+          FILE_just_append("FFT_data.txt", "%f,%f,%f,%f\n", ctx.fft_L.re[i], ctx.fft_L.im[i], ctx.fft_R.re[i], ctx.fft_R.im[i]));
+    #endif
+
+    // initializing pointers
     ctx.mu_IPD = ctx.mu;
-    ctx.mu_ILD = ctx.mu + ctx.ipdild_icut;
+    ctx.mu_ILD = ctx.mu + ctx.ipd_samples;
     return ctx;
 }
 
@@ -111,42 +136,66 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
 INVISIBLE void compare_ILDIPD(fdbm_context_t* ctx, int doa) {
     #if (IPD_ILD == 1)
     int i_theta = (doa + IPDILD_DEG_MAX)/IPDILD_DEG_STEP;
+    // debug("i_theta = %d", i_theta);
     float* local_IPDtarget = (float*)IPDtarget[i_theta];
     float* local_ILDtarget = (float*)ILDtarget[i_theta];
-    // for (size_t i = 0; i < ctx->ipdild_samples; i++) {
-    //     debug("IPDILDtarget[%d] %f ,%f", i, local_IPDtarget[i], local_ILDtarget[i]);
-    // }
-    for (register int i = 0; i < ctx->ipdild_icut; ++i) {
-        // debug("IPD at %d: data %2.6f, target %2.6f, maxmin %2.6f", i, ctx->data_IPD[i], local_IPDtarget[i], IPDmaxmin[i]);
-        ctx->mu_IPD[i] = abs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i];
+
+    for (register int i = 0; i < ctx->ipd_samples; ++i) {
+        ctx->mu_IPD[i] = fabs(ctx->data_IPD[i]-local_IPDtarget[i]) / IPDmaxmin[i];
+        debug("IPD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_IPD[i], local_IPDtarget[i], IPDmaxmin[i], ctx->mu_IPD[i]);
     }
-    for (register int i = 0; i < ctx->ipdild_samples - ctx->ipdild_icut; ++i) {
-        ctx->mu_ILD[i] = abs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i];
+    for (register int i = 0; i < ctx->ild_samples; ++i) {
+        debug("ILD at %d: abs(data %2.6f - target %2.6f)/maxmin %2.6f = mu %2.6f", i, ctx->data_ILD[i], local_ILDtarget[i], ILDmaxmin[i], ctx->mu_ILD[i]);
+        ctx->mu_ILD[i] = fabs(ctx->data_ILD[i]-local_ILDtarget[i]) / ILDmaxmin[i];
     }
-    // PLOT
-    // plot("mu plot", ctx->mu, ctx->channel_samples);
-    // for (size_t i = 0; i < ctx->ipdild_samples/4; i+=4) {
-    //     debug("%f, %f, %f, %f", ctx->mu[4u * i], ctx->mu[4u * i + 1], ctx->mu[4u * i + 2], ctx->mu[4u * i + 3]);
-    // }
     #endif
 }
 
 INVISIBLE void apply_Gain(fdbm_context_t* ctx) {
     #if (APPLY_GAIN == 1)
+    // debug("Entering IPDILD (fft_L.im @%X)", ctx->fft_L.im); // why????
+    // float fft_L_re_G[CHANNEL_SAMPLES_COUNT];
+    // float fft_L_im_G[CHANNEL_SAMPLES_COUNT];
+    // float fft_R_re_G[CHANNEL_SAMPLES_COUNT];
+    // float fft_R_im_G[CHANNEL_SAMPLES_COUNT];
     for (register int i = 0; i < ctx->ipdild_samples; ++i) {
         // here the magic! (FFT = FFT * G)
         ctx->Gain[i] = pow16(1 - limit(0.0, ctx->mu[i], 1.0));
-        // debug("mu[%d] %f, Gain[%d] %f", i, ctx->mu[i], i, ctx->Gain[i]);
+        #if(SAVE_STATS == 1)
+        FILE_secured_append("IDPILD_data.txt", "%f\n", ctx->data[i]);
+        FILE_secured_append("MU_data.txt", "%f\n", ctx->mu[i]);
+        FILE_secured_append("GAIN_data.txt", "%f\n", ctx->Gain[i]);
+        #endif
+
+        // debug("mu[%d&%d] = %f, Gain[%d&%d] = %f", i, ctx->channel_samples-i-1, ctx->mu[i],
+        //                                         i, ctx->channel_samples-i-1, ctx->Gain[i]);
+
+        // first half
+        // fft_L_re_G[i] = ctx->fft_L.re[i] * ctx->Gain[i];
+        // fft_L_im_G[i] = ctx->fft_L.im[i] * ctx->Gain[i];
+        // fft_R_re_G[i] = ctx->fft_R.re[i] * ctx->Gain[i];
+        // fft_R_im_G[i] = ctx->fft_R.im[i] * ctx->Gain[i];
+        // debug("fft_L_re = %f * Gain = %f = %f", fft_L_re, ctx->Gain[i], ctx->fft_L.re[i]);
         ctx->fft_L.re[i] *= ctx->Gain[i];
         ctx->fft_L.im[i] *= ctx->Gain[i];
         ctx->fft_R.re[i] *= ctx->Gain[i];
         ctx->fft_R.im[i] *= ctx->Gain[i];
-        // mirror!
+        // second half mirrored!
+        // fft_L_re_G[ctx->channel_samples-i] = ctx->fft_L.re[ctx->channel_samples-i] * ctx->Gain[i];
+        // fft_L_im_G[ctx->channel_samples-i] = ctx->fft_L.im[ctx->channel_samples-i] * ctx->Gain[i];
+        // fft_R_re_G[ctx->channel_samples-i] = ctx->fft_R.re[ctx->channel_samples-i] * ctx->Gain[i];
+        // fft_R_im_G[ctx->channel_samples-i] = ctx->fft_R.im[ctx->channel_samples-i] * ctx->Gain[i];
         ctx->fft_L.re[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_L.im[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_R.re[ctx->channel_samples-i] *= ctx->Gain[i];
         ctx->fft_R.im[ctx->channel_samples-i] *= ctx->Gain[i];
     }
+    // debug("fft_L_re = %f * Gain = %f = %f", fft_L_re, ctx->Gain[i], ctx->fft_L.re[i]);
+    // memcpy(ctx->fft_L.re, fft_L_re_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
+    // memcpy(ctx->fft_L.im, fft_L_im_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
+    // memcpy(ctx->fft_R.re, fft_R_re_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
+    // memcpy(ctx->fft_R.im, fft_R_im_G, CHANNEL_SAMPLES_COUNT * sizeof(float));
+    // debug("leaving  IPDILD (fft_L.im @%X)", ctx->fft_L.im); // why????
     #endif
 }
 
@@ -163,24 +212,35 @@ INVISIBLE void prepare_signal(fdbm_context_t* ctx) {
 
     // memcpy
     for (size_t i = 0; i < ctx->total_samples; i++) {
+        // debug("buffer diff at index %d = %d", i, (int)(ctx->io_samples[i] - ctx->samples[i]));
         ctx->io_samples[i] = ctx->samples[i];
     }
 }
 
 void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     #if(FDBM == 1)
+    #if(SAVE_STATS == 1)
+    if (saved_chunks_count == 0) {
+        saved_chunks_count = 1;
+        // FILE_init("LR_data.txt");
+        // FILE_init("FFT_data.txt");
+        FILE_init("IDPILD_data.txt");
+        FILE_init("MU_data.txt");
+        FILE_init("GAIN_data.txt");
+    }
+    #endif
     debug("Running FDBM... receiving %lu samples", size);
     if (doa == DOA_NOT_INITIALISED) {
         warning("NO CHANGES 'DOA_NOT_INITIALISED'!");
         return ;
     } else {
         // secure doa
-        int local_doa = limit(DOA_LEFT, doa, DOA_CENTER);
-        debug("Running FDBM... DOA = %d !", local_doa);
+        int local_doa = limit(DOA_LEFT, doa, DOA_RIGHT);
         // prepare context
+        debug("Running FDBM... DOA = %d !", local_doa);
         fdbm_context_t fdbm = prepare_context(buffer);
-        debug("Running FDBM... comparing ILDIPD!");
         // compare with DataBase:
+        debug("Running FDBM... comparing ILDIPD!");
         compare_ILDIPD(&fdbm, local_doa);
         // apply Gain
         debug("Running FDBM... Applying gain!");

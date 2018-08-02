@@ -77,8 +77,11 @@ Release		?= no
 
 #targets
 TARGETS		:= $(dobj) dbg$(Project)
+# skibadipappaaa nop bash!
+SKIP		:= : 
 ifeq ($(Release), yes)
 TARGETS		:= $(obj) $(Project)
+SKIP		:=
 endif
 
 #verbose options: alloc, op&data, context, memory, print, graphics, all
@@ -161,10 +164,10 @@ tools/%: tools/%.c
 depRes:
 	$(SHOW)echo "$(LRED)Resolving Dependecies...$(NOCOLOR)"
 	$(SHOW)echo "$(LRED)Scripts found: $(GREEN)$(scr)$(NOCOLOR)"
-	$(SHOW)#$(RM) $(scrPath)/*.srn
+	$(SHOW)$(SKIP)$(RM) $(scrPath)/*.srn
 
 $(scrPath)/%.srn: $(scrPath)/%.m
-	$(SHOW)#$(OCTAVE) $< 2> $@
+	$(SHOW)$(OCTAVE) $< 2> $@
 
 #main build
 $(Project): $(obj)

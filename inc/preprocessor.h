@@ -4,7 +4,7 @@
 // preprocessor functions hacks (next time maybe)
 #define _return break
 #define _def(code) do { code; } while(0)
-#define def(code) _def(code)
+#define func(code) _def(code)
 #define __FUNC_HACKS__
 
 // stringify... (not used!)
@@ -28,8 +28,8 @@
 #define pow16(x) pow4(pow4(x))
 // pow16(x) = pow4(((x * x) * (x * x))) = ((((x * x) * (x * x)) * ((x * x) * (x * x))) * (((x * x) * (x * x)) * ((x * x) * (x * x))))
 
-#define max(x,y) ((x<y)?y:x)
-#define abs(x) max(-x, x)
+#define max(x,y) (((x)<(y))?(y):(x))
+#define abs(x) max((-x), (x))
 
 #define limit(min, x, max) (((max) > (x)) ? (((x) > (min)) ? (x) : (min) ) : (max) )
 

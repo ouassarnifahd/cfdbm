@@ -266,6 +266,8 @@ void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len) {
     }
 }
 
+// #define FFT_STAT
+
 // TODO optimise
 void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IPDILD, size_t icut, size_t len) {
 
@@ -273,24 +275,46 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
 
     // time and frequency domain data arrays
     register int n, k;      // time and frequency domain indexes
-
+    // local data
     float IPDILD_local[CHANNEL_SAMPLES_COUNT/2];
-
+    // sine, cosine and len
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b, len_2 = len >> 1;
+    float Xr_l_re = 0, Xr_l_im = 0, cabs_Xl = 0;
+
+    // stat data
+    #ifdef FFT_STAT
+      float xl_max    = (float)(-SINT16_MAX), xl_min    = (float)(SINT16_MAX);
+      float xr_max    = (float)(-SINT16_MAX), xr_min    = (float)(SINT16_MAX);
+      float Xl_re_max = (float)(-SINT16_MAX), Xl_re_min = (float)(SINT16_MAX);
+      float Xl_im_max = (float)(-SINT16_MAX), Xl_im_min = (float)(SINT16_MAX);
+      float Xr_re_max = (float)(-SINT16_MAX), Xr_re_min = (float)(SINT16_MAX);
+      float Xr_im_max = (float)(-SINT16_MAX), Xr_im_min = (float)(SINT16_MAX);
+      float Pl_max    = (float)(-SINT16_MAX), Pl_min    = (float)(SINT16_MAX);
+      float Pr_max    = (float)(-SINT16_MAX), Pr_min    = (float)(SINT16_MAX);
+      float Al_max    = (float)(-SINT16_MAX), Al_min    = (float)(SINT16_MAX);
+      float Ar_max    = (float)(-SINT16_MAX), Ar_min    = (float)(SINT16_MAX);
+
+      for (register int i = 0; i < len; i++) {
+        if (xl[n] > xl_max) xl_max = xl[n];
+        if (xl[n] < xl_min) xl_min = xl[n];
+        if (xr[n] > xr_max) xr_max = xr[n];
+        if (xr[n] < xr_min) xr_min = xr[n];
+      }
+    #endif
 
     #ifdef __NO_NEON__
-      for (k = 0; k <= len_2; ++k) {
-        float Xr_l_re = 0, Xr_l_im = 0, cabs_Xl = 0;
+      for (k = 0; k <= len_2; k++) {
+        Xr_l_re = 0; Xr_l_im = 0; cabs_Xl = 0;
         Xl->re[k] = 0; Xl->im[k] = 0;
         Xr->re[k] = 0; Xr->im[k] = 0;
         a = 0; b = to_sin;
-        for (n = 0; n < len; ++n) {
+        for (n = 0; n < len; n++) {
             Xl->re[k] += xl[n] * W[a % len];
             Xl->im[k] -= xl[n] * W[b % len];
             Xr->re[k] += xr[n] * W[a % len];
             Xr->im[k] -= xr[n] * W[b % len];
-            a += k; b = (b + k) % len;
+            a += k; b += k;
         }
         // mirror
         Xl->re[len-k] =  Xl->re[k];
@@ -300,23 +324,55 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
 
         // Calculate abs and angle
         cabs_Xl  = Xl->re[k] * Xl->re[k];
-        cabs_Xl += Xl->im[k] * Xl->im[k];
-        cabs_Xl  = sqrtf_fast(cabs_Xl);
+        cabs_Xl -= Xl->im[k] * Xl->im[k];
 
         Xr_l_re  = Xr->re[k] * Xl->re[k];
-        Xr_l_im  = Xr->re[k] * Xl->im[k];
-        Xr_l_re -= Xr->im[k] * Xl->im[k];
-        Xr_l_im += Xr->im[k] * Xl->re[k];
+        Xr_l_im  = Xl->re[k] * Xr->im[k];
+        Xr_l_re += Xr->im[k] * Xl->im[k];
+        Xr_l_im -= Xl->im[k] * Xr->re[k];
         Xr_l_re /= cabs_Xl;
         Xr_l_im /= cabs_Xl;
 
         // Seg. Fault here
         if (k < icut) {
             IPDILD_local[k] = FastArcTan(Xr_l_im / Xr_l_re);
+            // debug("IPD at %d: data %2.6f", k, IPDILD_local[k]);
         } else {
             IPDILD_local[k] = 10 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
+            // debug("ILD at %d: data %2.6f", k, IPDILD_local[k]);
         }
       }
+      #ifdef FFT_STAT
+        float Pl = 0, Pr = 0, Al = 0, Ar = 0;
+        for (register int i = 0; i < len; i++) {
+          if (Xl->re[n] > Xl_re_max) Xl_re_max = Xl->re[n];
+          if (Xl->re[n] < Xl_re_min) Xl_re_min = Xl->re[n];
+          if (Xl->im[n] > Xl_im_max) Xl_im_max = Xl->im[n];
+          if (Xl->im[n] < Xl_im_min) Xl_im_min = Xl->im[n];
+          if (Xr->re[n] > Xr_re_max) Xr_re_max = Xr->re[n];
+          if (Xr->re[n] < Xr_re_min) Xr_re_min = Xr->re[n];
+          if (Xr->im[n] > Xr_im_max) Xr_im_max = Xr->im[n];
+          if (Xr->im[n] < Xr_im_min) Xr_im_min = Xr->im[n];
+          Pl = sqrtf_fast(Xl->re[n] * Xl->re[n] + Xl->im[n] * Xl->im[n]);
+          Pr = sqrtf_fast(Xr->re[n] * Xr->re[n] + Xr->im[n] * Xr->im[n]);
+          Al = FastArcTan(Xl->im[n] / Xl->re[n]);
+          Ar = FastArcTan(Xr->im[n] / Xr->re[n]);
+          if (Pl > Pl_max) Pl_max = Pl;
+          if (Pl < Pl_min) Pl_min = Pl;
+          if (Pr > Pr_max) Pr_max = Pr;
+          if (Pr < Pr_min) Pr_min = Pr;
+          if (Al > Al_max) Al_max = Al;
+          if (Al < Al_min) Al_min = Al;
+          if (Ar > Ar_max) Ar_max = Ar;
+          if (Ar < Ar_min) Ar_min = Ar;
+        }
+        debug("FFT STAT: x:   min(%4.6f,%4.6f), max(%4.6f,%4.6f)", xl_min, xr_min, xl_max, xr_max);
+        debug("FFT STAT: X:   min(%4.6f;%4.6fi, %4.6f;%4.6fi)", Xl_re_min, Xl_im_min, Xr_re_min, Xr_im_min);
+        debug("FFT STAT: X:   max(%4.6f;%4.6fi, %4.6f;%4.6fi)", Xl_re_max, Xl_im_max, Xr_re_max, Xr_im_max);
+        debug("FFT STAT: P:   min(%4.6f,%4.6f), max(%4.6f,%4.6f)", Pl_min, Pr_min, Pl_max, Pr_max);
+        debug("FFT STAT: A:   min(%4.6f,%4.6f), max(%4.6f,%4.6f)\n", Al_min, Ar_min, Al_max, Ar_max);
+
+      #endif
     #else // __USE_NEON__
       for (k = 0; k <= len_2; k+=4) {
         // load
@@ -403,6 +459,28 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
     // debug("leaving  FFT (IPDILD @%X)", IPDILD); // why????
 }
 
+// http://paulbourke.net/miscellaneous/filter/
+INVISIBLE void lowpass_filter(fcomplex_t* X, int len, float fcut_fs) {
+    int i_freq = len * fcut_fs;
+    // int w_plus = i_freq + min(w, ), w_minus = ;
+    for (size_t i = i_freq; i < len/2; i++) {
+        X->re[i] = 0;
+        X->im[i] = 0;
+        X->re[len-i] = 0;
+        X->im[len-i] = 0;
+    }
+}
+
+INVISIBLE void highpass_filter(fcomplex_t* X, int len, float fcut_fs) {
+    int i_freq = len * fcut_fs;
+    for (size_t i = 0; i < i_freq; i++) {
+        X->re[i] = 0;
+        X->im[i] = 0;
+        X->re[len-i] = 0;
+        X->im[len-i] = 0;
+    }
+}
+
 void idft(fcomplex_t* X, float* x, size_t len) {
 
     // time and frequency domain data arrays
@@ -430,6 +508,8 @@ void idft(fcomplex_t* X, float* x, size_t len) {
 }
 
 void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t len) {
+
+    // debug("Entering IFFT (xl @%X)", xl); // why????
     // time and frequency domain data arrays
     register int n, k;      // time and frequency domain indexes
 
@@ -437,11 +517,19 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b;
 
+    // why?
+    // float fcut = 1250; // Hz
+    // float fcut_fs = fcut/RATE;
+
+    // lowpass_filter(Xl, len, fcut_fs);
+    // lowpass_filter(Xr, len, fcut_fs);
+
     #ifdef __NO_NEON__
-      for (n = 0; n < len; ++n) {
+      for (n = 0; n < len; n++) {
+          // debug("(before) i = %d; x = (%f, %f)", n, xl[n], xr[n]);
         xl[n] = 0; xr[n] = 0;
         a = 0; b = to_sin;
-        for (k = 0; k < len; ++k) {
+        for (k = 0; k < len; k++) {
             xl[n] += Xl->re[k] * W[a % len];
             xl[n] -= Xl->im[k] * W[b % len];
             xr[n] += Xr->re[k] * W[a % len];
@@ -453,6 +541,7 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
         // not used
         // xl[n] *= SINE[n];
         // xr[n] *= SINE[n];
+        // debug("(after) i = %d; x = (%f, %f)", n, xl[n], xr[n]);
       }
     #else // __USE_NEON__
       for (n = 0; n < len; n+=4) {
@@ -494,6 +583,8 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
         vst1q_f32(_xl, &xl[k]);
       }
     #endif
+
+    // debug("leaving  IFFT (xl @%X)", xl); // why????
 }
 
 // int main(int argc, char const *argv[]) {

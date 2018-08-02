@@ -22,6 +22,9 @@
 
 #include "thpool.h"
 
+// tweak
+#include <string.h>
+
 #ifdef THPOOL_DEBUG
 #define THPOOL_DEBUG 1
 #else
