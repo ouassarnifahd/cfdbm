@@ -56,6 +56,8 @@ endif
 else
 Archs 		:= -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -mhard-float \
 			-mfloat-abi=hard -mfpu=neon -ffast-math -mvectorize-with-neon-quad
+# tmp debug no time!
+CFLAGS	 	+= -D __NO_NEON__
 endif
 Frameworks 	+= -lasound -lm -lpthread
 Libs		:= -I$(libPath)

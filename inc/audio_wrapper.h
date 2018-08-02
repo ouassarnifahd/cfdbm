@@ -9,7 +9,7 @@
 #define UNINITIALISED           0
 
 // remove me later
-#define MEM_ALIGN 64
+#define MEM_ALIGN 32
 
 // PRIVATE DEFINES
 #define CHANNEL_SAMPLES_COUNT   512
