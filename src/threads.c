@@ -7,40 +7,40 @@
 #include "wav.h"
 
 // demo flags
-#define DEMO 1
+#define DEMO 0
 
 #if (DEMO == 1) && !defined(__DEBUG__)
-// WARNING this code is in use! Dont modify it unless you know what you are doing!
-#include <time.h>
-#define get_cyclecount() clock()
-#define get_cputimediff(tsc1, tsc2) (double)(tsc2-tsc1)/CLOCKS_PER_SEC
+  // WARNING this code is in use! Dont modify it unless you know what you are doing!
+  #include <time.h>
+  #define get_cyclecount() clock()
+  #define get_cputimediff(tsc1, tsc2) (double)(tsc2-tsc1)/CLOCKS_PER_SEC
 
-INVISIBLE double TimeSpecToSeconds(struct timespec* ts) {
-  return (double)ts->tv_sec + (double)ts->tv_nsec / 1000000000.0;
-}
-INVISIBLE struct timespec get_realtimecount() {
-  struct timespec rtc;
-  if(clock_gettime(CLOCK_MONOTONIC, &rtc));
-  return rtc;
-}
+  INVISIBLE double TimeSpecToSeconds(struct timespec* ts) {
+    return (double)ts->tv_sec + (double)ts->tv_nsec / 1000000000.0;
+  }
+  INVISIBLE struct timespec get_realtimecount() {
+    struct timespec rtc;
+    if(clock_gettime(CLOCK_MONOTONIC, &rtc));
+    return rtc;
+  }
 
-#define get_realtimediff(tsc1, tsc2) (TimeSpecToSeconds(tsc2)-TimeSpecToSeconds(tsc1))
+  #define get_realtimediff(tsc1, tsc2) (TimeSpecToSeconds(tsc2)-TimeSpecToSeconds(tsc1))
 
-clock_t tsc_start;
-struct timespec rtc_start;
+  clock_t tsc_start;
+  struct timespec rtc_start;
 
-#define init_timestamp() do { tsc_start = get_cyclecount(); } while(0)
-#define init_localtime() do { rtc_start = get_realtimecount(); } while(0)
-#define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
+  #define init_timestamp() do { tsc_start = get_cyclecount(); } while(0)
+  #define init_localtime() do { rtc_start = get_realtimecount(); } while(0)
+  #define get_cputime_from_start() get_cputimediff(tsc_start, get_cyclecount())
 
-INVISIBLE double get_realtime_from(struct timespec* t_start) {
+  INVISIBLE double get_realtime_from(struct timespec* t_start) {
     struct timespec t_now = get_realtimecount();
     return get_realtimediff(t_start, &t_now);
-}
+  }
 
-INVISIBLE double get_realtime_from_start() {
+  INVISIBLE double get_realtime_from_start() {
     return get_realtime_from(&rtc_start);
-}
+  }
 #endif
 
 // temp config
@@ -92,7 +92,7 @@ typedef struct period_t period_t;
 #if (DEMO == 1)
 period_t audio_latency = {0};
 int audio_skiped = 0;
-#define DEMO_TIME 10
+#define DEMO_TIME 4
 #endif
 
 // time aware buffer
@@ -102,7 +102,13 @@ struct tsc_buffer {
 };
 typedef struct tsc_buffer timed_buffer_t;
 
-#define BUFFER_LATENCY 24
+struct overlap_buffer {
+	int16_t prev[AUDIO_SAMPLES_COUNT];
+	int16_t current[AUDIO_SAMPLES_COUNT];
+};
+typedef struct overlap_buffer overlap_buffer_t;
+
+#define BUFFER_LATENCY 12
 
 typedef void* (*routine_t) (void*);
 
@@ -161,6 +167,11 @@ INVISIBLE pthread_t thread_dual_new(char* name, int core1, int core2, routine_t 
 	return thread;
 }
 
+struct container1 {
+    pipe_bridge_t bridge;
+    pipe_consumer_t* doa;
+};
+
 void threads_init() {
 	debug("Threads_init:");
 
@@ -204,11 +215,11 @@ void threads_init() {
 
 		#ifdef __THRD_PARTY_PIPES__
 		  // THE Bridge
-	  	  void* fdbm_bridge = malloc(sizeof(pipe_bridge_t) + sizeof(pipe_generic_t*));
+	  	  struct container1* fdbm_params = malloc(sizeof(struct container1));
 
 		  // THE Pipes
-	      pipe_t* pipe_into_fdbm = pipe_new(sample_bytes, SAMPLES_COUNT * AUDIO_CHUNKS);
-	      pipe_t* pipe_from_fdbm = pipe_new(sample_bytes, SAMPLES_COUNT * AUDIO_CHUNKS);
+	      pipe_t* pipe_into_fdbm = pipe_new(sample_bytes, FDBM_SAMPLES_COUNT * AUDIO_CHUNKS);
+	      pipe_t* pipe_from_fdbm = pipe_new(sample_bytes, AUDIO_SAMPLES_COUNT * AUDIO_CHUNKS);
 	      pipe_t* pipe_fdbm_doa  = pipe_new(sizeof(doa_t), DOA_CHUNKS);
 
 	      // First STEP
@@ -224,11 +235,10 @@ void threads_init() {
 	      pipe_consumer_t* pipe_doa_out = pipe_consumer_new(pipe_fdbm_doa);
 
 	      // THE Links
-	      pipe_bridge_t* bridge = fdbm_bridge;
-	      char* pipes  = fdbm_bridge;
+	      pipe_bridge_t* bridge = &fdbm_params->bridge;
 	      bridge->from = pipe_fdbm_in;
 	      bridge->to   = pipe_fdbm_out;
-	      memcpy(pipes + sizeof(pipe_bridge_t), pipe_doa_out, sizeof(pipe_consumer_t*));
+          fdbm_params->doa = pipe_doa_out;
 	    #else // __LINUX_PIPES__ (not yet implemented)
 	      // linux ITC (man pipe) TODO!!! next time
 	      // http://tldp.org/LDP/lpg/node11.html
@@ -259,33 +269,34 @@ void threads_init() {
 	      bridge->to   = *pipe_fdbm_out;
 	      // pipes[2]     = *pipe_fdbm_doa;
 	    #endif // __THRD_PARTY_PIPES__
-	log_printf(" [ ON ]\n");
+	log_printf(" [ OK ]\n");
 
 	// AUDIO Playback...
 	log_printf("AUDIO Playback...");
 		thread_single_new("CFDBM playback", audioIO_CORE, thread_playback_audio, pipe_audio_out);
-	log_printf(" [ ON ]\n");
+	log_printf(" [ OK ]\n");
 
 	// AUDIO Capture...
 	log_printf("AUDIO Capture... ");
 		thread_single_new("CFDBM capture", audioIO_CORE, thread_capture_audio, pipe_audio_in);
-	log_printf(" [ ON ]\n");
+	log_printf(" [ OK ]\n");
 
 	// FDBM worker...
 	log_printf("FDBM   worker... ");
 		#ifdef __arm__
 		fdbm_process = thread_dual_new("CFDBM pool", audioProcessingCORE1, audioProcessingCORE2, thread_fdbm_pool, fdbm_bridge);
 		#else // __i386__
-		fdbm_process = thread_single_new("CFDBM pool", audioProcessingCORE1, thread_fdbm_pool, fdbm_bridge);
+		fdbm_process = thread_single_new("CFDBM pool", audioProcessingCORE1, thread_fdbm_pool, fdbm_params);
 		#endif
-	log_printf(" [ ON ]\n");
+	log_printf(" [ OK ]\n");
 
+    // temporary
 	log_printf("FDBM   DOA = %d\n", manual_doa);
 
 	// OpenCV worker...
 	log_printf("OpenCV worker... ");
 		thread_single_new("CFDBM camera", opencvCORE, thread_openCV, pipe_doa_in);
-	log_printf(" [ ON ]\n");
+	log_printf(" [ OK ]\n");
 
 	// The main thread stops here and waits for The thread !!
 	pthread_join(fdbm_process, NULL);
@@ -293,7 +304,7 @@ void threads_init() {
 	// PIPES destroy...
 	log_printf("PIPES destroy... ");
 		// free THE Bridge
-		free(fdbm_bridge);
+		free(fdbm_params);
 
 		// pipeline.
 		#ifdef __THRD_PARTY_PIPES__
@@ -345,9 +356,11 @@ void* thread_capture_audio(void* parameters) {
 	#endif
 
 	timed_buffer_t capt_buf;
+	overlap_buffer_t capt_obuf;
+	int16_t* samples = &capt_obuf;
 
-	char buf[RAW_AUDIO_BUFFER_SIZE];
-	capt_buf.data = buf;
+	// char buf[RAW_AUDIO_BUFFER_SIZE];
+	capt_buf.data = capt_obuf.current;
 
 	long chunk_capture_count = 0;
 
@@ -361,18 +374,21 @@ void* thread_capture_audio(void* parameters) {
 		#ifdef __DEBUG__
 		  PERIOD_BEGIN(&capt_buf.period);
 		#endif
-		if (capture_read(capt_buf.data, SAMPLES_TO_FRAMES(SAMPLES_COUNT)) < 0) ok = 0;
+		for (register int i = 0; i < AUDIO_SAMPLES_COUNT; ++i) {
+			capt_obuf.prev[i] = capt_obuf.current[i];
+		}
+		if (capture_read(capt_obuf.current, SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT)) < 0) ok = 0;
 		++chunk_capture_count;
 		#ifdef __DEBUG__
 		  PERIOD_FINISH(&capt_buf.period);
 		  debug("%u = chunk[%lu] captured { from %lfs to %lfs in %lfs }\n",
-		  	(unsigned int)SAMPLES_COUNT, chunk_capture_count,
+		  	(unsigned int)AUDIO_SAMPLES_COUNT, chunk_capture_count,
 			PERIOD_START(&capt_buf.period), PERIOD_END(&capt_buf.period),
 			PERIOD_LEN(&capt_buf.period));
 		  // if(chunk_capture_count == 1000) break;
 		#endif
 		#ifdef __THRD_PARTY_PIPES__
-		pipe_push(capture, capt_buf.data, SAMPLES_COUNT);
+		pipe_push(capture, samples, FDBM_SAMPLES_COUNT);
 		#else // __LINUX_PIPES__
 		write(capture, capt_buf.data, SAMPLES_COUNT);
 		#endif
@@ -383,14 +399,14 @@ void* thread_capture_audio(void* parameters) {
 			  first_buffer = 0;
 		  	  PERIOD_BEGIN(&audio_latency);
 		  }
-		  for (register int i = 0; i < SAMPLES_TO_FRAMES(SAMPLES_COUNT); i++) {
+		  for (register int i = 0; i < SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT); i++) {
 			for (register int j = 0; j < CHANNELS; j++) {
 			  sampleData[j] = sample_io[2u * i + j];
 			}
 			sample.sampleData = sampleData;
 			write_wav_sample(wav_in, &sample);
 		  }
-		  sample_count += SAMPLES_TO_FRAMES(SAMPLES_COUNT);
+		  sample_count += SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT);
 		  if (sample_count > RATE * DEMO_TIME) {
 			fclose(wav_in);
 			break;
@@ -444,7 +460,7 @@ void* thread_playback_audio(void* parameters) {
 	debug("thread_playback_audio: running...");
     while (ok) {
 		#ifdef __THRD_PARTY_PIPES__
-		while(pipe_pop(play, play_buf.data, SAMPLES_COUNT))
+		while(pipe_pop(play, play_buf.data, AUDIO_SAMPLES_COUNT))
 		#else // __LINUX_PIPES__
 		while(read(play, play_buf.data, SAMPLES_COUNT) > 0)
 		#endif
@@ -452,14 +468,14 @@ void* thread_playback_audio(void* parameters) {
 			#ifdef __DEBUG__
 			  PERIOD_BEGIN(&play_buf.period);
 			#endif
-			if (playback_write(play_buf.data, SAMPLES_TO_FRAMES(SAMPLES_COUNT)) < 0) {
+			if (playback_write(play_buf.data, SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT)) < 0) {
 				ok = 0; break;
 			}
 			++chunk_play_count;
 			#ifdef __DEBUG__
 			  PERIOD_FINISH(&play_buf.period);
 			  debug("%u = chunk[%lu] played  { from %lfs to %lfs in %lfs }\n",
-			  	(unsigned int)SAMPLES_COUNT, chunk_play_count,
+			  	(unsigned int)AUDIO_SAMPLES_COUNT, chunk_play_count,
 				PERIOD_START(&play_buf.period), PERIOD_END(&play_buf.period),
 				PERIOD_LEN(&play_buf.period));
 			  // if(chunk_play_count == 1000) { ok = 0; break; }
@@ -481,14 +497,14 @@ void* thread_playback_audio(void* parameters) {
 				  }
 				  sample_count += audio_skiped;
 			  }
-			  for (register int i = 0; i < SAMPLES_TO_FRAMES(SAMPLES_COUNT); i++) {
+			  for (register int i = 0; i < SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT); i++) {
 				for (register int j = 0; j < CHANNELS; j++) {
 				  sampleData[j] = sample_io[2u * i + j];
 				}
 				sample.sampleData = sampleData;
 				write_wav_sample(wav_out, &sample);
 			  }
-			  sample_count += SAMPLES_TO_FRAMES(SAMPLES_COUNT);
+			  sample_count += SAMPLES_TO_FRAMES(AUDIO_SAMPLES_COUNT);
 			#else
 			// idle time (purpose: reduce consumption)
 			sleep_ms(BUFFER_LATENCY);
@@ -501,7 +517,6 @@ void* thread_playback_audio(void* parameters) {
 void* thread_openCV(void* parameters) {
 
 	debug("thread_openCV: init...");
-	// log_printf("CAPTURE Process is running...\n");
 
 	#ifdef __THRD_PARTY_PIPES__
 	pipe_producer_t* doa_flow = (pipe_producer_t*)parameters;
@@ -531,12 +546,19 @@ void* thread_openCV(void* parameters) {
 }
 
 #ifndef __arm__
-  #define MAX_WORKERS 2
+  #define MAX_WORKERS 1
 #else // __arm__
   #define MAX_WORKERS 10
 #endif
 
 #define POOL_IDLE_COUNT(thpool) MAX_WORKERS - thpool_num_threads_working(thpool)
+
+struct container2 {
+    pipe_bridge_t bridge;
+    pipe_consumer_t* doa;
+    pipe_consumer_t* prev;
+    pipe_producer_t* current;
+};
 
 void* thread_fdbm_pool(void* parameters) {
 
@@ -544,13 +566,32 @@ void* thread_fdbm_pool(void* parameters) {
 	threadpool fdbm_pool = thpool_init(MAX_WORKERS);
 	int idle_threads = POOL_IDLE_COUNT(fdbm_pool);
 
+	// more pipes
+	pipe_t* pipe_overlap_win = pipe_new(SAMPLE_BYTES, AUDIO_SAMPLES_COUNT * AUDIO_CHUNKS/2);
+	pipe_producer_t* current = pipe_producer_new(pipe_overlap_win);
+	pipe_consumer_t* prev = pipe_consumer_new(pipe_overlap_win);
+
+	// init
+	int16_t zeros[AUDIO_SAMPLES_COUNT];
+    // int16_t test[AUDIO_SAMPLES_COUNT];
+	pipe_push(current, zeros, AUDIO_SAMPLES_COUNT);
+    // pipe_pop(prev, test, AUDIO_SAMPLES_COUNT);
+
+	// parameters (this part should be changed later!)
+    struct container1* params = (struct container1*)parameters;
+    struct container2* shin_params = malloc(sizeof(struct container2));
+    shin_params->bridge = params->bridge;
+    shin_params->doa = params->doa;
+    shin_params->prev = prev;
+    shin_params->current = current;
+
 	debug("thread_fdbm_pool: running...");
 	for(;;) {
 
-		// thread_fdbm_worker(parameters);
+		// fdbm_worker(shin_params);
 		debug("POOL: %d IDLE threads out of %d !", idle_threads, (int)MAX_WORKERS);
 		if (idle_threads > 0) {
-			thpool_add_work(fdbm_pool, fdbm_worker, parameters);
+			thpool_add_work(fdbm_pool, fdbm_worker, shin_params);
 			sleep_ms(BUFFER_LATENCY / 4);
 		} else {
 			// delaying the workers to ensure the FIFO qualification of the pipes
@@ -558,6 +599,11 @@ void* thread_fdbm_pool(void* parameters) {
 		}
 		idle_threads = POOL_IDLE_COUNT(fdbm_pool);
 	}
+
+	// free pipes
+	pipe_producer_free(current);
+	pipe_consumer_free(prev);
+	pipe_free(pipe_overlap_win);
 
 	// free the pool
 	thpool_wait(fdbm_pool);
@@ -578,29 +624,44 @@ void fdbm_worker(void* parameters) {
 	secured_stuff(mutex_fdbm, local_fdbm_running = ++global_fdbm_running);
 	debug("thread_fdbm(%d): init...", local_fdbm_running);
 
-	// local variables
-	pipe_bridge_t bridge = *(pipe_bridge_t*)parameters;
-	char* buffer = malloc(RAW_FDBM_BUFFER_SIZE);
+	// local variables (from parameters)
+    struct container2* params = (struct container2*)parameters;
+	pipe_bridge_t bridge = params->bridge;
+	pipe_consumer_t* doa_queue = params->doa;
+	pipe_consumer_t* prev = params->prev;
+	pipe_producer_t* current = params->current;
+    // local variables (data)
+    overlap_buffer_t buffer;
+	int16_t* capture = &buffer;
+	int16_t prev_fdbm[AUDIO_SAMPLES_COUNT];
+	int16_t playback[AUDIO_SAMPLES_COUNT];
 	debug("thread_fdbm(%d): buffer allocated", local_fdbm_running);
 
 	// pull raw audio
 	#ifdef __THRD_PARTY_PIPES__
-	if(pipe_pop(bridge.from, buffer, SAMPLES_COUNT)) {
+	if(pipe_pop(bridge.from, capture, FDBM_SAMPLES_COUNT)) {
 	#else // __LINUX_PIPES__
 	while(read(bridge.from, buffer, SAMPLES_COUNT) < 0);
 	#endif
 
-	// algorithms
-	debug("thread_fdbm(%d): running...", local_fdbm_running);
-	applyFDBM_simple1(buffer, SAMPLES_COUNT, manual_doa);
+	// if(pipe_pop(prev, prev_fdbm, AUDIO_SAMPLES_COUNT)) {
+		// algorithms
+		debug("thread_fdbm(%d): running...", local_fdbm_running);
+		// applyFDBM_simple1(capture, FDBM_SAMPLES_COUNT, manual_doa);
+
+		// pipe_push(current, capture + AUDIO_SAMPLES_COUNT, AUDIO_SAMPLES_COUNT);
+		for (size_t i = 0; i < AUDIO_SAMPLES_COUNT; i++) {
+			playback[i] = prev_fdbm[i] + capture[i];
+		}
+	// }
 
 	// push processed audio
 	#ifdef __THRD_PARTY_PIPES__
-	pipe_push(bridge.to, buffer, SAMPLES_COUNT); }
+	pipe_push(bridge.to, playback, AUDIO_SAMPLES_COUNT);
+	}
 	#else // __LINUX_PIPES__
 	write(bridge.to, buffer, SAMPLES_COUNT);
 	#endif
 
-	free(buffer);
 	debug("thread_fdbm(%d): Done!\n", local_fdbm_running);
 }

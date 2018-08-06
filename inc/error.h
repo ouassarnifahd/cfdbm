@@ -58,7 +58,7 @@ char out_str[LOG_BUFFER_SIZE];
 
   #define LOGFILE_PATH "./debug/logfile.mlb"
 
-  static FILE* logfile = NULL;
+  // static FILE* logfile = NULL;
   char log_str[LOG_BUFFER_SIZE];
 
   #ifdef __DEBUG_LOG_TIMESTAMP__
@@ -217,7 +217,7 @@ char out_str[LOG_BUFFER_SIZE];
 
   #undef init_log
   #define init_log() do {\
-    logfile = fopen(LOGFILE_PATH, "w"); \
+    FILE* logfile = fopen(LOGFILE_PATH, "w"); \
     if (!logfile) { \
         fprintf(stderr, CLR_RED"[ERROR]"CLR_WIT" '%s' wont open!\n", LOGFILE_PATH); \
         exit(0); \
@@ -232,7 +232,7 @@ char out_str[LOG_BUFFER_SIZE];
   } while(0)
 
   #define log(str) do { \
-    logfile = fopen(LOGFILE_PATH, "a"); \
+    FILE* logfile = fopen(LOGFILE_PATH, "a"); \
     if (!logfile) { fprintf(stderr, CLR_RED"[ERROR]"CLR_WIT" '%s' wont open!\n", LOGFILE_PATH); exit(0); } \
     fprintf(logfile, "%s\n", str); fflush(logfile); fclose(logfile); logfile = NULL; \
   } while(0)

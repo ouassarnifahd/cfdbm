@@ -69,11 +69,6 @@ const float W[] = {
     0.99519, 0.99631, 0.99729, 0.99812, 0.99880, 0.99932, 0.99970, 0.99992
 };
 
-// N = 10
-// const float W[] = {
-//     1.00000, 0.86603, 0.50000,-0.00000,-0.50000,-0.86603,-1.00000,-0.86603, -0.50000, 0.00000, 0.50000, 0.86603
-// };
-
 // Sine Windows (N = 512)
 const float SINE[] = {
     0.00000, 0.00615, 0.01230, 0.01844, 0.02459, 0.03073, 0.03688, 0.04302,
@@ -222,8 +217,10 @@ INVISIBLE float32x4_t FastArcTanq_f32(float32x4_t v) {
 
 INVISIBLE float32x4_t log2f_approxq_f32(float32x4_t v) {
     float32x4_t result = vmovq_n_f32(0.0);
+    struct { float val[4]; } *res = &result;
+    struct { float val[4]; } *val = &v;
     for (size_t i = 0; i < 4; i++) {
-        result.val[i] = log2f_approx(v.val[i]);
+        res->val[i] = log2f_approx(val->val[i]);
     }
     return result;
 }
@@ -276,7 +273,7 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
     // time and frequency domain data arrays
     register int n, k;      // time and frequency domain indexes
     // local data
-    float IPDILD_local[CHANNEL_SAMPLES_COUNT/2];
+    float IPDILD_local[FDBM_CHANNEL_SAMPLES_COUNT/2];
     // sine, cosine and len
     int to_sin = 3 * len / 4; // index offset for sin
     int a, b, len_2 = len >> 1;
@@ -310,10 +307,10 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
         Xr->re[k] = 0; Xr->im[k] = 0;
         a = 0; b = to_sin;
         for (n = 0; n < len; n++) {
-            Xl->re[k] += xl[n] * W[a % len];
-            Xl->im[k] -= xl[n] * W[b % len];
-            Xr->re[k] += xr[n] * W[a % len];
-            Xr->im[k] -= xr[n] * W[b % len];
+            Xl->re[k] += xl[n] * SINE[n] * W[a % len];
+            Xl->im[k] -= xl[n] * SINE[n] * W[b % len];
+            Xr->re[k] += xr[n] * SINE[n] * W[a % len];
+            Xr->im[k] -= xr[n] * SINE[n] * W[b % len];
             a += k; b += k;
         }
         // mirror
@@ -433,7 +430,7 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
         // Calculate abs
         _cabs_Xl = vmulq_f32(_Xl_re, _Xl_re);
         _cabs_Xl = vmlaq_f32(_cabs_Xl, _Xl_im, _Xl_im);
-        _cabs_Xl = vsqrtq_f32(_cabs_Xl);
+        // _cabs_Xl = vsqrtq_f32(_cabs_Xl);
 
         // Calculate Cr/Cl
         _Xr_l_re = vmlsq_f32(vmulq_f32(_Xr_re, _Xl_re), _Xr_im, _Xl_im);
@@ -454,8 +451,9 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
     #endif
 
     // this is the solution!
-    memcpy(IPDILD, IPDILD_local, sizeof(float) * CHANNEL_SAMPLES_COUNT/2);
+    memcpy(IPDILD, IPDILD_local, sizeof(float) * len/2);
 
+    // free(IPDILD_local);
     // debug("leaving  FFT (IPDILD @%X)", IPDILD); // why????
 }
 
@@ -539,8 +537,8 @@ void idft2_SINE_WIN(fcomplex_t* Xl, fcomplex_t* Xr, float* xl, float* xr, size_t
         xl[n] /= len;
         xr[n] /= len;
         // not used
-        // xl[n] *= SINE[n];
-        // xr[n] *= SINE[n];
+        xl[n] *= SINE[n];
+        xr[n] *= SINE[n];
         // debug("(after) i = %d; x = (%f, %f)", n, xl[n], xr[n]);
       }
     #else // __USE_NEON__

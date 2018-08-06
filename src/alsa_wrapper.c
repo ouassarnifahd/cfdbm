@@ -73,7 +73,7 @@ audio_t alsa_input = {
     .buffer = {
         .data.raw = NULL,
         .bytes = UNINITIALISED,
-        .samples = SAMPLES_COUNT,
+        .samples = AUDIO_SAMPLES_COUNT,
         .frames = UNINITIALISED,
         .bytes_per_sample = UNINITIALISED,
         .bytes_per_frame = UNINITIALISED
@@ -102,7 +102,7 @@ audio_t alsa_output = {
     .buffer = {
         .data.raw = NULL,
         .bytes = UNINITIALISED,
-        .samples = SAMPLES_COUNT,
+        .samples = AUDIO_SAMPLES_COUNT,
         .frames = UNINITIALISED,
         .bytes_per_sample = UNINITIALISED,
         .bytes_per_frame = UNINITIALISED
@@ -126,14 +126,14 @@ static void alsa_audio_init(audio_t *audio) {
 
     // setting frame_bytes
     audio->param.bytes_per_frame = alsa_get_frame_bytes(audio->param.format, audio->param.channels);
-    // preparing buffersize and periodsize from SAMPLES_COUNT = 512!!
-    audio->param.periodsize = SAMPLES_COUNT;
+    // preparing buffersize and periodsize from AUDIO_SAMPLES_COUNT = 512!!
+    audio->param.periodsize = AUDIO_SAMPLES_COUNT;
     audio->param.buffersize = audio->param.periodsize * audio->param.periods;
 
     // allocate audio software buffer
     audio->buffer.bytes_per_frame  = audio->param.bytes_per_frame;
     audio->buffer.bytes_per_sample = audio->param.bytes_per_frame / audio->param.channels;
-    audio->buffer.samples = SAMPLES_COUNT;
+    audio->buffer.samples = AUDIO_SAMPLES_COUNT;
     audio->buffer.bytes = audio->buffer.bytes_per_sample * audio->buffer.samples;
     // audio->buffer.data.raw  = aligned_alloc(MEM_ALIGN, audio->buffer.bytes);
     // alloc_check(audio->buffer.data.raw);

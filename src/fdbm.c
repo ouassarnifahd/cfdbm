@@ -18,15 +18,15 @@ struct fdbm_context {
     // audio driver memory pointer
     int16_t* io_samples;
     // algorithm samples
-    int16_t samples[SAMPLES_COUNT];
+    int16_t samples[FDBM_SAMPLES_COUNT];
     size_t total_samples;
     size_t channel_samples;
     size_t ipdild_samples;
     size_t ipd_samples;
     size_t ild_samples;
     // signal data
-    float L[CHANNEL_SAMPLES_COUNT];
-    float R[CHANNEL_SAMPLES_COUNT];
+    float L[FDBM_CHANNEL_SAMPLES_COUNT];
+    float R[FDBM_CHANNEL_SAMPLES_COUNT];
     // fft data
     fcomplex_t fft_L;
     fcomplex_t fft_R;
@@ -94,8 +94,8 @@ INVISIBLE void set_buffer_LR(float* L, float* R, int16_t* buffer, size_t size) {
 
 INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     fdbm_context_t ctx;
-    ctx.total_samples = SAMPLES_COUNT;
-    ctx.channel_samples = CHANNEL_SAMPLES_COUNT;
+    ctx.total_samples = FDBM_SAMPLES_COUNT;
+    ctx.channel_samples = FDBM_CHANNEL_SAMPLES_COUNT;
     ctx.ipdild_samples = IPDILD_LEN;
     ctx.ipd_samples = IPD_LEN;
     ctx.ild_samples = ILD_LEN;
@@ -119,14 +119,14 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     // 2D fft
     #if (FFT_IFFT == 1)
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data, ctx.ipd_samples, ctx.channel_samples);
-    memset(ctx.L, 0, sizeof(float)*CHANNEL_SAMPLES_COUNT);
-    memset(ctx.R, 0, sizeof(float)*CHANNEL_SAMPLES_COUNT);
+    memset(ctx.L, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
+    memset(ctx.R, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
     #endif
 
     #if (SAVE_STATS == 1)
-      secured_stuff(mutex_stats,
-      for (size_t i = 0; i < CHANNEL_SAMPLES_COUNT; i++)
-          FILE_just_append("FFT_data.txt", "%f,%f,%f,%f\n", ctx.fft_L.re[i], ctx.fft_L.im[i], ctx.fft_R.re[i], ctx.fft_R.im[i]));
+      // secured_stuff(mutex_stats,
+      // for (size_t i = 0; i < FDBM_CHANNEL_SAMPLES_COUNT; i++)
+      //     FILE_just_append("FFT_data.txt", "%f,%f,%f,%f\n", ctx.fft_L.re[i], ctx.fft_L.im[i], ctx.fft_R.re[i], ctx.fft_R.im[i]));
     #endif
 
     // initializing pointers
@@ -171,8 +171,8 @@ INVISIBLE void apply_Gain(fdbm_context_t* ctx) {
         //                                         i, ctx->channel_samples-i-1, ctx->Gain[i]);
 
         // first half
-        float res = ctx->Gain[i] * ctx->fft_L.re[i];
-        float diff = res - ctx->fft_L.re[i];
+        // float res = ctx->Gain[i] * ctx->fft_L.re[i];
+        // float diff = res - ctx->fft_L.re[i];
         // debug("in = %f, g = %f, res = %f, diff = %f", ctx->fft_L.re[i], ctx->Gain[i], res, diff);
         // debug("(fft_L_re = %f * Gain = %f) = %f", ctx->fft_L.re, ctx->Gain[i], ctx->Gain[i] * ctx->fft_L.re[i]);
 

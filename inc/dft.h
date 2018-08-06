@@ -4,8 +4,8 @@
 #include "alsa_wrapper.h"
 
 typedef struct {
-    float re[CHANNEL_SAMPLES_COUNT];
-    float im[CHANNEL_SAMPLES_COUNT];
+    float re[FDBM_CHANNEL_SAMPLES_COUNT];
+    float im[FDBM_CHANNEL_SAMPLES_COUNT];
 } fcomplex_t;
 
 void dft_pow_ang(float* x, fcomplex_t* X, float* P, float* A, size_t len);

@@ -3,7 +3,7 @@
 
 // PUBLIC DEFINES
 #define PLAYBACK_DEVICE         "plughw:0,0"
-#define CAPTURE_DEVICE          "plughw:1,0"
+#define CAPTURE_DEVICE          "plughw:2,0"
 #define RATE                    16000
 #define CHANNELS                2
 #define UNINITIALISED           0
@@ -12,23 +12,25 @@
 #define MEM_ALIGN 32
 
 // PRIVATE DEFINES
-#define CHANNEL_SAMPLES_COUNT   512
-#define SAMPLES_COUNT           (CHANNEL_SAMPLES_COUNT * CHANNELS)
+#define AUDIO_CHANNEL_SAMPLES_COUNT 256
+#define AUDIO_SAMPLES_COUNT         (AUDIO_CHANNEL_SAMPLES_COUNT * CHANNELS)
 
-// FRAME_BYTES = CHANNELS * sizeof(int16_t)
-#define SAMPLE_BYTES            2
-#define FRAME_BYTES             (CHANNELS * SAMPLE_BYTES)
+#define FDBM_CHANNEL_SAMPLES_COUNT  512
+#define FDBM_SAMPLES_COUNT          (FDBM_CHANNEL_SAMPLES_COUNT * CHANNELS)
 
-#define SAMPLES_TO_FRAMES(SAMPLES) (SAMPLES / CHANNELS)
-#define FRAMES_TO_SAMPLES(FRAMES)  (FRAMES * CHANNELS)
+#define SAMPLE_BYTES                sizeof(int16_t)
+#define FRAME_BYTES                 (CHANNELS * SAMPLE_BYTES)
 
-#define SAMPLES_TO_RAW(SAMPLES) (SAMPLES * SAMPLE_BYTES)
-#define RAW_TO_SAMPLES(RAW)     (RAW / SAMPLE_BYTES)
+#define SAMPLES_TO_FRAMES(SAMPLES)  (SAMPLES / CHANNELS)
+#define FRAMES_TO_SAMPLES(FRAMES)   (FRAMES * CHANNELS)
 
-#define RAW_FDBM_BUFFER_SIZE    (SAMPLES_COUNT * SAMPLE_BYTES)
-#define RAW_AUDIO_BUFFER_SIZE   (RAW_FDBM_BUFFER_SIZE)
+#define SAMPLES_TO_RAW(SAMPLES)     (SAMPLES * SAMPLE_BYTES)
+#define RAW_TO_SAMPLES(RAW)         (RAW / SAMPLE_BYTES)
 
-#define SINT16_MAX              (((1ull<<16)-1))
+#define RAW_FDBM_BUFFER_SIZE        SAMPLES_TO_RAW(FDBM_SAMPLES_COUNT)
+#define RAW_AUDIO_BUFFER_SIZE       SAMPLES_TO_RAW(AUDIO_SAMPLES_COUNT)
+
+#define SINT16_MAX                  (((1ull<<16)-1))
 
 // fast audio driver
 #ifdef __USE_ALSA__
@@ -40,6 +42,19 @@
 #define playback_init           alsa_playback_init
 #define playback_end            alsa_playback_end
 #define playback_write          alsa_playback_write
+
+// offline algorithm processing
+#elif __USE_WAV__
+#include "wav_wrapper.h"
+
+extern char* filename;
+
+#define capture_init            wav_capture_init
+#define capture_end             wav_capture_end
+#define capture_read            wav_capture_read
+#define playback_init           wav_playback_init
+#define playback_end            wav_playback_end
+#define playback_write          wav_playback_write
 
 // easier audio driver (but I cannot customize it YET)
 #else // __USE_PULSEAUDIO__
