@@ -320,24 +320,24 @@ void dft2_IPDILD(float* xl, float* xr, fcomplex_t* Xl, fcomplex_t* Xr, float* IP
         Xr->im[len-k] = -Xr->im[k];
 
         // Calculate abs and angle
-        cabs_Xl  = Xl->re[k] * Xl->re[k];
-        cabs_Xl -= Xl->im[k] * Xl->im[k];
-
-        Xr_l_re  = Xr->re[k] * Xl->re[k];
-        Xr_l_im  = Xl->re[k] * Xr->im[k];
-        Xr_l_re += Xr->im[k] * Xl->im[k];
-        Xr_l_im -= Xl->im[k] * Xr->re[k];
-        Xr_l_re /= cabs_Xl;
-        Xr_l_im /= cabs_Xl;
-
-        // Seg. Fault here
-        if (k < icut) {
-            IPDILD_local[k] = FastArcTan(Xr_l_im / Xr_l_re);
-            // debug("IPD at %d: data %2.6f", k, IPDILD_local[k]);
-        } else {
-            IPDILD_local[k] = 10 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
-            // debug("ILD at %d: data %2.6f", k, IPDILD_local[k]);
-        }
+        // cabs_Xl  = Xl->re[k] * Xl->re[k];
+        // cabs_Xl -= Xl->im[k] * Xl->im[k];
+        //
+        // Xr_l_re  = Xr->re[k] * Xl->re[k];
+        // Xr_l_im  = Xl->re[k] * Xr->im[k];
+        // Xr_l_re += Xr->im[k] * Xl->im[k];
+        // Xr_l_im -= Xl->im[k] * Xr->re[k];
+        // Xr_l_re /= cabs_Xl;
+        // Xr_l_im /= cabs_Xl;
+        //
+        // // Seg. Fault here
+        // if (k < icut) {
+        //     IPDILD_local[k] = FastArcTan(Xr_l_im / Xr_l_re);
+        //     // debug("IPD at %d: data %2.6f", k, IPDILD_local[k]);
+        // } else {
+        //     IPDILD_local[k] = 10 * log10f_fast(Xr_l_re * Xr_l_re + Xr_l_im * Xr_l_im);
+        //     // debug("ILD at %d: data %2.6f", k, IPDILD_local[k]);
+        // }
       }
       #ifdef FFT_STAT
         float Pl = 0, Pr = 0, Al = 0, Ar = 0;

@@ -11,7 +11,7 @@
 #define APPLY_GAIN  1   // NOT OK
 
 // algorithm coherance?
-#define SAVE_STATS  0
+#define SAVE_STATS  1
 
 // Features: swp half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt
 struct fdbm_context {
@@ -119,14 +119,14 @@ INVISIBLE fdbm_context_t prepare_context(const char* buffer) {
     // 2D fft
     #if (FFT_IFFT == 1)
     dft2_IPDILD(ctx.L, ctx.R, &ctx.fft_L, &ctx.fft_R, ctx.data, ctx.ipd_samples, ctx.channel_samples);
-    memset(ctx.L, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
-    memset(ctx.R, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
+    // memset(ctx.L, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
+    // memset(ctx.R, 0, sizeof(float)*FDBM_CHANNEL_SAMPLES_COUNT);
     #endif
 
     #if (SAVE_STATS == 1)
-      // secured_stuff(mutex_stats,
-      // for (size_t i = 0; i < FDBM_CHANNEL_SAMPLES_COUNT; i++)
-      //     FILE_just_append("FFT_data.txt", "%f,%f,%f,%f\n", ctx.fft_L.re[i], ctx.fft_L.im[i], ctx.fft_R.re[i], ctx.fft_R.im[i]));
+      secured_stuff(mutex_stats,
+      for (size_t i = 0; i < FDBM_CHANNEL_SAMPLES_COUNT; i++)
+          FILE_just_append("FFT_data.txt", "%f,%f,%f,%f\n", ctx.fft_L.re[i], ctx.fft_L.im[i], ctx.fft_R.re[i], ctx.fft_R.im[i]));
     #endif
 
     // initializing pointers
@@ -162,9 +162,9 @@ INVISIBLE void apply_Gain(fdbm_context_t* ctx) {
         // here the magic! (FFT = FFT * G)
         ctx->Gain[i] = pow16(1 - limit(0.0, ctx->mu[i], 1.0));
         #if(SAVE_STATS == 1)
-        FILE_secured_append("IDPILD_data.txt", "%f\n", ctx->data[i]);
-        FILE_secured_append("MU_data.txt", "%f\n", ctx->mu[i]);
-        FILE_secured_append("GAIN_data.txt", "%f\n", ctx->Gain[i]);
+        // FILE_secured_append("IDPILD_data.txt", "%f\n", ctx->data[i]);
+        // FILE_secured_append("MU_data.txt", "%f\n", ctx->mu[i]);
+        // FILE_secured_append("GAIN_data.txt", "%f\n", ctx->Gain[i]);
         #endif
 
         // debug("mu[%d&%d] = %f, Gain[%d&%d] = %f", i, ctx->channel_samples-i-1, ctx->mu[i],
@@ -216,11 +216,11 @@ void applyFDBM_simple1(char* buffer, size_t size, int doa) {
     #if(SAVE_STATS == 1)
     if (saved_chunks_count == 0) {
         saved_chunks_count = 1;
-        // FILE_init("LR_data.txt");
-        // FILE_init("FFT_data.txt");
-        FILE_init("IDPILD_data.txt");
-        FILE_init("MU_data.txt");
-        FILE_init("GAIN_data.txt");
+        FILE_init("LR_data.txt");
+        FILE_init("FFT_data.txt");
+        // FILE_init("IDPILD_data.txt");
+        // FILE_init("MU_data.txt");
+        // FILE_init("GAIN_data.txt");
     }
     #endif
     debug("Running FDBM... receiving %lu samples", size);

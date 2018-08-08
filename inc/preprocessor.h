@@ -1,7 +1,7 @@
 #ifndef __HEADER_PREPROCESSOR__
 #define __HEADER_PREPROCESSOR__
 
-// preprocessor functions hacks (next time maybe)
+// preprocessor functions hacks (need some changes)
 #define _return break
 #define _def(code) do { code; } while(0)
 #define func(code) _def(code)

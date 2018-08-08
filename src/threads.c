@@ -7,7 +7,7 @@
 #include "wav.h"
 
 // demo flags
-#define DEMO 0
+#define DEMO 1
 
 #if (DEMO == 1) && !defined(__DEBUG__)
   // WARNING this code is in use! Dont modify it unless you know what you are doing!
@@ -92,7 +92,7 @@ typedef struct period_t period_t;
 #if (DEMO == 1)
 period_t audio_latency = {0};
 int audio_skiped = 0;
-#define DEMO_TIME 4
+#define DEMO_TIME 5
 #endif
 
 // time aware buffer
@@ -112,7 +112,7 @@ typedef struct overlap_buffer overlap_buffer_t;
 
 typedef void* (*routine_t) (void*);
 
-#define AUDIO_CHUNKS 100
+#define AUDIO_CHUNKS 200
 #define   DOA_CHUNKS 20
 
 INVISIBLE void attach_to_core(pthread_attr_t* attr, int i) {
@@ -283,11 +283,11 @@ void threads_init() {
 
 	// FDBM worker...
 	log_printf("FDBM   worker... ");
-		#ifdef __arm__
-		fdbm_process = thread_dual_new("CFDBM pool", audioProcessingCORE1, audioProcessingCORE2, thread_fdbm_pool, fdbm_bridge);
-		#else // __i386__
+		// #ifdef __arm__
+		// fdbm_process = thread_dual_new("CFDBM pool", audioProcessingCORE1, audioProcessingCORE2, thread_fdbm_pool, fdbm_bridge);
+		// #else // __i386__
 		fdbm_process = thread_single_new("CFDBM pool", audioProcessingCORE1, thread_fdbm_pool, fdbm_params);
-		#endif
+		// #endif
 	log_printf(" [ OK ]\n");
 
     // temporary
@@ -514,6 +514,26 @@ void* thread_playback_audio(void* parameters) {
 	pthread_exit(NULL);
 }
 
+// direction of arrival
+doa_t target = {
+    .detected = 0,
+    .theta = {
+        DOA_NOT_INITIALISED,
+        DOA_NOT_INITIALISED,
+        DOA_NOT_INITIALISED
+    }
+};
+m_init(mutex_doa);
+#define DOA_RESET(pdoa) def( \
+    (pdoa)->detected = 0; \
+    (pdoa)->theta[0] = DOA_NOT_INITIALISED; \
+    (pdoa)->theta[1] = DOA_NOT_INITIALISED; \
+    (pdoa)->theta[2] = DOA_NOT_INITIALISED)
+#define DOA_READ(pdoa) secured_stuff(mutex_doa, *(pdoa) = target)
+#define DOA_WRITE(detected, theta) secured_stuff(mutex_doa, \
+    target.detected = detected; target.theta[0] = theta[0]; \
+    target.theta[1] = theta[1]; target.theta[2] = theta[2])
+
 void* thread_openCV(void* parameters) {
 
 	debug("thread_openCV: init...");
@@ -526,16 +546,7 @@ void* thread_openCV(void* parameters) {
 	#endif
 
 	// direction of arrival
-	doa_t target = {
-		.detected = 0,
-		.theta = {
-			DOA_NOT_INITIALISED,
-			DOA_NOT_INITIALISED,
-			DOA_NOT_INITIALISED
-		}
-	};
-
-	//
+    doa_t* ptarget = &target;
 
 	for (;;) {
 		/* code */
@@ -546,7 +557,7 @@ void* thread_openCV(void* parameters) {
 }
 
 #ifndef __arm__
-  #define MAX_WORKERS 1
+  #define MAX_WORKERS 5
 #else // __arm__
   #define MAX_WORKERS 10
 #endif
@@ -645,11 +656,12 @@ void fdbm_worker(void* parameters) {
 	#endif
 
 	// if(pipe_pop(prev, prev_fdbm, AUDIO_SAMPLES_COUNT)) {
+    pipe_pop(prev, prev_fdbm, AUDIO_SAMPLES_COUNT);
 		// algorithms
 		debug("thread_fdbm(%d): running...", local_fdbm_running);
 		// applyFDBM_simple1(capture, FDBM_SAMPLES_COUNT, manual_doa);
 
-		// pipe_push(current, capture + AUDIO_SAMPLES_COUNT, AUDIO_SAMPLES_COUNT);
+		pipe_push(current, capture + AUDIO_SAMPLES_COUNT, AUDIO_SAMPLES_COUNT);
 		for (size_t i = 0; i < AUDIO_SAMPLES_COUNT; i++) {
 			playback[i] = prev_fdbm[i] + capture[i];
 		}
