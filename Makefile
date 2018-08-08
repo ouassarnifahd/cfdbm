@@ -10,7 +10,7 @@ all: clean $(TARGET)
 
 # build receipe
 %: %.c
-	gcc -Wall -lm -s O4 $< -o $@
+	gcc -Wall -O3 $< -o $@ -lm
 
 # clean receipe
 clean:
