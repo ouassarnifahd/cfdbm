@@ -26,6 +26,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <time.h>
+#include <signal.h>
 
 #define LEN(x) (sizeof(x)/sizeof(x[0]))
 
@@ -55,6 +56,14 @@ double ILDm(double F, double Q) {
     return ild;
 }
 
+// signal handler (catch ctrl + c)
+int break_it = 0;
+void INThandler(int sig)
+{
+     signal(sig, SIG_IGN);
+     break_it = 1;
+}
+
 int main()
 {
     // launching ALSA via a pipe to read and write from audio device.
@@ -66,12 +75,15 @@ int main()
     char f_format[] = "S16_LE";              // sample format
     char devicenamein[] = "plughw:2,0";      // input device
     char devicenameout[] = "plughw:0,0";     // output device
-    sprintf(charbufin,"arecord -q -D %s -f %s -r %d -c %d --buffer-size=%d -", devicenamein, f_format, fs, ch, N);
-    sprintf(charbufout,"aplay -q -D %s -f %s -r %d -c %d --buffer-size=%d -", devicenameout, f_format, fs, ch, N);
+    sprintf(charbufin,"arecord -q -D \"%s\" -f %s -r %d -c %d --buffer-size=%d -", devicenamein, f_format, fs, ch, N);
+    sprintf(charbufout,"aplay -q -D \"%s\" -f %s -r %d -c %d --buffer-size=%d -", devicenameout, f_format, fs, ch, N);
 
     FILE *pipein, *pipeout;
     pipein = popen(charbufin,"r");
     pipeout = popen(charbufout,"w");
+
+    // initialize the stop condition
+    signal(SIGINT, INThandler);
 
     // define sine, cosine, half-cycle sine window, ...
     // IPD/ILD target and (gNorm) segregation coeff ...
@@ -117,6 +129,9 @@ int main()
     int count, i;
     while (count = fread(xreadbuf,2,N*ch,pipein))
     {
+        // catch ctrl + c and exit
+        if (break_it == 1) break;
+
         clock_t begin = clock();
 
         if (count != N*ch) break;

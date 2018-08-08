@@ -1,6 +1,10 @@
-# Minimalistic Makefile
-# generate TARGET
-# usage: make
+# Minimalistic *nix Makefile
+#
+# Usage: build single target
+# $ make TARGET=<online_fdbm|offline_fdbm>
+# or build all targets using
+# $ make
+#
 
 # The targets
 TARGET ?= online_fdbm offline_fdbm
