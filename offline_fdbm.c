@@ -66,8 +66,8 @@ int main()
     char f_format[] = "s16le";               // sample format
     char filenamein[] = "input-sound.wav";   // mixed speech signal
     char filenameout[] = "output-sound.wav"; // enhanced speech signal
-    sprintf(charbufin,"ffmpeg -i %s -f %s -ac %d -",filenamein,f_format,ch);
-    sprintf(charbufout,"ffmpeg -y -f %s -ar %d -ac %d -i - %s",f_format,fs,ch,filenameout);
+    sprintf(charbufin,"ffmpeg -hide_banner -loglevel quiet -i %s -f %s -ac %d -",filenamein,f_format,ch);
+    sprintf(charbufout,"ffmpeg -hide_banner -loglevel quiet -y -f %s -ar %d -ac %d -i - %s",f_format,fs,ch,filenameout);
 
     FILE *pipein, *pipeout;
     pipein = popen(charbufin,"r");
