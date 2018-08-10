@@ -41,18 +41,22 @@
 // http://sound.media.mit.edu/resources/KEMAR.html
 
 // I guess - this model is good enough for low frequencies
-double IPDm(double F, double Q) {
+inline double IPDm(double F, double Q) {
     double ipd;
     ipd = (0.0040260*F+0.2825852)*sin(Q*M_PI/180);
     return ipd;
 }
 
 // I guess - this model is good enough for high frequencies
-double ILDm(double F, double Q) {
+inline double ILDm(double F, double Q) {
     double ild;
     ild  = (0.0032276*F+3.2096991);
     ild *= sin((-3.8220e-5*F+1.5477)*Q*M_PI/180);
     return ild;
+}
+
+inline float fast_atan(float x) {
+    return 0.7853 * x - x * ((int)x - 1) * (0.2447 + 0.0663 * (int)x);
 }
 
 int main()
@@ -158,7 +162,7 @@ int main()
             F = k*fs/N;
             if (F<Fcut){
                 // compare with IPD target
-                mu[k] =  fabs(atan(XisIm[k]/XisRe[k])-IPDILDm[k]);
+                mu[k] =  fabs(fast_atan(XisIm[k]/XisRe[k])-IPDILDm[k]);
             }
             else {
                 // compare with ILD target
