@@ -1,6 +1,9 @@
-name: C CI
+name: simple make CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -8,6 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: master
     - name: make
       run: make
